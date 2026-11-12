@@ -1,39 +1,15 @@
 import { buildNavigation } from './build-navigation.js'
 
-function mockRequest(options) {
-  return { ...options }
-}
-
 describe('#buildNavigation', () => {
-  test('Should provide expected navigation details', () => {
-    expect(
-      buildNavigation(mockRequest({ path: '/non-existent-path' }))
-    ).toEqual([
-      {
-        current: false,
-        text: 'Home',
-        href: '/'
-      },
-      {
-        current: false,
-        text: 'About',
-        href: '/about'
-      }
+  test('marks the programme link current on the front page', () => {
+    expect(buildNavigation({ path: '/' })).toEqual([
+      { text: 'Programme', href: '/', current: true }
     ])
   })
 
-  test('Should provide expected highlighted navigation details', () => {
-    expect(buildNavigation(mockRequest({ path: '/' }))).toEqual([
-      {
-        current: true,
-        text: 'Home',
-        href: '/'
-      },
-      {
-        current: false,
-        text: 'About',
-        href: '/about'
-      }
+  test('does not mark the programme link current elsewhere', () => {
+    expect(buildNavigation({ path: '/services/x' })).toEqual([
+      { text: 'Programme', href: '/', current: false }
     ])
   })
 })

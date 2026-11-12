@@ -63,16 +63,11 @@ describe('context and cache', () => {
           navigation: [
             {
               current: true,
-              text: 'Home',
+              text: 'Programme',
               href: '/'
-            },
-            {
-              current: false,
-              text: 'About',
-              href: '/about'
             }
           ],
-          serviceName: 'service-passport-frontend',
+          serviceName: 'Service Passport',
           serviceUrl: '/'
         })
       })
@@ -152,16 +147,11 @@ describe('context and cache', () => {
           navigation: [
             {
               current: true,
-              text: 'Home',
+              text: 'Programme',
               href: '/'
-            },
-            {
-              current: false,
-              text: 'About',
-              href: '/about'
             }
           ],
-          serviceName: 'service-passport-frontend',
+          serviceName: 'Service Passport',
           serviceUrl: '/'
         })
       })

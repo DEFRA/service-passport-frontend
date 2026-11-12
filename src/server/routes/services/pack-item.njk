@@ -1,0 +1,47 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
+{% block content %}
+  {% if updated %}
+    {{ govukNotificationBanner({ type: "success", text: "Status updated" }) }}
+  {% endif %}
+
+  <span class="govuk-caption-xl">Service Design Pack</span>
+  <h1 class="govuk-heading-xl">{{ item.name }}</h1>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if item.noFormalProcess %}
+        {{ govukWarningText({
+          text: "No formal process exists for this item yet. Ask the owner how they want it done.",
+          iconFallbackText: "Warning"
+        }) }}
+      {% endif %}
+
+      {% set evidenceHtml %}
+        {% if item.entry and item.entry.evidence %}
+          <a class="govuk-link" href="{{ item.entry.evidence }}">{{ item.entry.evidence }}</a>
+        {% else %}
+          Not linked yet
+        {% endif %}
+      {% endset %}
+
+      {{ govukSummaryList({
+        rows: [
+          { key: { text: "Status" }, value: { html: govukTag(item.tag) } },
+          { key: { text: "Owner" }, value: { text: item.owner } },
+          { key: { text: "How to start" }, value: { text: item.howToStart } },
+          { key: { text: "Template" }, value: { text: item.template } },
+          { key: { text: "Evidence" }, value: { html: evidenceHtml } }
+        ]
+      }) }}
+
+      {{ govukButton({ text: "Update status", href: updateHref }) }}
+    </div>
+  </div>
+{% endblock %}

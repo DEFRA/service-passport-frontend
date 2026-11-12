@@ -1,0 +1,17 @@
+// Programme view: journey rows sit under their service, indented.
+.app-programme-table__journey .govuk-table__header {
+  font-weight: 400;
+  padding-left: 20px;
+}
+
+.app-programme-table .govuk-tag {
+  white-space: nowrap;
+}
+
+// Route page: the phase the service is in now.
+.app-route-phase {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}

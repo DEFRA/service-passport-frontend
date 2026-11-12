@@ -1,0 +1,58 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
+{% block content %}
+  {% if updated %}
+    {{ govukNotificationBanner({ type: "success", text: "Stamp updated" }) }}
+  {% endif %}
+
+  <span class="govuk-caption-xl">{{ phase.name }}{% if step.journey %}: {{ step.journey.name }}{% endif %}</span>
+  <h1 class="govuk-heading-xl">{{ step.name }}</h1>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <p class="govuk-body-l">{{ step.what }}</p>
+
+      {% if step.atRisk %}
+        {{ govukWarningText({
+          text: "Book this now. It needs " + (step.wait | lower) + " and go-live is in " + daysLeft + " days.",
+          iconFallbackText: "Warning"
+        }) }}
+      {% endif %}
+
+      {% set evidenceHtml %}
+        {% if step.stamp and step.stamp.evidence %}
+          <a class="govuk-link" href="{{ step.stamp.evidence }}">{{ step.stamp.evidence }}</a>
+        {% else %}
+          Not linked yet
+        {% endif %}
+      {% endset %}
+
+      {% set rows = [
+        { key: { text: "Status" }, value: { html: govukTag(step.tag) } },
+        { key: { text: "Owner" }, value: { text: step.owner } },
+        { key: { text: "You deal with" }, value: { text: step.dealWith } },
+        { key: { text: "Typical wait" }, value: { text: step.wait } }
+      ] %}
+      {% if step.stamp and step.stamp.date %}
+        {% set rows = (rows.push({ key: { text: "Last updated" }, value: { text: step.stamp.date | formatDate("d MMMM yyyy") } }), rows) %}
+      {% endif %}
+      {% if step.stamp and step.stamp.conditions %}
+        {% set rows = (rows.push({ key: { text: "Conditions" }, value: { text: step.stamp.conditions } }), rows) %}
+      {% endif %}
+      {% set rows = (rows.push({ key: { text: "Evidence" }, value: { html: evidenceHtml } }), rows) %}
+      {% if step.pack %}
+        {% set rows = (rows.push({ key: { text: "Service Design Pack" }, value: { html: '<a class="govuk-link" href="/services/' + service.id + '/service-design-pack">See the pack items</a>' } }), rows) %}
+      {% endif %}
+
+      {{ govukSummaryList({ rows: rows }) }}
+
+      {{ govukButton({ text: "Update the stamp", href: updateHref }) }}
+    </div>
+  </div>
+{% endblock %}

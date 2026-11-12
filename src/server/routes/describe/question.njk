@@ -1,0 +1,83 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block beforeContent %}
+  {{ govukBackLink({ text: "Back", href: backHref }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if error %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [{ text: error, href: "#" + (question.field + "-day" if question.type == "date" else question.field) }]
+        }) }}
+      {% endif %}
+
+      {% set caption = service.name if service else "Describe your service" %}
+
+      <form method="post" action="{{ action }}" novalidate>
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+
+        {% if question.type == "radios" %}
+          {{ govukRadios({
+            name: question.field,
+            idPrefix: question.field,
+            fieldset: {
+              legend: {
+                html: '<span class="govuk-caption-l">' + caption + '</span>' + question.heading,
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            hint: { text: question.hint },
+            errorMessage: { text: error } if error else undefined,
+            items: items
+          }) }}
+        {% elif question.type == "date" %}
+          {{ govukDateInput({
+            id: question.field,
+            namePrefix: "",
+            fieldset: {
+              legend: {
+                html: '<span class="govuk-caption-l">' + caption + '</span>' + question.heading,
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            hint: { text: question.hint },
+            errorMessage: { text: error } if error else undefined,
+            items: [
+              { name: "day", label: "Day", classes: "govuk-input--width-2" + (" govuk-input--error" if error else ""), value: value.day },
+              { name: "month", label: "Month", classes: "govuk-input--width-2" + (" govuk-input--error" if error else ""), value: value.month },
+              { name: "year", label: "Year", classes: "govuk-input--width-4" + (" govuk-input--error" if error else ""), value: value.year }
+            ]
+          }) }}
+        {% else %}
+          {{ govukInput({
+            id: question.field,
+            name: question.field,
+            label: {
+              html: '<span class="govuk-caption-l">' + caption + '</span>' + question.heading,
+              isPageHeading: true,
+              classes: "govuk-label--l"
+            },
+            hint: { text: question.hint },
+            errorMessage: { text: error } if error else undefined,
+            value: value,
+            classes: "govuk-!-width-two-thirds"
+          }) }}
+        {% endif %}
+
+        {{ govukButton({ text: "Continue" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

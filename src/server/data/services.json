@@ -1,0 +1,339 @@
+{
+  "programme": {
+    "id": "trade-readiness",
+    "name": "Trade readiness programme"
+  },
+  "services": [
+    {
+      "id": "plant-export-checks",
+      "name": "Plant export checks",
+      "description": "An online service for exporters to book plant health checks.",
+      "cdpService": "plant-export-checks",
+      "phase": "private-beta",
+      "goLive": "2027-03-13",
+      "tailoring": {
+        "approach": "agile",
+        "suppliers": false,
+        "usesAi": false,
+        "platform": "cdp",
+        "size": "medium"
+      },
+      "journeys": [],
+      "stamps": [
+        { "step": "start-up", "status": "approved", "date": "2026-02-10" },
+        {
+          "step": "equality-sustainability",
+          "status": "approved",
+          "date": "2026-03-02"
+        },
+        { "step": "gate-1", "status": "approved", "date": "2026-03-16" },
+        {
+          "step": "architecture-approval",
+          "status": "approved",
+          "date": "2026-06-22",
+          "evidence": "https://github.com/DEFRA/example-plant-export-checks/blob/main/docs/architecture.md"
+        },
+        {
+          "step": "data-protection",
+          "status": "approved",
+          "date": "2026-07-06"
+        },
+        {
+          "step": "whole-life-costs",
+          "status": "approved",
+          "date": "2026-07-20"
+        },
+        { "step": "gate-3", "status": "approved", "date": "2026-08-03" },
+        {
+          "step": "alpha-assessment",
+          "status": "approved-with-conditions",
+          "date": "2026-08-24",
+          "conditions": "Show evidence of research with assisted digital people at beta."
+        },
+        {
+          "step": "service-design-approval",
+          "status": "in-progress",
+          "date": "2026-11-02"
+        },
+        { "step": "pen-test", "status": "booked", "date": "2027-01-11" },
+        {
+          "step": "platform-readiness-review",
+          "status": "not-started",
+          "evidence": "https://github.com/DEFRA/example-plant-export-checks/actions"
+        }
+      ],
+      "pack": [
+        {
+          "item": "service-tier",
+          "status": "done",
+          "evidence": "https://github.com/DEFRA/example-plant-export-checks/blob/main/docs/service-tier.md"
+        },
+        {
+          "item": "support-model",
+          "status": "done",
+          "evidence": "https://github.com/DEFRA/example-plant-export-checks/blob/main/docs/support-model.md"
+        },
+        { "item": "availability-plan", "status": "in-progress" },
+        {
+          "item": "service-runbook",
+          "status": "done",
+          "evidence": "https://github.com/DEFRA/example-plant-export-checks/blob/main/docs/runbook.md"
+        },
+        { "item": "knowledge-articles", "status": "in-progress" },
+        {
+          "item": "dependencies",
+          "status": "done",
+          "evidence": "https://github.com/DEFRA/example-plant-export-checks/blob/main/docs/dependencies.md"
+        },
+        {
+          "item": "monitoring",
+          "status": "done",
+          "evidence": "https://portal.cdp-int.defra.cloud/services/plant-export-checks"
+        },
+        { "item": "backup-recovery", "status": "not-started" },
+        {
+          "item": "data-protection-assessment",
+          "status": "done",
+          "evidence": "https://example.sharepoint.com/dpia/plant-export-checks"
+        },
+        {
+          "item": "whole-life-costs",
+          "status": "done",
+          "evidence": "https://example.sharepoint.com/finance/plant-export-checks"
+        },
+        { "item": "security-assurance-pack", "status": "in-progress" },
+        { "item": "licensing", "status": "done" },
+        { "item": "pen-test-report", "status": "booked" },
+        { "item": "soc-onboarding", "status": "not-started" },
+        { "item": "accessibility-audit-report", "status": "not-started" },
+        { "item": "platform-readiness", "status": "not-started" },
+        { "item": "service-desk-training", "status": "not-started" },
+        { "item": "myit-catalogue", "status": "not-started" },
+        { "item": "change-request", "status": "not-started" },
+        { "item": "early-life-support", "status": "not-started" }
+      ]
+    },
+    {
+      "id": "livestock-movement-notices",
+      "name": "Livestock movement notices",
+      "description": "Keepers, vets and markets report animal movements. One service, three journeys, each built by a different supplier.",
+      "cdpService": "livestock-movement-notices",
+      "phase": "alpha",
+      "goLive": "2028-04-28",
+      "tailoring": {
+        "approach": "agile",
+        "suppliers": true,
+        "usesAi": false,
+        "platform": "azure",
+        "size": "large"
+      },
+      "journeys": [
+        {
+          "id": "keeper-reports-a-move",
+          "name": "Keeper reports a move",
+          "supplier": "Supplier 1",
+          "phase": "alpha"
+        },
+        {
+          "id": "vet-certifies-a-move",
+          "name": "Vet certifies a move",
+          "supplier": "Supplier 2",
+          "phase": "alpha"
+        },
+        {
+          "id": "market-reports-sales",
+          "name": "Market reports sales",
+          "supplier": "Supplier 3",
+          "phase": "discovery"
+        }
+      ],
+      "stamps": [
+        { "step": "start-up", "status": "approved", "date": "2026-05-11" },
+        {
+          "step": "equality-sustainability",
+          "status": "approved",
+          "date": "2026-06-01"
+        },
+        { "step": "gate-1", "status": "approved", "date": "2026-06-15" },
+        {
+          "step": "architecture-approval",
+          "status": "submitted",
+          "date": "2026-10-26"
+        },
+        {
+          "step": "data-protection",
+          "status": "in-progress",
+          "date": "2026-10-12"
+        },
+        {
+          "step": "cloud-onboarding",
+          "status": "booked",
+          "date": "2026-11-30"
+        },
+        { "step": "gate-2", "status": "approved", "date": "2026-09-14" }
+      ],
+      "pack": []
+    },
+    {
+      "id": "fishing-catch-returns",
+      "name": "Fishing catch returns",
+      "description": "Anglers report what they caught. AI reads photographs of catch logs.",
+      "cdpService": "fishing-catch-returns",
+      "phase": "discovery",
+      "goLive": "2027-09-01",
+      "tailoring": {
+        "approach": "agile",
+        "suppliers": false,
+        "usesAi": true,
+        "platform": "cdp",
+        "size": "small"
+      },
+      "journeys": [],
+      "stamps": [
+        { "step": "start-up", "status": "in-progress", "date": "2026-10-19" }
+      ],
+      "pack": []
+    },
+    {
+      "id": "flood-sensor-data-feed",
+      "name": "Flood sensor data feed",
+      "description": "Publishes river sensor readings to partner organisations.",
+      "cdpService": "flood-sensor-data-feed",
+      "phase": "private-beta",
+      "goLive": "2026-12-14",
+      "tailoring": {
+        "approach": "waterfall",
+        "suppliers": true,
+        "usesAi": false,
+        "platform": "azure",
+        "size": "medium"
+      },
+      "journeys": [],
+      "stamps": [
+        { "step": "start-up", "status": "approved", "date": "2025-11-03" },
+        {
+          "step": "equality-sustainability",
+          "status": "approved",
+          "date": "2025-11-24"
+        },
+        { "step": "gate-1", "status": "approved", "date": "2025-12-08" },
+        {
+          "step": "architecture-approval",
+          "status": "approved",
+          "date": "2026-03-09"
+        },
+        {
+          "step": "data-protection",
+          "status": "approved",
+          "date": "2026-03-23"
+        },
+        {
+          "step": "whole-life-costs",
+          "status": "approved",
+          "date": "2026-04-13"
+        },
+        {
+          "step": "cloud-onboarding",
+          "status": "approved",
+          "date": "2026-04-27"
+        },
+        {
+          "step": "design-review-board",
+          "status": "approved",
+          "date": "2026-05-11"
+        },
+        { "step": "gate-2", "status": "approved", "date": "2026-02-23" },
+        { "step": "gate-3", "status": "approved", "date": "2026-05-25" },
+        {
+          "step": "service-design-approval",
+          "status": "submitted",
+          "date": "2026-10-05"
+        },
+        {
+          "step": "platform-readiness-review",
+          "status": "approved",
+          "date": "2026-10-19"
+        },
+        { "step": "pen-test", "status": "not-started" },
+        { "step": "accessibility-audit", "status": "not-started" }
+      ],
+      "pack": []
+    },
+    {
+      "id": "woodland-grant-checks",
+      "name": "Woodland grant checks",
+      "description": "Checks a woodland grant claim against satellite imagery.",
+      "cdpService": "woodland-grant-checks",
+      "phase": "public-beta",
+      "goLive": "2026-09-07",
+      "tailoring": {
+        "approach": "agile",
+        "suppliers": false,
+        "usesAi": false,
+        "platform": "cdp",
+        "size": "small"
+      },
+      "journeys": [],
+      "stamps": [
+        { "step": "start-up", "status": "approved", "date": "2025-06-02" },
+        {
+          "step": "equality-sustainability",
+          "status": "approved",
+          "date": "2025-06-23"
+        },
+        { "step": "gate-1", "status": "approved", "date": "2025-07-07" },
+        {
+          "step": "architecture-approval",
+          "status": "approved",
+          "date": "2025-10-06"
+        },
+        {
+          "step": "data-protection",
+          "status": "approved",
+          "date": "2025-10-20"
+        },
+        {
+          "step": "whole-life-costs",
+          "status": "approved",
+          "date": "2025-11-10"
+        },
+        { "step": "gate-3", "status": "approved", "date": "2025-11-24" },
+        {
+          "step": "alpha-assessment",
+          "status": "approved",
+          "date": "2025-12-15"
+        },
+        {
+          "step": "service-design-approval",
+          "status": "approved",
+          "date": "2026-05-18"
+        },
+        { "step": "pen-test", "status": "approved", "date": "2026-06-08" },
+        {
+          "step": "platform-readiness-review",
+          "status": "approved",
+          "date": "2026-06-22"
+        },
+        {
+          "step": "accessibility-audit",
+          "status": "approved",
+          "date": "2026-07-13"
+        },
+        { "step": "gate-4", "status": "approved", "date": "2026-08-03" },
+        {
+          "step": "beta-assessment",
+          "status": "approved",
+          "date": "2026-08-17"
+        },
+        {
+          "step": "change-request",
+          "status": "approved",
+          "date": "2026-09-01"
+        },
+        { "step": "closure", "status": "in-progress", "date": "2026-10-26" },
+        { "step": "live-assessment", "status": "booked", "date": "2026-12-07" }
+      ],
+      "pack": []
+    }
+  ]
+}

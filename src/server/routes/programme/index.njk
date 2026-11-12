@@ -1,0 +1,51 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+  <span class="govuk-caption-xl">{{ programme.name }}</span>
+  <h1 class="govuk-heading-xl">Where every service is</h1>
+
+  <p class="govuk-body-l">
+    {{ counts.services }} services.
+    {% if counts.atRisk %}{{ counts.atRisk }} at risk against go-live.{% else %}None at risk against go-live.{% endif %}
+  </p>
+
+  <table class="govuk-table app-programme-table">
+    <caption class="govuk-table__caption govuk-visually-hidden">Services and journeys in the programme</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header">Service or journey</th>
+        <th scope="col" class="govuk-table__header">Phase</th>
+        <th scope="col" class="govuk-table__header">Gate</th>
+        <th scope="col" class="govuk-table__header">Go-live</th>
+        <th scope="col" class="govuk-table__header">Book next</th>
+        <th scope="col" class="govuk-table__header">Status</th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      {% for row in rows %}
+        <tr class="govuk-table__row{% if row.isJourney %} app-programme-table__journey{% endif %}">
+          <th scope="row" class="govuk-table__header">
+            {% if row.isJourney %}
+              <span class="govuk-visually-hidden">Journey: </span>{{ row.name }}
+            {% else %}
+              <a class="govuk-link" href="{{ row.href }}">{{ row.name }}</a>
+            {% endif %}
+          </th>
+          <td class="govuk-table__cell">{{ row.phase }}</td>
+          <td class="govuk-table__cell">{{ row.gate }}</td>
+          <td class="govuk-table__cell">{{ row.goLive }}</td>
+          <td class="govuk-table__cell">{{ row.next }}</td>
+          <td class="govuk-table__cell">{{ govukTag(row.status) }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ govukButton({
+    text: "Add a service",
+    href: "/describe"
+  }) }}
+{% endblock %}

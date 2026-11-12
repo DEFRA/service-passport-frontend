@@ -1,0 +1,39 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/task-list/macro.njk" import govukTaskList %}
+
+{% block content %}
+  <span class="govuk-caption-xl">{{ service.name }}</span>
+  <h1 class="govuk-heading-xl">Route to live</h1>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <p class="govuk-body-l">
+        {{ route.totalCount }} steps across 4 phases. {{ route.doneCount }} done.
+        Each step shows who owns it and how long it usually takes.
+      </p>
+
+      {% for phase in route.phases %}
+        <h2 class="govuk-heading-l app-route-phase{% if phase.current %} app-route-phase--current{% endif %}">
+          {{ phase.name }}
+          {% if phase.current %}{{ govukTag({ text: "You are here", classes: "govuk-tag--green govuk-!-margin-left-2" }) }}{% endif %}
+        </h2>
+        {% set items = [] %}
+        {% for step in phase.steps %}
+          {% set hint = step.owner + ". " + step.wait + "." %}
+          {% if step.journey %}
+            {% set hint = step.journey.name + ". " + hint %}
+          {% endif %}
+          {% set items = (items.push({
+            title: { text: step.name },
+            hint: { text: hint },
+            href: step.href,
+            status: { tag: { text: ("Book now" if step.atRisk else step.tag.text), classes: ("govuk-tag--red" if step.atRisk else step.tag.classes) } }
+          }), items) %}
+        {% endfor %}
+        {{ govukTaskList({ idPrefix: phase.id, items: items }) }}
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

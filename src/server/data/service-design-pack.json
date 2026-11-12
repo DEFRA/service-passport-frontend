@@ -1,0 +1,203 @@
+{
+  "groups": [
+    { "id": "service-design", "name": "Required for service design" },
+    { "id": "gate-4", "name": "Required for gate 4" },
+    { "id": "gate-5", "name": "Required for gate 5" }
+  ],
+  "items": [
+    {
+      "id": "service-tier",
+      "group": "service-design",
+      "name": "Service tier",
+      "owner": "Delivery lead",
+      "howToStart": "Agree the tier with the Service Transition Manager.",
+      "template": "Service tiering guidance"
+    },
+    {
+      "id": "support-model",
+      "group": "service-design",
+      "name": "Support model",
+      "owner": "Service Transition Manager",
+      "howToStart": "Describe first, second and third line support.",
+      "template": "Support model template"
+    },
+    {
+      "id": "availability-plan",
+      "group": "service-design",
+      "name": "Service hours and availability plan",
+      "owner": "Delivery lead",
+      "howToStart": "Set service hours and the availability target.",
+      "template": "Availability plan template"
+    },
+    {
+      "id": "service-runbook",
+      "group": "service-design",
+      "name": "Service runbook",
+      "owner": "Technical lead",
+      "howToStart": "Write it in the service repository.",
+      "template": "Runbook template"
+    },
+    {
+      "id": "knowledge-articles",
+      "group": "service-design",
+      "name": "Knowledge articles for the service desk",
+      "owner": "Service Transition Manager",
+      "howToStart": "Draft one article per common request.",
+      "template": "Knowledge article template"
+    },
+    {
+      "id": "dependencies",
+      "group": "service-design",
+      "name": "Dependencies and integrations",
+      "owner": "Technical lead",
+      "howToStart": "List every system the service reads from or writes to.",
+      "template": "Dependency register"
+    },
+    {
+      "id": "monitoring",
+      "group": "service-design",
+      "name": "Monitoring and alerting",
+      "owner": "Technical lead",
+      "howToStart": "Set up dashboards and alerts on CDP.",
+      "template": "CDP monitoring guidance"
+    },
+    {
+      "id": "backup-recovery",
+      "group": "service-design",
+      "name": "Backup and recovery",
+      "owner": "Technical lead",
+      "howToStart": "Confirm what CDP backs up and test a restore.",
+      "template": "Backup and recovery plan"
+    },
+    {
+      "id": "data-protection-assessment",
+      "group": "service-design",
+      "name": "Data protection impact assessment",
+      "owner": "Delivery lead",
+      "howToStart": "Link to the assessment approved in alpha.",
+      "template": "DPIA template"
+    },
+    {
+      "id": "whole-life-costs",
+      "group": "service-design",
+      "name": "Whole life costs",
+      "owner": "Finance business partner",
+      "howToStart": "Link to the full business case.",
+      "template": "Whole life cost model"
+    },
+    {
+      "id": "security-assurance-pack",
+      "group": "service-design",
+      "name": "Security assurance pack",
+      "owner": "Security team",
+      "howToStart": "Start the pack with the security team.",
+      "template": "Security assurance pack"
+    },
+    {
+      "id": "licensing",
+      "group": "service-design",
+      "name": "Licensing",
+      "owner": "Delivery lead",
+      "howToStart": "List any licences the service depends on.",
+      "template": "Licence register"
+    },
+    {
+      "id": "pen-test-report",
+      "group": "gate-4",
+      "name": "IT health check report",
+      "owner": "Security team",
+      "howToStart": "Give the pen test supplier 6 to 8 weeks' notice.",
+      "template": "None. The supplier provides the report."
+    },
+    {
+      "id": "soc-onboarding",
+      "group": "gate-4",
+      "name": "Security operations centre onboarding",
+      "owner": "Security team",
+      "howToStart": "Ask the security team.",
+      "template": "None",
+      "noFormalProcess": true
+    },
+    {
+      "id": "accessibility-audit-report",
+      "group": "gate-4",
+      "name": "Accessibility audit report and statement",
+      "owner": "Delivery lead",
+      "howToStart": "Book the audit 6 to 8 weeks ahead.",
+      "template": "GOV.UK model accessibility statement"
+    },
+    {
+      "id": "platform-readiness",
+      "group": "gate-4",
+      "name": "Platform Readiness Review",
+      "owner": "CDP platform team",
+      "howToStart": "Book the review in #cdp-support.",
+      "template": "CDP readiness checklist"
+    },
+    {
+      "id": "service-desk-training",
+      "group": "gate-4",
+      "name": "Service desk training",
+      "owner": "Service Transition Manager",
+      "howToStart": "Arrange a session with the service desk.",
+      "template": "Training plan"
+    },
+    {
+      "id": "myit-catalogue",
+      "group": "gate-4",
+      "name": "MyIT catalogue entry",
+      "owner": "Service Transition Manager",
+      "howToStart": "Raise the request in MyIT.",
+      "template": "Catalogue entry form"
+    },
+    {
+      "id": "change-request",
+      "group": "gate-4",
+      "name": "Change request",
+      "owner": "Release management",
+      "howToStart": "Raise it about 10 days before release.",
+      "template": "Change request form"
+    },
+    {
+      "id": "early-life-support",
+      "group": "gate-4",
+      "name": "Early life support plan",
+      "owner": "Delivery lead",
+      "howToStart": "Agree who supports the service in its first weeks.",
+      "template": "None",
+      "noFormalProcess": true
+    },
+    {
+      "id": "closure-report",
+      "group": "gate-5",
+      "name": "Closure report",
+      "owner": "Portfolio Office",
+      "howToStart": "Write it after the last release.",
+      "template": "Closure report template"
+    },
+    {
+      "id": "service-acceptance",
+      "group": "gate-5",
+      "name": "Service acceptance sign-off",
+      "owner": "Service Transition Manager",
+      "howToStart": "The service owner signs the pack off.",
+      "template": "Service acceptance form"
+    },
+    {
+      "id": "service-operations-guide",
+      "group": "gate-5",
+      "name": "Service operations guide in MyIT",
+      "owner": "Service Transition Manager",
+      "howToStart": "The pack is renamed and loaded into MyIT.",
+      "template": "None"
+    },
+    {
+      "id": "lessons-learned",
+      "group": "gate-5",
+      "name": "Lessons learned",
+      "owner": "Delivery lead",
+      "howToStart": "Run a retrospective with the governance teams.",
+      "template": "Lessons learned template"
+    }
+  ]
+}

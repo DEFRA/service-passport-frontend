@@ -23,7 +23,7 @@ describe('#errors', () => {
     })
 
     expect(result).toEqual(
-      expect.stringContaining('Page not found | service-passport-frontend')
+      expect.stringContaining('Page not found | Service Passport')
     )
     expect(statusCode).toBe(statusCodes.notFound)
   })
