@@ -72,7 +72,7 @@ describe('context and cache', () => {
               href: '/about'
             }
           ],
-          serviceName: 'cdp-node-frontend-template',
+          serviceName: 'service-passport-frontend',
           serviceUrl: '/'
         })
       })
@@ -161,7 +161,7 @@ describe('context and cache', () => {
               href: '/about'
             }
           ],
-          serviceName: 'cdp-node-frontend-template',
+          serviceName: 'service-passport-frontend',
           serviceUrl: '/'
         })
       })
