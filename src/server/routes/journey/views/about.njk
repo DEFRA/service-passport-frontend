@@ -1,0 +1,36 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+
+{% set backLink = { href: "/" } %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if error %}
+        {{ govukErrorSummary({ titleText: "There is a problem", errorList: [{ text: error, href: "#cdpService" }] }) }}
+      {% endif %}
+
+      <form method="post" novalidate>
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+
+        {% set items = [] %}
+        {% for service in cdpServices %}
+          {% set items = (items.push({ value: service.id, text: service.name, hint: { text: service.id }, checked: service.id == value }), items) %}
+        {% endfor %}
+        {{ govukRadios({
+          name: "cdpService",
+          idPrefix: "cdpService",
+          fieldset: { legend: { text: "Which service is the passport for?", isPageHeading: true, classes: "govuk-fieldset__legend--l" } },
+          hint: { text: "These are the services your team, " + cdpTeam + ", owns on CDP." },
+          errorMessage: { text: error } if error,
+          items: items
+        }) }}
+
+        {{ govukButton({ text: "Continue" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

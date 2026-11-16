@@ -12,7 +12,7 @@ async function serverWithPassword(password) {
 async function signIn(server, password) {
   const page = await server.inject({
     method: 'GET',
-    url: '/sign-in?returnUrl=%2Fservices%2Fplant-export-checks'
+    url: '/sign-in?returnUrl=%2Fabout-your-service'
   })
   const cookies = page.headers['set-cookie']
     .map((cookie) => cookie.split(';')[0])
@@ -22,7 +22,7 @@ async function signIn(server, password) {
     method: 'POST',
     url: '/sign-in',
     headers: { cookie: cookies },
-    payload: { crumb, password, returnUrl: '/services/plant-export-checks' }
+    payload: { crumb, password, returnUrl: '/about-your-service' }
   })
   return { response, cookies }
 }
@@ -52,11 +52,11 @@ describe('password gate', () => {
       server = await serverWithPassword('example-only')
       const gated = await server.inject({
         method: 'GET',
-        url: '/services/plant-export-checks'
+        url: '/about-your-service'
       })
       expect(gated.statusCode).toBe(statusCodes.redirect)
       expect(gated.headers.location).toBe(
-        '/sign-in?returnUrl=%2Fservices%2Fplant-export-checks'
+        '/sign-in?returnUrl=%2Fabout-your-service'
       )
 
       const health = await server.inject({ method: 'GET', url: '/health' })
@@ -64,12 +64,12 @@ describe('password gate', () => {
 
       const wrong = await signIn(server, 'nope')
       expect(wrong.response.statusCode).toBe(statusCodes.badRequest)
-      expect(wrong.response.payload).toContain('Wrong password')
+      expect(wrong.response.payload).toContain('The password is not correct')
 
       const right = await signIn(server, 'example-only')
       expect(right.response.statusCode).toBe(statusCodes.redirect)
       expect(right.response.headers.location).toBe(
-        '/services/plant-export-checks'
+        '/about-your-service'
       )
 
       const sessionCookie = right.response.headers['set-cookie']
@@ -77,7 +77,7 @@ describe('password gate', () => {
         .join('; ')
       const after = await server.inject({
         method: 'GET',
-        url: '/services/plant-export-checks',
+        url: '/about-your-service',
         headers: { cookie: sessionCookie }
       })
       expect(after.statusCode).toBe(statusCodes.ok)

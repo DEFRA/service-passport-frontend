@@ -4,7 +4,7 @@ import { config } from '#/config/config.js'
 import { isSafeRedirect } from '#/server/common/helpers/is-safe-redirect.js'
 
 const sessionKey = 'signedIn'
-const wrongPassword = 'Wrong password'
+const wrongPassword = 'The password is not correct'
 
 function matches(given, expected) {
   const a = Buffer.from(String(given ?? ''))
@@ -14,7 +14,7 @@ function matches(given, expected) {
 
 function view(h, { error, returnUrl }) {
   return h.view('sign-in/index', {
-    pageTitle: `${error ? 'Error: ' : ''}Enter the password`,
+    pageTitle: 'This is a prototype used for research',
     error,
     returnUrl
   })

@@ -1,0 +1,34 @@
+{# What puts the go-live date at risk: a date that cannot work, bookings
+   that come too late, and steps that should already have started. Shown
+   above the passport and the plan, never left to colour alone. #}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% if route.impossible %}
+  {% set warningHtml %}
+    Your target go-live date of {{ goLive | formatDate("d MMMM yyyy") }} is not possible. Stage gate 4 would have needed to meet by {{ route.gate4 | formatDate("d MMMM yyyy") }}. <a class="govuk-link" href="/about-your-service/go-live">Change your go-live date</a>.
+  {% endset %}
+  {{ govukWarningText({ html: warningHtml, iconFallbackText: "Warning" }) }}
+{% endif %}
+{% for step in route.tooLate %}
+  {% set warningHtml %}
+    Your <a class="govuk-link" href="{{ step.href }}">{{ step.sentenceName }}</a> on {{ step.stamp.bookedFor | formatDate("d MMMM yyyy") }} is too late for {{ step.plan.milestoneNoun }} on {{ step.plan.milestone | formatDate("d MMMM yyyy") }}. Book an earlier date or move your go-live date.
+  {% endset %}
+  {{ govukWarningText({ html: warningHtml, iconFallbackText: "Warning" }) }}
+{% endfor %}
+{% set late = route.late %}
+{% if late.length == 1 %}
+  {% set step = late[0] %}
+  {% set warningHtml %}
+    <a class="govuk-link" href="{{ step.href }}">{{ step.overdue.todo }}</a> now. It was {{ step.overdue.due }}.
+  {% endset %}
+  {{ govukWarningText({ html: warningHtml, iconFallbackText: "Warning" }) }}
+{% elif late.length > 1 %}
+  {% set warningHtml %}
+    {{ late.length }} steps are overdue. Your target go-live date of {{ goLive | formatDate("d MMMM yyyy") }} is at risk.
+  {% endset %}
+  {{ govukWarningText({ html: warningHtml, iconFallbackText: "Warning" }) }}
+  <ul class="govuk-list govuk-list--bullet app-overdue-list">
+    {% for step in late %}
+      <li><a class="govuk-link" href="{{ step.href }}">{{ step.overdue.todo }}</a>, {{ step.overdue.due }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

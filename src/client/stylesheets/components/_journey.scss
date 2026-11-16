@@ -1,0 +1,128 @@
+@use 'variables/colours' as *;
+
+// Who suggested an answer, under the answer itself.
+.app-suggested {
+  display: block;
+  margin-top: 5px;
+  font-size: 16px;
+  color: $app-secondary-text;
+}
+
+// Stands apart from the journey, so nobody mistakes a simulated decision
+// for something the delivery lead can do in the real service.
+.app-prototype-controls {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid $app-mid-grey;
+}
+
+// Book by dates and owners under each task.
+.app-task-meta {
+  display: block;
+  margin-top: 5px;
+  font-size: 16px;
+  color: $app-secondary-text;
+}
+
+// Success states in GOV.UK blue rather than green. A green panel or banner
+// under the Defra green navigation read as two brand colours fighting. The
+// banner's title and the panel's text say what happened, so meaning does not
+// rest on colour. Links inside keep the ordinary link colour, matching the
+// banner border, as GOV.UK does for its standard blue banner.
+.app-panel--blue {
+  background-color: $app-link;
+}
+
+.app-notification-banner--blue.govuk-notification-banner--success {
+  // GOV.UK Frontend 6 paints the banner through its own private property,
+  // so the name follows theirs rather than our pattern.
+  // stylelint-disable-next-line custom-property-pattern
+  --_govuk-notification-banner-colour: #{$app-link};
+}
+
+.app-notification-banner--blue .govuk-notification-banner__link,
+.app-notification-banner--blue .govuk-notification-banner__link:link,
+.app-notification-banner--blue .govuk-notification-banner__link:visited {
+  color: $app-link;
+}
+
+// A form button that reads as a link, for an action that posts but is
+// secondary to the main button, such as starting again.
+.app-link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: $app-link;
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: max(1px, 0.0625rem);
+  text-underline-offset: 0.1578em;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+  }
+
+  &:focus {
+    outline: 3px solid transparent;
+    background-color: $app-yellow;
+    box-shadow:
+      0 -2px $app-yellow,
+      0 4px $defra-black;
+    color: $defra-black;
+    text-decoration: none;
+  }
+}
+
+// Key dates at the top of the passport, set tighter than a full summary.
+.app-facts {
+  margin-bottom: 15px;
+}
+
+.app-facts .govuk-summary-list__key,
+.app-facts .govuk-summary-list__value {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+// The warning and the next action read as one block, not two.
+.app-next .govuk-warning-text {
+  margin-bottom: 15px;
+}
+
+.app-next .govuk-inset-text {
+  margin-top: 0;
+}
+
+// Each section heading sits close to its own list and well apart from the
+// list above, so the groups read at a glance.
+.app-task-list-heading {
+  margin-bottom: 10px;
+}
+
+.app-task-list {
+  margin-bottom: 50px;
+}
+
+.app-overdue-list {
+  margin-top: -10px;
+}
+
+// What happened to a step, oldest first. The date leads each line so the
+// list can be scanned down the left edge.
+.app-history li {
+  margin-bottom: 10px;
+}
+
+.app-history__date {
+  display: block;
+  color: $app-secondary-text;
+  font-size: 16px;
+}
+
+// A file path in the repository, as AI found it.
+.app-path {
+  font-family: monospace;
+  font-size: 16px;
+  word-break: break-all;
+}

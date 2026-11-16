@@ -1,0 +1,781 @@
+{
+  "demoToday": "2026-11-16",
+  "gate4WeeksBeforeGoLive": 4,
+  "christmasWeeks": 2,
+  "cdpTeam": "Plant health digital",
+  "cdpServices": [
+    {
+      "id": "plant-export-checks",
+      "name": "Book a plant export check",
+      "summary": "Exporters book a plant health check for a consignment and upload their documents. Inspectors see the bookings and plan their visits.",
+      "repository": "DEFRA/example-plant-export-checks-frontend",
+      "portfolioRef": "DDTS-PRJ-0417",
+      "phase": "Private beta",
+      "production": {
+        "version": "0.50.0",
+        "on": "2026-11-03"
+      }
+    },
+    {
+      "id": "fish-catch-certificates",
+      "name": "Get a catch certificate",
+      "summary": "Exporters of fish get a catch certificate for a consignment going to the EU.",
+      "repository": "DEFRA/example-fish-catch-certificates-frontend",
+      "portfolioRef": "DDTS-PRJ-0388",
+      "phase": "Private beta",
+      "production": null
+    },
+    {
+      "id": "livestock-movements",
+      "name": "Report a livestock movement",
+      "summary": "Keepers report when they move cattle, sheep or pigs between holdings.",
+      "repository": "DEFRA/example-livestock-movements-frontend",
+      "portfolioRef": "DDTS-PRJ-0402",
+      "phase": "Private beta",
+      "production": {
+        "version": "0.12.0",
+        "on": "2026-10-20"
+      },
+      "aiCouldNotFind": ["supplierPenTest"]
+    }
+  ],
+  "questions": [
+    {
+      "id": "public",
+      "label": "Used by people outside Defra",
+      "question": "Will people outside Defra use the service once it is live?",
+      "hint": "If they will, your route includes a beta assessment against the Service Standard.",
+      "suggested": "yes",
+      "reason": "The service signs people in with Defra Customer Identity (src/server/plugins/auth.js).",
+      "error": "Select yes if people outside Defra will use the service",
+      "changeText": "whether people outside Defra use the service"
+    },
+    {
+      "id": "personalData",
+      "label": "Handles personal data",
+      "question": "Does the service store or use personal data?",
+      "hint": "If it does, your route includes an update to your data protection impact assessment.",
+      "suggested": "yes",
+      "reason": "src/server/models/applicant.js stores names, addresses and phone numbers.",
+      "error": "Select yes if the service stores or uses personal data",
+      "changeText": "whether the service handles personal data"
+    },
+    {
+      "id": "usesAi",
+      "label": "Uses AI",
+      "question": "Does the service use AI to make or support decisions?",
+      "hint": "If it does, your route includes an algorithmic transparency record.",
+      "suggested": "no",
+      "reason": "No AI or machine learning packages in package.json, and no calls to Amazon Bedrock.",
+      "error": "Select yes if the service uses AI to make or support decisions",
+      "changeText": "whether the service uses AI"
+    },
+    {
+      "id": "nonStandardTools",
+      "label": "Uses tools outside the CDP standard stack",
+      "question": "Does the service use any tools outside the CDP standard stack?",
+      "hint": "If it does, your route includes a Technical Design Authority review.",
+      "suggested": "no",
+      "reason": "Every package in package.json comes from the CDP Node.js template.",
+      "error": "Select yes if the service uses tools outside the CDP standard stack",
+      "changeText": "whether the service uses tools outside the CDP standard stack"
+    },
+    {
+      "id": "supplierPenTest",
+      "label": "IT health check run by a supplier",
+      "question": "Will an external supplier run your IT health check?",
+      "hint": "Suppliers need 8 weeks' notice. The CDP security team needs 2 weeks.",
+      "suggested": "yes",
+      "reason": "docs/security/ithc-scope.md names an IT health check supplier.",
+      "error": "Select yes if an external supplier will run your IT health check",
+      "changeText": "who runs your IT health check"
+    }
+  ],
+  "alreadyDone": {
+    "label": "Approvals already given",
+    "question": "Which of these approvals does your service already have?",
+    "hint": "AI looked for evidence of each one. If you tick one it did not find, add a link to the evidence from your passport.",
+    "error": "Select the approvals your service already has, or select none of these",
+    "suggested": [
+      "registration",
+      "service-tiering",
+      "solution-design-authority"
+    ],
+    "reason": "Found in the CDP portal and your architecture decision records.",
+    "evidence": {
+      "registration": {
+        "decidedOn": "2026-02-02",
+        "foundIn": "the CDP portal, portfolio reference DDTS-PRJ-0417"
+      },
+      "service-tiering": {
+        "decidedOn": "2026-09-09",
+        "foundIn": "the CDP portal, service tier recorded 9 September 2026"
+      },
+      "solution-design-authority": {
+        "decidedOn": "2026-07-22",
+        "foundIn": "docs/adr/0004-solution-design-authority.md"
+      }
+    },
+    "changeText": "approvals already given"
+  },
+  "stages": [
+    {
+      "id": "before-private-beta",
+      "name": "Before private beta"
+    },
+    {
+      "id": "build",
+      "name": "Build and test"
+    },
+    {
+      "id": "assurance",
+      "name": "Assurance"
+    },
+    {
+      "id": "go-live",
+      "name": "Go live"
+    }
+  ],
+  "steps": [
+    {
+      "id": "registration",
+      "stage": "before-private-beta",
+      "name": "Registration with the Portfolio Office",
+      "kind": "work",
+      "todo": "Register your service with the Portfolio Office",
+      "decidedBy": "Portfolio Office",
+      "dueBefore": "private beta",
+      "guidance": [
+        "The Portfolio Office registers your service and gives it a reference number. Every later stage gate uses it."
+      ]
+    },
+    {
+      "id": "service-tiering",
+      "stage": "before-private-beta",
+      "name": "Service tiering",
+      "kind": "work",
+      "todo": "Agree your service tier",
+      "decidedBy": "service transition manager",
+      "dueBefore": "private beta",
+      "guidance": [
+        "Your service transition manager agrees a tier with you. It sets how fast incidents must be fixed once you are live."
+      ]
+    },
+    {
+      "id": "solution-design-authority",
+      "stage": "before-private-beta",
+      "name": "Solution Design Authority",
+      "kind": "book",
+      "todo": "Book the Solution Design Authority",
+      "decidedBy": "Solution Design Authority",
+      "dueBefore": "private beta",
+      "guidance": [
+        "The Solution Design Authority approves your architecture before you build on it."
+      ]
+    },
+    {
+      "id": "technical-design-authority",
+      "stage": "before-private-beta",
+      "name": "Technical Design Authority",
+      "kind": "book",
+      "todo": "Book the Technical Design Authority",
+      "decidedBy": "Technical Design Authority",
+      "when": {
+        "nonStandardTools": "yes"
+      },
+      "neededBy": "gate-4",
+      "timing": [
+        {
+          "weeks": 2,
+          "text": "The authority needs 2 weeks' notice."
+        },
+        {
+          "weeks": 2,
+          "text": "The review takes 2 weeks."
+        },
+        {
+          "weeks": 12,
+          "text": "Allow 12 weeks to change the build if they ask for changes."
+        }
+      ],
+      "guidance": [
+        "You explain why you need each tool outside the CDP standard stack, and who will support it once you are live."
+      ],
+      "conditions": [
+        {
+          "text": "Name a team to support each tool outside the standard stack",
+          "due": "before-go-live"
+        }
+      ],
+      "notApproved": "No support plan for the message queue. Add one and book the authority again."
+    },
+    {
+      "id": "service-design-review-board",
+      "stage": "assurance",
+      "name": "Service Design Review Board",
+      "kind": "work",
+      "todo": "Start your Service Design Pack",
+      "decidedBy": "Service Design Review Board",
+      "contact": "your service transition manager",
+      "startStatus": "in-progress",
+      "startedOn": "2026-09-21",
+      "boardDate": "2026-12-15",
+      "guidance": [
+        "The board decides whether your service can be supported once it is live. Your service transition manager works through your Service Design Pack with you first."
+      ],
+      "pack": [
+        {
+          "name": "Service overview and scope",
+          "status": "Signed off",
+          "on": "2026-09-30"
+        },
+        {
+          "name": "Support model, first to third line",
+          "status": "Signed off",
+          "on": "2026-10-14"
+        },
+        {
+          "name": "Service tier and hours of support",
+          "status": "Signed off",
+          "on": "2026-10-14"
+        },
+        {
+          "name": "Licences and contracts",
+          "status": "Signed off",
+          "on": "2026-10-28"
+        },
+        {
+          "name": "Dependencies on other systems",
+          "status": "In review"
+        },
+        {
+          "name": "Monitoring and alerting",
+          "status": "In review"
+        },
+        {
+          "name": "Backup and disaster recovery",
+          "status": "Not started"
+        },
+        {
+          "name": "Knowledge articles for the service desk",
+          "status": "Not started"
+        },
+        {
+          "name": "Data retention and deletion",
+          "status": "Not started"
+        }
+      ],
+      "source": {
+        "text": "Service Design Pack guidance",
+        "slug": "service-design-pack-guidance"
+      },
+      "examples": [
+        "What does the board want from me?",
+        "Why does this take 12 weeks?",
+        "Can I send the pack in parts?"
+      ],
+      "answers": [
+        {
+          "example": "What does the board want from me?",
+          "keywords": ["want", "need", "include", "board", "expect", "pack"],
+          "paragraphs": [
+            "The board wants to know your service can be supported once it is live. The guidance says your pack must cover:"
+          ],
+          "bullets": [
+            "who supports the service, from the service desk to your developers",
+            "its service tier and hours of support",
+            "the other systems it depends on",
+            "how you will know when it fails"
+          ]
+        },
+        {
+          "example": "Why does this take 12 weeks?",
+          "keywords": ["12", "weeks", "long", "slow", "time", "takes"],
+          "paragraphs": [
+            "The board's own review takes about 2 weeks. Most of the time goes on working through each section of the pack with your service transition manager.",
+            "Start the pack once your architecture is approved."
+          ]
+        },
+        {
+          "example": "Can I send the pack in parts?",
+          "keywords": [
+            "parts",
+            "part",
+            "sections",
+            "section",
+            "early",
+            "split"
+          ],
+          "paragraphs": [
+            "Yes. Your service transition manager reviews each section as you finish it. The board only sees the whole pack."
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "text": "Publish the knowledge articles for the service desk",
+          "due": "before-go-live"
+        }
+      ],
+      "notApproved": "No plan for backup and disaster recovery. Add one and go back to the board."
+    },
+    {
+      "id": "pen-test",
+      "stage": "build",
+      "name": "IT health check",
+      "kind": "book",
+      "todo": "Book your IT health check",
+      "runBy": "IT health check supplier",
+      "runByWithoutSupplier": "CDP security team",
+      "decidedBy": "Defra cyber security team",
+      "neededBy": "gate-4",
+      "timing": [
+        {
+          "weeks": 8,
+          "text": "Suppliers need 8 weeks' notice."
+        },
+        {
+          "weeks": 1,
+          "text": "The test takes a week."
+        },
+        {
+          "weeks": 3,
+          "text": "Allow 3 weeks to fix what it finds."
+        }
+      ],
+      "timingWithoutSupplier": [
+        {
+          "weeks": 2,
+          "text": "The CDP security team needs 2 weeks' notice."
+        },
+        {
+          "weeks": 1,
+          "text": "The test takes a week."
+        },
+        {
+          "weeks": 3,
+          "text": "Allow 3 weeks to fix what it finds."
+        }
+      ],
+      "guidance": [
+        "A penetration test of your service in the perf-test environment on CDP. Fix every critical and high finding before stage gate 4."
+      ],
+      "source": {
+        "text": "CDP security testing guidance",
+        "slug": "cdp-security-testing"
+      },
+      "examples": [
+        "What environment does the test need?",
+        "What happens if it finds problems?"
+      ],
+      "answers": [
+        {
+          "example": "What environment does the test need?",
+          "keywords": [
+            "environment",
+            "where",
+            "perf-test",
+            "production",
+            "run",
+            "deploy"
+          ],
+          "paragraphs": [
+            "The test runs in the perf-test environment on CDP, which matches production. Deploy the version you plan to release there before the test starts."
+          ]
+        },
+        {
+          "example": "What happens if it finds problems?",
+          "keywords": [
+            "problems",
+            "fail",
+            "finds",
+            "issues",
+            "fix",
+            "findings"
+          ],
+          "paragraphs": [
+            "You get a report that rates each finding as critical, high, medium or low. Fix every critical and high finding before stage gate 4. Agree a plan for the rest with the Defra cyber security team."
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "text": "Fix the 2 medium findings",
+          "due": "after-go-live",
+          "days": 30
+        }
+      ],
+      "notApproved": "A critical finding in the sign-in flow. Fix it and book a retest."
+    },
+    {
+      "id": "deployed-to-production",
+      "stage": "build",
+      "name": "Deployed to production",
+      "kind": "data",
+      "fromData": "CDP portal",
+      "guidance": [
+        "From the CDP portal. The CDP platform team will only review a service that is in production."
+      ]
+    },
+    {
+      "id": "platform-readiness-review",
+      "stage": "build",
+      "name": "Platform Readiness Review",
+      "kind": "book",
+      "todo": "Book your Platform Readiness Review",
+      "decidedBy": "CDP platform team",
+      "startsAfter": ["deployed-to-production"],
+      "neededBy": "gate-4",
+      "timing": [
+        {
+          "weeks": 6,
+          "text": "The CDP platform team needs 6 weeks' notice."
+        },
+        {
+          "weeks": 1,
+          "text": "The review takes a week."
+        },
+        {
+          "weeks": 2,
+          "text": "Allow 2 weeks to fix what it finds."
+        }
+      ],
+      "guidance": [
+        "The CDP platform team checks your service is ready for production: a runbook, test coverage, performance test results and alerts that work."
+      ],
+      "source": {
+        "text": "CDP Platform Readiness Review guidance",
+        "slug": "cdp-platform-readiness"
+      },
+      "checks": [
+        {
+          "name": "Service runbook",
+          "found": null
+        },
+        {
+          "name": "Test coverage report",
+          "found": null
+        },
+        {
+          "name": "Performance test results from perf-test",
+          "found": "tests/performance/results-2026-11-11.md"
+        },
+        {
+          "name": "Journey tests",
+          "found": "tests/journey/"
+        },
+        {
+          "name": "README explains how to run the service",
+          "found": "README.md"
+        }
+      ],
+      "examples": ["What goes in a runbook?", "Do I need a load test?"],
+      "answers": [
+        {
+          "example": "What goes in a runbook?",
+          "keywords": ["runbook", "support", "restart"],
+          "paragraphs": [
+            "A runbook tells the support team how to keep your service running. The guidance says it must cover:"
+          ],
+          "bullets": [
+            "how to restart the service",
+            "who to contact when it fails",
+            "known problems and how to fix them"
+          ]
+        },
+        {
+          "example": "Do I need a load test?",
+          "keywords": ["load", "performance", "perf", "test", "traffic"],
+          "paragraphs": [
+            "Yes. Run your performance tests in the perf-test environment and keep the results. The CDP platform team asks to see them."
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "text": "Add the service runbook to your repository",
+          "due": "before-go-live"
+        }
+      ],
+      "notApproved": "No test coverage report. Add one to your repository and book the review again."
+    },
+    {
+      "id": "accessibility-audit",
+      "stage": "assurance",
+      "name": "Accessibility audit",
+      "kind": "book",
+      "todo": "Book your accessibility audit",
+      "runBy": "accessibility auditor",
+      "decidedBy": "service owner",
+      "neededBy": "gate-4",
+      "timing": [
+        {
+          "weeks": 6,
+          "text": "Auditors need 6 weeks' notice."
+        },
+        {
+          "weeks": 2,
+          "text": "The audit takes 2 weeks."
+        },
+        {
+          "weeks": 2,
+          "text": "Allow 2 weeks to fix what it finds and publish your accessibility statement."
+        }
+      ],
+      "guidance": [
+        "An independent auditor checks your service against WCAG 2.2 AA. Your service owner accepts the report and publishes the accessibility statement."
+      ],
+      "source": {
+        "text": "Defra accessibility guidance",
+        "slug": "defra-accessibility"
+      },
+      "examples": [
+        "What do I need for stage gate 4?",
+        "Who can run the audit?"
+      ],
+      "answers": [
+        {
+          "example": "What do I need for stage gate 4?",
+          "keywords": ["gate", "need", "4", "board"],
+          "paragraphs": ["For stage gate 4 you need:"],
+          "bullets": [
+            "a written audit report that confirms WCAG 2.2 AA",
+            "a published accessibility statement",
+            "a plan to fix minor issues within 12 weeks of go-live"
+          ]
+        },
+        {
+          "example": "Who can run the audit?",
+          "keywords": ["who", "auditor", "supplier", "run", "book"],
+          "paragraphs": [
+            "An independent auditor, not your own team. Ask your commercial lead which suppliers Defra already has a contract with."
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "text": "Fix the 3 minor issues and update your accessibility statement",
+          "due": "after-go-live",
+          "days": 84
+        }
+      ],
+      "notApproved": "2 pages cannot be used with a keyboard: upload documents and check your answers. Fix them and book a retest."
+    },
+    {
+      "id": "data-protection-update",
+      "stage": "assurance",
+      "name": "Data protection impact assessment update",
+      "kind": "work",
+      "todo": "Start your data protection impact assessment update",
+      "actionBy": "Start by",
+      "decidedBy": "information asset owner",
+      "contact": "the data protection team",
+      "when": {
+        "personalData": "yes"
+      },
+      "neededBy": "gate-4",
+      "timing": [
+        {
+          "weeks": 4,
+          "text": "The data protection team takes about 4 weeks to review it."
+        },
+        {
+          "weeks": 1,
+          "text": "Your information asset owner then signs it off, which takes about a week."
+        }
+      ],
+      "guidance": [
+        "Update your alpha data protection impact assessment to match what you built. The data protection team reviews it and your information asset owner signs it off."
+      ],
+      "source": {
+        "text": "Defra data protection guidance",
+        "slug": "defra-data-protection"
+      },
+      "examples": ["What has to change from alpha?"],
+      "answers": [
+        {
+          "example": "What has to change from alpha?",
+          "keywords": ["change", "alpha", "update", "different"],
+          "paragraphs": [
+            "Update anything that is different from what you planned in alpha. That usually means:"
+          ],
+          "bullets": [
+            "the personal data you collect",
+            "how long you keep it",
+            "who you share it with"
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "text": "Publish the updated privacy notice",
+          "due": "before-go-live"
+        }
+      ],
+      "notApproved": "The retention period is missing. Add it and send the assessment again."
+    },
+    {
+      "id": "transparency-record",
+      "stage": "assurance",
+      "name": "Algorithmic transparency record",
+      "kind": "work",
+      "todo": "Start your algorithmic transparency record",
+      "actionBy": "Start by",
+      "decidedBy": "senior responsible owner",
+      "when": {
+        "usesAi": "yes"
+      },
+      "neededBy": "gate-4",
+      "timing": [
+        {
+          "weeks": 4,
+          "text": "Writing and checking the record takes about 4 weeks."
+        },
+        {
+          "weeks": 2,
+          "text": "Your senior responsible owner signs it off before it is published."
+        }
+      ],
+      "guidance": [
+        "Explains how your service uses AI to make or support decisions. It is published on GOV.UK."
+      ],
+      "conditions": [
+        {
+          "text": "Publish the record on GOV.UK",
+          "due": "before-go-live"
+        }
+      ],
+      "notApproved": "The record does not say who checks the AI's suggestions. Add it and send it again."
+    },
+    {
+      "id": "beta-assessment",
+      "stage": "assurance",
+      "name": "Beta assessment",
+      "kind": "book",
+      "todo": "Book your beta assessment",
+      "decidedBy": "service assessment panel",
+      "when": {
+        "public": "yes"
+      },
+      "neededBy": "gate-4",
+      "timing": [
+        {
+          "weeks": 6,
+          "text": "The assessment team needs 6 weeks' notice."
+        },
+        {
+          "weeks": 2,
+          "text": "The report comes about 2 weeks after the assessment."
+        },
+        {
+          "weeks": 2,
+          "text": "Allow 2 weeks in case you need a reassessment."
+        }
+      ],
+      "outcomes": {
+        "approved": "Met",
+        "approved-with-conditions": "Met with conditions",
+        "not-approved": "Not met"
+      },
+      "guidance": [
+        "A panel checks your service against the Service Standard before it opens to the public."
+      ],
+      "source": {
+        "text": "Defra service assessment guidance",
+        "slug": "defra-service-assessments"
+      },
+      "examples": ["What happens on the day?"],
+      "answers": [
+        {
+          "example": "What happens on the day?",
+          "keywords": ["day", "happens", "assessment", "panel", "expect"],
+          "paragraphs": [
+            "The panel spends about 4 hours with your team. You show the service and talk through how it meets each point of the Service Standard. The report comes about 2 weeks later."
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "text": "Show research with people who use assistive technology",
+          "due": "after-go-live",
+          "days": 180
+        }
+      ],
+      "notApproved": "Not enough research with people who need help to use the service. Do more and ask for a reassessment."
+    },
+    {
+      "id": "gate-4",
+      "stage": "go-live",
+      "name": "Stage gate 4",
+      "kind": "work",
+      "todo": "Send your stage gate 4 papers",
+      "actionBy": "Send papers by",
+      "statusQuestion": "Where are your stage gate 4 papers up to?",
+      "decidedBy": "senior responsible owner, at the project board",
+      "decidedByShort": "project board",
+      "contact": "the Portfolio Office",
+      "sendAfter": "all",
+      "neededBy": "gate-4",
+      "timing": [
+        {
+          "weeks": 2,
+          "text": "The Portfolio Office needs your papers 2 weeks before the board meets."
+        }
+      ],
+      "guidance": [
+        "The project board looks at every decision on your route and decides whether you can go live. You can send your papers once every other step is approved."
+      ],
+      "conditions": [
+        {
+          "text": "Confirm the service desk has the knowledge articles",
+          "due": "before-go-live"
+        }
+      ],
+      "notApproved": "The accessibility statement is not published. Publish it and come back to the next board."
+    },
+    {
+      "id": "change-request",
+      "stage": "go-live",
+      "name": "Change request",
+      "kind": "raise",
+      "todo": "Raise your change request",
+      "actionBy": "Raise by",
+      "decidedBy": "change advisory board",
+      "startsAfter": ["gate-4"],
+      "neededBy": "go-live",
+      "timing": [
+        {
+          "weeks": 2,
+          "text": "The change advisory board needs 10 working days."
+        }
+      ],
+      "guidance": [
+        "Raise a change request in MyIT so the change advisory board can agree your release date. You can raise it once stage gate 4 is approved."
+      ],
+      "source": {
+        "text": "Defra change management guidance",
+        "slug": "defra-change-management"
+      },
+      "examples": ["What goes in the change request?"],
+      "answers": [
+        {
+          "example": "What goes in the change request?",
+          "keywords": ["goes", "include", "request", "change", "need"],
+          "paragraphs": ["The change advisory board asks for:"],
+          "bullets": [
+            "the release date and time",
+            "how you will roll back if something goes wrong",
+            "who to contact during the release"
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "text": "Share the rollback plan with the service desk",
+          "due": "before-go-live"
+        }
+      ],
+      "notApproved": "The release clashes with a change freeze. Pick another date and raise it again."
+    }
+  ]
+}

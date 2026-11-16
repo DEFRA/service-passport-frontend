@@ -1,0 +1,36 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% set backLink = { href: "/about-your-service/check" if confirmed else "/about-your-service" } %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorList.length %}
+        {{ govukErrorSummary({ titleText: "There is a problem", errorList: errorList }) }}
+      {% endif %}
+
+      <form method="post" novalidate>
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+
+        {% set parts = errorParts.goLive or [] %}
+        {{ govukDateInput({
+          id: "goLive-date",
+          fieldset: { legend: { html: '<span class="govuk-caption-l">' + (service.name | escape) + '</span>When do you plan to go live?', isPageHeading: true, classes: "govuk-fieldset__legend--l" } },
+          hint: { text: "The date your service moves from private beta to public beta. We work every date in your passport back from it. For example, 30 3 2027" },
+          errorMessage: { text: errors.goLive } if errors.goLive,
+          items: [
+            { id: "goLive", name: "goLiveDay", label: "Day", classes: "govuk-input--width-2" + (" govuk-input--error" if "day" in parts else ""), value: values.day },
+            { id: "goLive-month", name: "goLiveMonth", label: "Month", classes: "govuk-input--width-2" + (" govuk-input--error" if "month" in parts else ""), value: values.month },
+            { id: "goLive-year", name: "goLiveYear", label: "Year", classes: "govuk-input--width-4" + (" govuk-input--error" if "year" in parts else ""), value: values.year }
+          ]
+        }) }}
+
+        {{ govukButton({ text: "Save changes" if confirmed else "Continue" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

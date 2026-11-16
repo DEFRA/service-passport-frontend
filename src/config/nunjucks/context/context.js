@@ -2,7 +2,7 @@ import path from 'node:path'
 import { readFileSync } from 'node:fs'
 
 import { config } from '#/config/config.js'
-import { buildNavigation } from './build-navigation.js'
+import { buildNavigation, hasRoute } from './build-navigation.js'
 import { createLogger } from '#/server/common/helpers/logging/logger.js'
 
 const logger = createLogger()
@@ -31,7 +31,7 @@ export function context(request) {
   return {
     assetPath: `${assetPath}/assets`,
     serviceName: config.get('serviceName'),
-    serviceUrl: '/',
+    serviceUrl: hasRoute(request) ? '/passport' : '/',
     cookieName: config.get('cookieConsent.name'),
     googleTagManagerKey,
     breadcrumbs: [],

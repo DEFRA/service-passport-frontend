@@ -1,0 +1,154 @@
+@use "variables/colours" as *;
+
+// Asking about a step, drawn the way the AI toolkit draws a conversation:
+// the question box in an outlined panel, your question in a grey block on
+// the left, the answer indented in an outlined box with the warning that AI
+// can be wrong and the guidance it used. Each turn has a heading, so nothing
+// relies on position or shape alone.
+
+.app-ask__panel {
+  margin-bottom: 30px;
+  padding: 25px 30px;
+  border: 1px solid $app-mid-grey;
+}
+
+.app-ask__panel > :last-child {
+  margin-bottom: 0;
+}
+
+.app-ask__input.govuk-textarea {
+  margin-bottom: 10px;
+  resize: vertical;
+}
+
+.app-ask__send.govuk-button {
+  margin-bottom: 0;
+}
+
+.app-ask__turn {
+  scroll-margin-top: 20px;
+}
+
+.app-ask__speaker {
+  margin: 0 0 5px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.app-ask__asked {
+  width: fit-content;
+  max-width: 80%;
+  margin-bottom: 20px;
+  padding: 15px 20px;
+  border: 1px solid transparent;
+  background-color: $defra-grey-background;
+}
+
+.app-ask__asked > :last-child {
+  margin-bottom: 0;
+}
+
+.app-ask__answer {
+  width: 88%;
+  margin-bottom: 30px;
+  margin-left: auto;
+  padding: 15px 20px;
+  border: 1px solid $app-mid-grey;
+  overflow-wrap: anywhere;
+}
+
+.app-ask__answer > :last-child {
+  margin-bottom: 0;
+}
+
+.app-ask__check {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid $app-mid-grey;
+}
+
+.app-ask__warning {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 20px;
+  margin-bottom: 0;
+  font-size: 16px;
+}
+
+.app-ask__warning-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  margin-right: 10px;
+}
+
+// Example questions: buttons, because each sends a question, drawn as
+// links, so they do not compete with the Ask button.
+.app-ask__examples-list {
+  margin-bottom: 30px;
+}
+
+.app-ask__examples-list li {
+  margin-bottom: 10px;
+}
+
+.app-ask__example {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 19px;
+  line-height: 1.32;
+  color: $app-link;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-thickness: max(1px, 0.0625rem);
+  text-underline-offset: 0.1578em;
+  cursor: pointer;
+}
+
+.app-ask__example:hover {
+  color: $app-link-hover;
+  text-decoration-thickness: max(3px, 0.1875rem);
+}
+
+.app-ask__example:focus {
+  outline: 3px solid transparent;
+  background-color: $app-yellow;
+  box-shadow:
+    0 -2px $app-yellow,
+    0 4px $defra-black;
+  color: $defra-black;
+  text-decoration: none;
+}
+
+@media (forced-colors: active) {
+  .app-ask__example {
+    color: LinkText;
+  }
+}
+
+// On a phone every turn takes the full width.
+@media (max-width: 40.0525em) {
+  .app-ask__answer,
+  .app-ask__asked {
+    width: auto;
+    max-width: none;
+  }
+
+  .app-ask__panel {
+    padding: 15px;
+  }
+}
+
+// GOV.UK keeps the character count's line reserved while it is hidden,
+// which left an empty gap between the field and the Ask button. Collapsed
+// until someone nears the limit, as the AI toolkit does.
+.app-ask__panel .govuk-character-count__message--disabled {
+  display: none;
+}
+
+.app-ask__panel .govuk-character-count__message {
+  margin-bottom: 10px;
+}

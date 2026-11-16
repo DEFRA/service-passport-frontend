@@ -1,7 +1,7 @@
 import { config } from '#/config/config.js'
 import { sessionKey } from '#/server/routes/sign-in/controller.js'
 
-const openPaths = ['/sign-in', '/health', '/cookies']
+const openPaths = ['/sign-in', '/health', '/cookies', '/favicon.ico']
 const openPrefixes = ['/public/']
 
 function isOpen(path) {

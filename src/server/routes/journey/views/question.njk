@@ -1,0 +1,61 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+
+{% set backLink = { href: backHref } %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if error %}
+        {{ govukErrorSummary({ titleText: "There is a problem", errorList: [{ text: error, href: "#alreadyDone" if question.multiple else "#answer" }] }) }}
+      {% endif %}
+
+      <form method="post" novalidate>
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+
+        {% if question.multiple %}
+          {% set items = [] %}
+          {% for step in doneOptions %}
+            {% set items = (items.push({
+              value: step.id,
+              text: step.name,
+              hint: { text: "AI found this in " + step.foundIn + "." } if step.foundIn,
+              checked: step.id in value
+            }), items) %}
+          {% endfor %}
+          {% set items = (items.push({ divider: "or" }), items) %}
+          {% set items = (items.push({ value: "none", text: "None of these", behaviour: "exclusive", checked: value and value.length == 0 and not error }), items) %}
+          {{ govukCheckboxes({
+            name: "alreadyDone",
+            idPrefix: "alreadyDone",
+            fieldset: { legend: { text: question.question, isPageHeading: true, classes: "govuk-fieldset__legend--l" } },
+            hint: { text: question.hint },
+            errorMessage: { text: error } if error,
+            items: items
+          }) }}
+        {% else %}
+          {{ govukRadios({
+            name: "answer",
+            idPrefix: "answer",
+            classes: "govuk-radios--inline",
+            fieldset: { legend: { text: question.question, isPageHeading: true, classes: "govuk-fieldset__legend--l" } },
+            hint: { text: question.hint },
+            errorMessage: { text: error } if error,
+            items: [
+              { value: "yes", text: "Yes", checked: value == "yes" },
+              { value: "no", text: "No", checked: value == "no" }
+            ]
+          }) }}
+          {{ govukInsetText({ text: aiNote }) }}
+        {% endif %}
+
+        {{ govukButton({ text: "Continue" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

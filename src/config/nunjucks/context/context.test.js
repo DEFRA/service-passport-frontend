@@ -60,13 +60,7 @@ describe('context and cache', () => {
           assetPath: '/public/assets',
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
-          navigation: [
-            {
-              current: true,
-              text: 'Programme',
-              href: '/'
-            }
-          ],
+          navigation: [],
           serviceName: 'Service Passport',
           serviceUrl: '/'
         })
@@ -144,13 +138,7 @@ describe('context and cache', () => {
           assetPath: '/public/assets',
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
-          navigation: [
-            {
-              current: true,
-              text: 'Programme',
-              href: '/'
-            }
-          ],
+          navigation: [],
           serviceName: 'Service Passport',
           serviceUrl: '/'
         })

@@ -16,7 +16,7 @@ describe('#errors', () => {
     await server.stop({ timeout: 0 })
   })
 
-  test('Should provide expected Not Found page', async () => {
+  test('A missing page uses the GOV.UK page not found pattern', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/non-existent-path'
@@ -24,6 +24,9 @@ describe('#errors', () => {
 
     expect(result).toEqual(
       expect.stringContaining('Page not found | Service Passport')
+    )
+    expect(result).toEqual(
+      expect.stringContaining('check you copied the entire address')
     )
     expect(statusCode).toBe(statusCodes.notFound)
   })
@@ -50,74 +53,61 @@ describe('#catchAll', () => {
     code: mockToolkitCode.mockReturnThis()
   }
 
-  test('Should provide expected "Not Found" page', () => {
-    catchAll(mockRequest(statusCodes.notFound), mockToolkit)
-
-    expect(mockErrorLogger).not.toHaveBeenCalledWith(mockStack)
-    expect(mockToolkitView).toHaveBeenCalledWith(errorPage, {
-      pageTitle: 'Page not found',
-      heading: statusCodes.notFound,
-      message: 'Page not found'
-    })
-    expect(mockToolkitCode).toHaveBeenCalledWith(statusCodes.notFound)
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  test('Should provide expected "Forbidden" page', () => {
-    catchAll(mockRequest(statusCodes.forbidden), mockToolkit)
+  test.each([
+    [statusCodes.notFound, 'Page not found', undefined, true],
+    [
+      statusCodes.forbidden,
+      'You do not have permission to see this page',
+      'Ask your delivery lead for access.',
+      false
+    ],
+    [
+      statusCodes.unauthorized,
+      'You need to sign in to see this page',
+      'Sign in, then try again.',
+      false
+    ],
+    [
+      statusCodes.badRequest,
+      'Sorry, there is a problem with the service',
+      'Try again later.',
+      false
+    ],
+    [
+      statusCodes.imATeapot,
+      'Sorry, there is a problem with the service',
+      'Try again later.',
+      false
+    ]
+  ])(
+    'A %i error shows "%s" and is not logged',
+    (statusCode, title, message, notFound) => {
+      catchAll(mockRequest(statusCode), mockToolkit)
 
-    expect(mockErrorLogger).not.toHaveBeenCalledWith(mockStack)
-    expect(mockToolkitView).toHaveBeenCalledWith(errorPage, {
-      pageTitle: 'Forbidden',
-      heading: statusCodes.forbidden,
-      message: 'Forbidden'
-    })
-    expect(mockToolkitCode).toHaveBeenCalledWith(statusCodes.forbidden)
-  })
+      expect(mockErrorLogger).not.toHaveBeenCalled()
+      expect(mockToolkitView).toHaveBeenCalledWith(errorPage, {
+        pageTitle: title,
+        heading: title,
+        message,
+        notFound
+      })
+      expect(mockToolkitCode).toHaveBeenCalledWith(statusCode)
+    }
+  )
 
-  test('Should provide expected "Unauthorized" page', () => {
-    catchAll(mockRequest(statusCodes.unauthorized), mockToolkit)
-
-    expect(mockErrorLogger).not.toHaveBeenCalledWith(mockStack)
-    expect(mockToolkitView).toHaveBeenCalledWith(errorPage, {
-      pageTitle: 'Unauthorized',
-      heading: statusCodes.unauthorized,
-      message: 'Unauthorized'
-    })
-    expect(mockToolkitCode).toHaveBeenCalledWith(statusCodes.unauthorized)
-  })
-
-  test('Should provide expected "Bad Request" page', () => {
-    catchAll(mockRequest(statusCodes.badRequest), mockToolkit)
-
-    expect(mockErrorLogger).not.toHaveBeenCalledWith(mockStack)
-    expect(mockToolkitView).toHaveBeenCalledWith(errorPage, {
-      pageTitle: 'Bad Request',
-      heading: statusCodes.badRequest,
-      message: 'Bad Request'
-    })
-    expect(mockToolkitCode).toHaveBeenCalledWith(statusCodes.badRequest)
-  })
-
-  test('Should provide expected default page', () => {
-    catchAll(mockRequest(statusCodes.imATeapot), mockToolkit)
-
-    expect(mockErrorLogger).not.toHaveBeenCalledWith(mockStack)
-    expect(mockToolkitView).toHaveBeenCalledWith(errorPage, {
-      pageTitle: 'Something went wrong',
-      heading: statusCodes.imATeapot,
-      message: 'Something went wrong'
-    })
-    expect(mockToolkitCode).toHaveBeenCalledWith(statusCodes.imATeapot)
-  })
-
-  test('Should provide expected "Something went wrong" page and log error for internalServerError', () => {
+  test('A server error shows the problem page and logs the stack', () => {
     catchAll(mockRequest(statusCodes.internalServerError), mockToolkit)
 
     expect(mockErrorLogger).toHaveBeenCalledWith(mockStack)
     expect(mockToolkitView).toHaveBeenCalledWith(errorPage, {
-      pageTitle: 'Something went wrong',
-      heading: statusCodes.internalServerError,
-      message: 'Something went wrong'
+      pageTitle: 'Sorry, there is a problem with the service',
+      heading: 'Sorry, there is a problem with the service',
+      message: 'Try again later.',
+      notFound: false
     })
     expect(mockToolkitCode).toHaveBeenCalledWith(
       statusCodes.internalServerError

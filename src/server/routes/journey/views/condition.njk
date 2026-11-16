@@ -1,0 +1,38 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+
+{% set backLink = { href: step.href } %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorList.length %}
+        {{ govukErrorSummary({ titleText: "There is a problem", errorList: errorList }) }}
+      {% endif %}
+
+      <span class="govuk-caption-l">Condition from {{ step.sentenceName }}</span>
+      <h1 class="govuk-heading-l">{{ condition.text }}</h1>
+      <p class="govuk-body">The {{ step.waitingFor }} set this condition. It is due {{ due }}. Send them the evidence and they will confirm whether it is met.</p>
+
+      <form method="post" novalidate>
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+        {{ govukInput({
+          id: "link",
+          name: "link",
+          type: "url",
+          spellcheck: false,
+          autocomplete: "off",
+          label: { text: "Link to the evidence", classes: "govuk-label--m" },
+          hint: { text: "For example, the file in GitHub or the document in SharePoint." },
+          value: values.link,
+          errorMessage: { text: errors.link } if errors.link
+        }) }}
+
+        {{ govukButton({ text: "Send evidence" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-l">{{ service.name }}</span>
+      <h1 class="govuk-heading-l">Your plan to go-live</h1>
+      <p class="govuk-body">What to do and when, worked back from your target go-live date of {{ state.about.goLive | formatDate("d MMMM yyyy") }}. To move every date, <a class="govuk-link" href="/about-your-service/go-live">change your go-live date</a>.</p>
+
+
+      {% set goLive = state.about.goLive %}
+      {% include "partials/booking-warning.njk" %}
+
+      {% set tableRows = [] %}
+      {% for row in rows %}
+        {% if row.milestone %}
+          {% set tableRows = (tableRows.push([
+            { html: "<strong>" + (row.date | formatDate("d MMMM yyyy")) + "</strong>" },
+            { html: "<strong>" + row.milestone + "</strong>" },
+            { text: "" }
+          ]), tableRows) %}
+        {% else %}
+          {% if row.condition or row.before %}
+            {% set whatHtml = '<a class="govuk-link" href="' + row.step.href + '">' + (row.text | escape) + '</a><span class="app-suggested">Condition from ' + (row.step.sentenceName | escape) + '</span>' %}
+            {% set statusHtml = "Evidence sent" if row.sent else govukTag({ text: "Not met yet", classes: "govuk-tag--grey" }) %}
+          {% else %}
+            {% set whatHtml = '<a class="govuk-link" href="' + row.step.href + '">' + (row.text | escape) + '</a>' if not row.step.cannotStart else (row.text | escape) + '<span class="app-suggested">' + (row.step.hint | escape) + '</span>' %}
+            {% set statusHtml = govukTag({ text: row.step.statusText, classes: row.step.tag }) if row.step.tag else (row.step.statusText | escape) %}
+          {% endif %}
+          {% if row.before %}
+            {% set dateText = "Before go-live" %}
+          {% elif row.date %}
+            {% set dateText = row.date | formatDate("d MMMM yyyy") %}
+          {% else %}
+            {% set dateText = "Before " + row.step.dueBefore %}
+          {% endif %}
+          {% set tableRows = (tableRows.push([
+            { text: dateText },
+            { html: whatHtml },
+            { html: statusHtml }
+          ]), tableRows) %}
+        {% endif %}
+      {% endfor %}
+
+      {{ govukTable({
+        caption: "Dates to go-live",
+        captionClasses: "govuk-visually-hidden",
+        firstCellIsHeader: true,
+        head: [{ text: "Date" }, { text: "What to do" }, { text: "Status" }],
+        rows: tableRows,
+        classes: "app-plan"
+      }) }}
+    </div>
+  </div>
+{% endblock %}
