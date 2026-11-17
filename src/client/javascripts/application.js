@@ -75,7 +75,7 @@ function setChecking(status) {
  * Stands in for the passport reading from CDP. Each task on the page
  * starts as "Checking" and turns to "Done" in turn, showing what it found.
  * When all are done, the status line announces it and the rest of the
- * page appears, or the page moves on by itself if it names where to go.
+ * page appears.
  * Without JavaScript the page arrives finished.
  */
 function runProgress() {
@@ -113,13 +113,6 @@ function runProgress() {
   function finish() {
     if (live) {
       live.textContent = live.dataset.progressLive
-    }
-    if (page.dataset.next) {
-      window.setTimeout(
-        () => window.location.assign(page.dataset.next),
-        progressStepMs
-      )
-      return
     }
     after.forEach(show)
   }

@@ -253,7 +253,7 @@ export const config = convict({
   },
   passport: {
     password: {
-      doc: 'Shared password for the alpha. Leave empty to turn the gate off.',
+      doc: 'Shared password for the prototype. Required in production.',
       format: String,
       default: '',
       env: 'PASSPORT_PASSWORD',

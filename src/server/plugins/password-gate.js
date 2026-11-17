@@ -12,14 +12,19 @@ function isOpen(path) {
 }
 
 /**
- * Sends anyone without a signed-in session to the password page. Does
- * nothing when no password is configured.
+ * Sends anyone without a signed-in session to the password page. Locally,
+ * no password turns the gate off. In production, no password stops the
+ * server starting, so a missing secret never leaves the prototype public.
+ * @throws {Error} when the password is empty in production
  */
 const passwordGate = {
   plugin: {
     name: 'password-gate',
     register(server) {
       if (!config.get('passport.password')) {
+        if (config.get('isProduction')) {
+          throw new Error('PASSPORT_PASSWORD must be set in production')
+        }
         return
       }
       server.ext('onPreHandler', (request, h) => {

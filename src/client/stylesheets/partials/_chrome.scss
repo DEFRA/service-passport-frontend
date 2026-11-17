@@ -176,8 +176,11 @@
 
   .defra-header__service-name,
   .defra-header__service-name:link,
-  .defra-header__service-name:visited {
+  .defra-header__service-name:visited,
+  .defra-header__service-name:hover {
     font-size: 18px;
+    // 18px bold is not large text, so the lighter green fails here.
+    color: $defra-green;
   }
 
   // The toggle only shows once the script has run. Without it the links

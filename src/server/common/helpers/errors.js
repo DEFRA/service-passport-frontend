@@ -10,10 +10,12 @@ function errorPage(statusCode) {
   switch (statusCode) {
     case statusCodes.notFound:
       return { title: 'Page not found', notFound: true }
+    // Only @hapi/crumb answers 403 here, when a form's token is missing or
+    // out of date, usually because the session expired mid-form.
     case statusCodes.forbidden:
       return {
-        title: 'You do not have permission to see this page',
-        message: 'Ask your delivery lead for access.'
+        title: 'Your session timed out',
+        message: 'Go back, reload the page and try again.'
       }
     case statusCodes.unauthorized:
       return {

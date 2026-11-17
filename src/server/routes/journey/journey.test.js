@@ -193,9 +193,10 @@ describe('The Service Passport journey', () => {
         'Version 0.50.0, deployed 3 November 2026'
       )
       expect(taskStatus($, 'Suggest answers').hint).toBe('Found all 6')
-      expect($('[data-module="app-progress"]').attr('data-next')).toBe(
+      expect($('[data-progress-after] a').attr('href')).toBe(
         '/about-your-service/check'
       )
+      expect($('[data-next]')).toHaveLength(0)
     })
 
     test('reading a service says how many answers AI could not find', async () => {

@@ -61,8 +61,8 @@ describe('#catchAll', () => {
     [statusCodes.notFound, 'Page not found', undefined, true],
     [
       statusCodes.forbidden,
-      'You do not have permission to see this page',
-      'Ask your delivery lead for access.',
+      'Your session timed out',
+      'Go back, reload the page and try again.',
       false
     ],
     [
