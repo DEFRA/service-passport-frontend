@@ -10,3 +10,6 @@ coverage
 .envrc
 tsconfig.tsbuildinfo
 .env
+
+# Local working notes for AI-assisted sessions
+CLAUDE.md

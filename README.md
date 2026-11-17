@@ -12,20 +12,6 @@ Service Passport is a prototype for research. It plans the approvals a Defra ser
 
 Like a GOV.UK Prototype Kit prototype, it asks for a shared password when `PASSPORT_PASSWORD` is set. Copy `.env.example` to `.env` to set it locally. The real service would use your Defra account. Prototype controls on the passport and step pages stand in for time passing and for the teams that decide.
 
-### Still to confirm before research
-
-These rules and names are our best understanding. None has been checked with the team that owns it. The data lives in `src/server/data/journey.json`.
-
-- Stage gate 4 meets at the latest 4 weeks before go-live, and papers go to the Portfolio Office 2 weeks before it.
-- The senior responsible owner decides stage gate 4 at the project board.
-- A beta assessment is needed only when people outside Defra use the service.
-- Lead times: Technical Design Authority (2 weeks' notice, 2 weeks' review), IT health check (8 weeks' notice for a supplier, 2 for the CDP security team, a week of testing, 3 weeks of fixes), Platform Readiness Review (6 weeks' notice), accessibility audit (6 weeks' notice, 2 weeks of audit), data protection impact assessment (4 weeks' review, a week for sign-off), algorithmic transparency record (4 weeks, then 2 for sign-off), beta assessment (6 weeks' notice, report 2 weeks later, 2 weeks for a reassessment), change request (10 working days). Christmas adds 2 weeks.
-- Who decides each step: Defra cyber security team (IT health check), CDP platform team (Platform Readiness Review), service owner (accessibility audit), information asset owner (data protection impact assessment), senior responsible owner (algorithmic transparency record), service transition manager (service tiering), change advisory board through MyIT (change request).
-- Whether the architecture board is the Solution Design Authority or the Architectural Design Authority, and how both relate to the Technical Design Authority.
-- Whether an IT health check must be an independent CHECK or CREST test, and whether it runs in perf-test or ext-test.
-- The sections of the Service Design Pack and who signs them off.
-- What each readiness check looks for: the Platform Readiness Review (runbook, coverage report, performance test results, journey tests, alerts), the IT health check (scope, perf-test deployment, known vulnerabilities, test accounts) and the accessibility audit (GOV.UK Frontend, automated checks, a list of journeys, keyboard and screen reader checks).
-
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
 - [Server-side Caching](#server-side-caching)
