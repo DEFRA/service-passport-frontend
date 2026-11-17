@@ -20,7 +20,7 @@
         {{ govukDateInput({
           id: "goLive-date",
           fieldset: { legend: { html: '<span class="govuk-caption-l">' + (service.name | escape) + '</span>When do you plan to go live?', isPageHeading: true, classes: "govuk-fieldset__legend--l" } },
-          hint: { text: "The date your service moves from private beta to public beta. We work every date in your passport back from it. For example, 30 3 2027" },
+          hint: { text: "When it moves to public beta. Every date works back from it. For example, 30 3 2027" },
           errorMessage: { text: errors.goLive } if errors.goLive,
           items: [
             { id: "goLive", name: "goLiveDay", label: "Day", classes: "govuk-input--width-2" + (" govuk-input--error" if "day" in parts else ""), value: values.day },

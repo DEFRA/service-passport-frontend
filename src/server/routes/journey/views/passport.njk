@@ -63,7 +63,6 @@
 
       {% if route.afterGoLive.length %}
         <h2 class="govuk-heading-m app-task-list-heading">After go-live</h2>
-        <p class="govuk-body">Conditions to meet once you are live.</p>
         {% set items = [] %}
         {% for condition in route.afterGoLive %}
           {% set items = (items.push({
@@ -78,7 +77,6 @@
 
       {% if state.routeLog.length %}
         <h2 class="govuk-heading-m">Changes to your route</h2>
-        <p class="govuk-body">Anyone you share your passport with can see these.</p>
         <ol class="govuk-list app-history">
           {% for entry in state.routeLog %}
             <li>
@@ -94,11 +92,11 @@
       {% endif %}
 
       <h2 class="govuk-heading-m">Share your passport</h2>
-      <p class="govuk-body">Your project board and the teams that decide can see every step, decision and change. <a class="govuk-link" href="/passport/share">Get a link to share</a>.</p>
+      <p class="govuk-body"><a class="govuk-link" href="/passport/share">Get a link</a> for your project board and the teams that decide.</p>
 
       <div class="app-prototype-controls">
         <h2 class="govuk-heading-s">Prototype controls</h2>
-        <p class="govuk-body">Today in this prototype is {{ route.now | formatDate("d MMMM yyyy") }}. Move time on, or act as the teams that decide.</p>
+        <p class="govuk-body">Today is {{ route.now | formatDate("d MMMM yyyy") }} in this prototype.</p>
         <form method="post" action="/passport/time-passes" novalidate>
           <input type="hidden" name="crumb" value="{{ crumb }}">
           <dl class="app-controls">
@@ -109,12 +107,12 @@
             {% if not route.ready %}
               <div class="app-controls__row">
                 <dt>{{ govukButton({ text: "Approve every step", classes: "govuk-button--secondary", attributes: { formaction: "/passport/approve-everything" } }) }}</dt>
-                <dd class="govuk-body">Each team approves on its planned date, so you can see a finished passport.</dd>
+                <dd class="govuk-body">Each team approves on its planned date.</dd>
               </div>
             {% endif %}
             <div class="app-controls__row">
               <dt>{{ govukButton({ text: "Start again", classes: "govuk-button--secondary", attributes: { formaction: "/start-again" } }) }}</dt>
-              <dd class="govuk-body">Clears everything, including the password, ready for the next participant.</dd>
+              <dd class="govuk-body">Clears everything, including the password.</dd>
             </div>
           </dl>
         </form>

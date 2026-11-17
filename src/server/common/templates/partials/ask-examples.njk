@@ -1,0 +1,11 @@
+{# Example questions, each its own submit button, so one press asks it. #}
+<form method="post" action="{{ action }}" novalidate>
+  <input type="hidden" name="crumb" value="{{ crumb }}">
+  {% if focus %}<input type="hidden" name="step" value="{{ focus.id }}">{% endif %}
+  <p class="govuk-body govuk-!-margin-bottom-2" id="{{ examplesId }}">Or try one of these:</p>
+  <ul class="govuk-list app-ask__examples-list" aria-labelledby="{{ examplesId }}">
+    {% for example in examples %}
+      <li><button type="submit" name="question" value="{{ example }}" class="app-ask__example">{{ example }}</button></li>
+    {% endfor %}
+  </ul>
+</form>

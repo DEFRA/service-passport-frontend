@@ -39,7 +39,7 @@
             value: option.value,
             text: option.text,
             checked: option.value == values.status,
-            hint: { text: "The " + step.waitingFor + " decides. You cannot change this until they do." } if option.value == "submitted",
+            hint: { text: "You cannot change this until the " + step.waitingFor + " decides." } if option.value == "submitted",
             conditional: { html: bookedHtml } if option.value == "booked"
           }), items) %}
         {% endfor %}
@@ -53,7 +53,7 @@
 
         {% if step.sendBlockers.length %}
           {% set waitingHtml %}
-            <p class="govuk-body">You can send your papers once every other step is approved. {{ step.sendBlockers.length }} {{ "is" if step.sendBlockers.length == 1 else "are" }} still open:</p>
+            <p class="govuk-body">Send your papers once every other step is approved. Still open:</p>
             <ul class="govuk-list govuk-list--bullet">
               {% for other in step.sendBlockers %}<li><a class="govuk-link" href="{{ other.href }}">{{ other.name }}</a></li>{% endfor %}
             </ul>

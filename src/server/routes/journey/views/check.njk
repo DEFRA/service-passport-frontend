@@ -20,18 +20,17 @@
 
       <span class="govuk-caption-l">{{ service.name }}</span>
       <h1 class="govuk-heading-l">{{ "About your service" if state.confirmed else "Check what AI found" }}</h1>
+    </div>
+  </div>
 
-      {% set serviceRow = {
-        key: { text: "Service on CDP" },
-        value: { text: service.name }
-      } %}
-      {% if not state.confirmed %}
-        {% set serviceRow = { key: serviceRow.key, value: serviceRow.value, actions: { items: [{ href: "/about-your-service", text: "Change", visuallyHiddenText: "service on CDP" }] } } %}
-      {% endif %}
+  {# Both lists run full width, so their labels, answers and Change links
+     line up in the same columns. Text above them stays at two thirds. #}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      {% set serviceAction = { items: [{ href: "/about-your-service", text: "Change", visuallyHiddenText: "service" }] } if not state.confirmed else { items: [] } %}
       {{ govukSummaryList({
         rows: [
-          serviceRow,
-          { key: { text: "Phase" }, value: { text: service.phase } },
+          { key: { text: "Service" }, value: { text: service.name }, actions: serviceAction },
           {
             key: { text: "Target go-live date" },
             value: { text: state.about.goLive | formatDate("d MMMM yyyy") },
@@ -39,12 +38,15 @@
           }
         ]
       }) }}
+    </div>
+  </div>
 
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
       <h2 class="govuk-heading-m">{{ "Your answers" if state.confirmed else "What AI found" }}</h2>
       {% if state.confirmed %}
-        <p class="govuk-body">Your route is built from these answers. Change one and your route changes with it.</p>
+        <p class="govuk-body">Change an answer and your route changes with it.</p>
       {% else %}
-        <p class="govuk-body">AI read your service's code and its deployments on CDP to answer these questions. The answers decide which approvals are on your route.</p>
         {% set aiWarning = "AI can make mistakes. Change any answer that is wrong." %}
         {% include "partials/ask-warning.njk" %}
       {% endif %}
@@ -77,7 +79,7 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {% if state.confirmed %}
-        <p class="govuk-body">To set up a passport for a different service, <a class="govuk-link" href="/">start again</a>.</p>
+        <p class="govuk-body">For a different service, <a class="govuk-link" href="/">start again</a>.</p>
         {{ govukButton({ text: "Go to your passport", href: "/passport" }) }}
       {% else %}
         <form method="post" novalidate>

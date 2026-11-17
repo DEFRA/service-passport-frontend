@@ -44,10 +44,13 @@
       "id": "public",
       "label": "Used by people outside Defra",
       "question": "Will people outside Defra use the service once it is live?",
-      "hint": "If they will, your route includes a beta assessment against the Service Standard.",
+      "hint": "If yes, you need a beta assessment.",
       "suggested": "yes",
-      "found": "sign-in through Defra Customer Identity, which is for people outside Defra",
-      "effect": { "yes": "Adds a beta assessment", "no": "No beta assessment" },
+      "found": "Defra Customer Identity sign-in",
+      "effect": {
+        "yes": "Adds a beta assessment",
+        "no": "No beta assessment"
+      },
       "source": "src/server/plugins/auth.js",
       "error": "Select yes if people outside Defra will use the service",
       "changeText": "whether people outside Defra use the service"
@@ -56,10 +59,13 @@
       "id": "personalData",
       "label": "Handles personal data",
       "question": "Does the service store or use personal data?",
-      "hint": "If it does, your route includes an update to your data protection impact assessment.",
+      "hint": "If yes, you need to update your data protection impact assessment.",
       "suggested": "yes",
-      "found": "names, addresses and phone numbers stored for each applicant",
-      "effect": { "yes": "Adds a data protection impact assessment update", "no": "No data protection update" },
+      "found": "Stores names, addresses and phone numbers",
+      "effect": {
+        "yes": "Adds a data protection impact assessment update",
+        "no": "No data protection update"
+      },
       "source": "src/server/models/applicant.js",
       "error": "Select yes if the service stores or uses personal data",
       "changeText": "whether the service handles personal data"
@@ -68,10 +74,13 @@
       "id": "usesAi",
       "label": "Uses AI",
       "question": "Does the service use AI to make or support decisions?",
-      "hint": "If it does, your route includes an algorithmic transparency record.",
+      "hint": "If yes, you need an algorithmic transparency record.",
       "suggested": "no",
-      "found": "no AI packages and no calls to Amazon Bedrock",
-      "effect": { "yes": "Adds an algorithmic transparency record", "no": "No algorithmic transparency record" },
+      "found": "No AI packages or Bedrock calls",
+      "effect": {
+        "yes": "Adds an algorithmic transparency record",
+        "no": "No algorithmic transparency record"
+      },
       "source": "package.json",
       "error": "Select yes if the service uses AI to make or support decisions",
       "changeText": "whether the service uses AI"
@@ -80,10 +89,13 @@
       "id": "nonStandardTools",
       "label": "Uses tools outside the CDP standard stack",
       "question": "Does the service use any tools outside the CDP standard stack?",
-      "hint": "If it does, your route includes a Technical Design Authority review.",
+      "hint": "If yes, you need a Technical Design Authority review.",
       "suggested": "no",
-      "found": "only packages from the CDP Node.js template",
-      "effect": { "yes": "Adds the Technical Design Authority", "no": "No Technical Design Authority" },
+      "found": "Only CDP template packages",
+      "effect": {
+        "yes": "Adds the Technical Design Authority",
+        "no": "No Technical Design Authority"
+      },
       "source": "package.json",
       "error": "Select yes if the service uses tools outside the CDP standard stack",
       "changeText": "whether the service uses tools outside the CDP standard stack"
@@ -92,10 +104,13 @@
       "id": "supplierPenTest",
       "label": "IT health check run by a supplier",
       "question": "Will an external supplier run your IT health check?",
-      "hint": "Suppliers need 8 weeks' notice. The CDP security team needs 2 weeks.",
+      "hint": "Suppliers need 8 weeks' notice. The CDP security team needs 2.",
       "suggested": "yes",
-      "found": "a named IT health check supplier in your test scope",
-      "effect": { "yes": "Book the IT health check 8 weeks ahead", "no": "Book the IT health check with the CDP security team, 2 weeks ahead" },
+      "found": "Supplier named in the test scope",
+      "effect": {
+        "yes": "Book 8 weeks ahead",
+        "no": "Book 2 weeks ahead with the CDP security team"
+      },
       "source": "docs/security/ithc-scope.md",
       "error": "Select yes if an external supplier will run your IT health check",
       "changeText": "who runs your IT health check"
@@ -104,15 +119,15 @@
   "alreadyDone": {
     "label": "Approvals already given",
     "question": "Which of these approvals does your service already have?",
-    "hint": "AI looked for evidence of each one. If you tick one it did not find, link to the evidence from your passport.",
+    "hint": "If you tick one AI did not find, add the evidence on your passport.",
     "error": "Select the approvals your service already has, or select none of these",
     "suggested": [
       "registration",
       "service-tiering",
       "solution-design-authority"
     ],
-    "found": "these in the CDP portal and your architecture decision records",
-    "effect": "Marked as done on your route",
+    "found": "In the CDP portal and decision records",
+    "effect": "Marked as done",
     "evidence": {
       "registration": {
         "decidedOn": "2026-02-02",
@@ -157,7 +172,7 @@
       "decidedBy": "Portfolio Office",
       "dueBefore": "private beta",
       "guidance": [
-        "The Portfolio Office registers your service and gives it a reference number. Every later stage gate uses it."
+        "The Portfolio Office gives your service a reference number for every stage gate."
       ]
     },
     {
@@ -169,7 +184,7 @@
       "decidedBy": "service transition manager",
       "dueBefore": "private beta",
       "guidance": [
-        "Your service transition manager agrees a tier with you. It sets how fast incidents must be fixed once you are live."
+        "Your service transition manager agrees a tier with you. It sets how fast live incidents are fixed."
       ]
     },
     {
@@ -210,7 +225,7 @@
         }
       ],
       "guidance": [
-        "You explain why you need each tool outside the CDP standard stack, and who will support it once you are live."
+        "Explain why you need each tool outside the CDP standard stack, and who will support it."
       ],
       "conditions": [
         {
@@ -232,7 +247,7 @@
       "startedOn": "2026-09-21",
       "boardDate": "2026-12-15",
       "guidance": [
-        "The board decides whether your service can be supported once it is live. Your service transition manager works through your Service Design Pack with you first."
+        "The board decides whether your service can be supported when live. Your service transition manager works through your Service Design Pack with you first."
       ],
       "pack": [
         {
@@ -369,7 +384,7 @@
         }
       ],
       "guidance": [
-        "A penetration test of your service in the perf-test environment on CDP. Fix every critical and high finding before stage gate 4."
+        "A penetration test in perf-test on CDP. Fix every critical and high finding before stage gate 4."
       ],
       "source": {
         "text": "CDP security testing guidance",
@@ -444,23 +459,12 @@
       "notApproved": "A critical finding in the sign-in flow. Fix it and book a retest."
     },
     {
-      "id": "deployed-to-production",
-      "stage": "build",
-      "name": "Deployed to production",
-      "kind": "data",
-      "fromData": "CDP portal",
-      "guidance": [
-        "From the CDP portal. The CDP platform team will only review a service that is in production."
-      ]
-    },
-    {
       "id": "platform-readiness-review",
       "stage": "build",
       "name": "Platform Readiness Review",
       "kind": "book",
       "todo": "Book your Platform Readiness Review",
       "decidedBy": "CDP platform team",
-      "startsAfter": ["deployed-to-production"],
       "neededBy": "gate-4",
       "timing": [
         {
@@ -477,7 +481,7 @@
         }
       ],
       "guidance": [
-        "The CDP platform team checks your service is ready for production: a runbook, test coverage, performance test results and alerts that work."
+        "The CDP platform team checks your service is ready to support. They review only services in production."
       ],
       "source": {
         "text": "CDP Platform Readiness Review guidance",
@@ -542,7 +546,8 @@
           "due": "before-go-live"
         }
       ],
-      "notApproved": "No test coverage report. Add one to your repository and book the review again."
+      "notApproved": "No test coverage report. Add one to your repository and book the review again.",
+      "checksProduction": true
     },
     {
       "id": "accessibility-audit",
@@ -793,7 +798,7 @@
         }
       ],
       "guidance": [
-        "The project board looks at every decision on your route and decides whether you can go live. You can send your papers once every other step is approved."
+        "The project board reviews every decision on your route and decides whether you can go live. Send your papers once every other step is approved."
       ],
       "conditions": [
         {
@@ -820,7 +825,7 @@
         }
       ],
       "guidance": [
-        "Raise a change request in MyIT so the change advisory board can agree your release date. You can raise it once stage gate 4 is approved."
+        "The change advisory board agrees your release date. Raise it in MyIT once stage gate 4 is approved."
       ],
       "source": {
         "text": "Defra change management guidance",

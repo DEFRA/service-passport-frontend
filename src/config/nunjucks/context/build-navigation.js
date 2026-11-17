@@ -1,7 +1,12 @@
 const items = [
-  { text: 'Passport', href: '/passport' },
-  { text: 'Plan', href: '/plan' },
-  { text: 'About your service', href: '/about-your-service/check' }
+  { text: 'Passport', href: '/passport', under: '/passport' },
+  { text: 'Plan', href: '/plan', under: '/plan' },
+  {
+    text: 'About your service',
+    href: '/about-your-service/check',
+    under: '/about-your-service'
+  },
+  { text: 'Ask', href: '/passport/ask', under: '/passport/ask' }
 ]
 
 /**
@@ -18,18 +23,26 @@ export function hasRoute(request) {
   }
 }
 
+function isUnder(path, prefix) {
+  return path === prefix || path.startsWith(`${prefix}/`)
+}
+
 /**
  * The service navigation, on every page so people can see the whole service
  * from the start. Before set-up, Passport and Plan explain what is missing.
- * A page counts as current when it sits under that item's address, so a
- * step page highlights Passport.
+ * The item whose address the page sits most closely under is current, so a
+ * step page highlights Passport and the Ask page highlights Ask.
  * @param {object} [request]
  * @returns {Array<{text: string, href: string, current: boolean}>}
  */
 export function buildNavigation(request) {
-  const section = (request.path ?? '').split('/')[1]
-  return items.map((item) => ({
-    ...item,
-    current: item.href.split('/')[1] === section
+  const path = request.path ?? ''
+  const current = items
+    .filter((item) => isUnder(path, item.under))
+    .sort((a, b) => b.under.length - a.under.length)[0]
+  return items.map(({ text, href, under }) => ({
+    text,
+    href,
+    current: under === current?.under
   }))
 }

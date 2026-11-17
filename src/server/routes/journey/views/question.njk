@@ -24,7 +24,7 @@
             {% set items = (items.push({
               value: step.id,
               text: step.name,
-              hint: { text: "AI found this in " + step.foundIn + "." } if step.foundIn,
+              hint: { text: "Found in " + step.foundIn } if step.foundIn,
               checked: step.id in value
             }), items) %}
           {% endfor %}

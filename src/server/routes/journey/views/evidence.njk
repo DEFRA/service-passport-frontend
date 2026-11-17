@@ -16,7 +16,7 @@
 
       <span class="govuk-caption-l">{{ step.name }}</span>
       <h1 class="govuk-heading-l">Add evidence</h1>
-      <p class="govuk-body">You said this was decided before you started using the passport. Link to the {{ step.decidedBy }}'s record of it, so anyone you share the passport with can check it.</p>
+      <p class="govuk-body">Link to the {{ step.decidedBy }}'s record of the decision.</p>
 
       <form method="post" novalidate>
         <input type="hidden" name="crumb" value="{{ crumb }}">
@@ -41,7 +41,7 @@
           spellcheck: false,
           autocomplete: "off",
           label: { text: "Link to the evidence", classes: "govuk-label--m" },
-          hint: { text: "For example, the minutes in SharePoint or a decision record in GitHub." },
+          hint: { text: "For example, minutes in SharePoint or a decision record in GitHub." },
           value: values.link,
           errorMessage: { text: errors.link } if errors.link
         }) }}

@@ -2,7 +2,7 @@ import { format, parseISO } from 'date-fns'
 
 import {
   addDays,
-  answerQuestion,
+  answerAboutPassport,
   buildRoute,
   clearState,
   data,
@@ -330,13 +330,13 @@ function answerNote(question, state, service) {
   const answered = Boolean(state.answers[question.id])
   if (unknown) {
     return answered
-      ? 'AI could not find this. You answered it.'
-      : 'AI could not find this. Answer it yourself.'
+      ? 'Not found. You answered it.'
+      : 'Not found. Answer it yourself.'
   }
   if (state.answers[question.id] !== question.suggested) {
     return `AI suggested ${yesNo(question.suggested).toLowerCase()}. You changed it.`
   }
-  return `AI found ${question.found}`
+  return question.found
 }
 
 /** What the current answer does to the route, so the cause sits by it. */
@@ -345,11 +345,16 @@ function answerEffect(question, state) {
   return answer ? question.effect[answer] : null
 }
 
+/** The file name alone: the folders add length, not meaning. */
+function fileName(path) {
+  return path.split('/').at(-1)
+}
+
 /** The file AI read, shown only while the answer is still the AI's own. */
 function answerSource(question, state, service) {
   const unknown = service?.aiCouldNotFind?.includes(question.id)
   return !unknown && state.answers[question.id] === question.suggested
-    ? question.source
+    ? fileName(question.source)
     : null
 }
 
@@ -380,7 +385,7 @@ function answerRows(state, service) {
     answered: true,
     effect: done.length ? data.alreadyDone.effect : null,
     note: sameSet(state.answers.alreadyDone, data.alreadyDone.suggested)
-      ? `AI found ${data.alreadyDone.found}`
+      ? data.alreadyDone.found
       : 'You changed what AI suggested.'
   })
   return rows
@@ -458,9 +463,9 @@ function aiNoteFor(question, service) {
     return null
   }
   if (service?.aiCouldNotFind?.includes(question.id)) {
-    return 'AI could not find this in your repository or the CDP portal.'
+    return 'AI could not find this.'
   }
-  return `AI suggested ${yesNo(question.suggested).toLowerCase()}. It found ${question.found}, in ${question.source}.`
+  return `AI suggested ${yesNo(question.suggested).toLowerCase()}. ${question.found}, in ${fileName(question.source)}.`
 }
 
 function questionView(h, question, state, value, error) {
@@ -635,11 +640,14 @@ function planRows(route, goLive) {
     })
   }
   rows.push({ date: route.now, order: -1, milestone: 'Today' })
-  rows.push({
-    date: route.papers,
-    order: 1,
-    milestone: 'Stage gate 4 papers due'
-  })
+  // While sending the papers is still a task, the task carries the date.
+  if (!rows.some((row) => row.step?.id === 'gate-4')) {
+    rows.push({
+      date: route.papers,
+      order: 1,
+      milestone: 'Stage gate 4 papers due'
+    })
+  }
   rows.push({
     date: route.gate4,
     order: 1,
@@ -775,14 +783,14 @@ const timePasses = needsRoute((request, h, state) => {
 /**
  * Runs the rest of the route to plan: each open step is sent and approved
  * on the date it would be, and the demo date moves on to the last of them.
- * Steps that need evidence or a production deployment are left alone.
+ * Steps that need evidence are left alone.
  */
 const approveEverything = needsRoute((request, h, state) => {
   const route = buildRoute(state)
   const stamps = { ...state.stamps }
   let latest = route.now
   for (const step of route.steps) {
-    if (step.decided || step.done || step.fromData || step.stamp.before) {
+    if (step.decided || step.done || step.stamp.before) {
       continue
     }
     const { decidedOn, sentOn } = plannedDecision(
@@ -813,6 +821,72 @@ const approveEverything = needsRoute((request, h, state) => {
   return h.redirect('/passport')
 })
 
+// Ask
+
+/**
+ * What to offer before the first question: two about the route, and one
+ * from the guidance of the step being asked about, or of the first step on
+ * the route that has guidance.
+ */
+function askExamples(route, focus) {
+  if (focus?.examples) {
+    return focus.examples
+  }
+  const guided = route.steps.find((step) => step.examples?.length)
+  return [
+    'What should I book next?',
+    'What is left before go-live?',
+    ...(guided ? [guided.examples[0]] : [])
+  ]
+}
+
+function askFocus(route, stepId) {
+  const step = stepId ? findStep(route, stepId) : null
+  return step && !step.cannotStart ? step : null
+}
+
+function askView(h, state, route, focus, extra = {}) {
+  return h.view(`${views}/ask`, {
+    pageTitle: focus ? `Ask about ${focus.name}` : 'Ask about your passport',
+    service: findCdpService(state.about.cdpService),
+    focus,
+    conversation: state.conversations?.passport ?? [],
+    examples: askExamples(route, focus),
+    maxQuestionLength,
+    ...extra
+  })
+}
+
+const showAsk = needsRoute((request, h, state) => {
+  const route = buildRoute(state)
+  return askView(h, state, route, askFocus(route, request.query.step))
+})
+
+const askAboutPassport = needsRoute((request, h, state) => {
+  const route = buildRoute(state)
+  const focus = askFocus(route, request.payload?.step)
+  const question = (request.payload?.question ?? '').trim()
+  let error = null
+  if (!question) {
+    error = 'Enter your question'
+  } else if (question.length > maxQuestionLength) {
+    error = `Question must be ${maxQuestionLength} characters or fewer`
+  }
+  if (error) {
+    return askView(h, state, route, focus, { error, question })
+  }
+  const conversation = [
+    ...(state.conversations?.passport ?? []),
+    { question, answer: answerAboutPassport(route, question, focus) }
+  ]
+  setState(request, {
+    ...state,
+    conversations: { ...state.conversations, passport: conversation }
+  })
+  const query = focus ? `?step=${focus.id}` : ''
+  return h.redirect(`/passport/ask${query}#answer-${conversation.length}`)
+})
+
 // One step
 
 function stepOrRedirect(handler) {
@@ -832,9 +906,8 @@ function stepView(h, state, step, extra = {}) {
     state,
     step,
     stageName: data.stages.find((stage) => stage.id === step.stage).name,
+    service: findCdpService(state.about.cdpService),
     now: today(state),
-    conversation: state.conversations?.[step.id] ?? [],
-    maxQuestionLength,
     ...extra
   })
 }
@@ -842,31 +915,6 @@ function stepView(h, state, step, extra = {}) {
 const showStep = stepOrRedirect((request, h, state, step) =>
   stepView(h, state, step, { banner: banner(request) })
 )
-
-const askAboutStep = stepOrRedirect((request, h, state, step) => {
-  if (!step.source) {
-    return h.redirect(step.href)
-  }
-  const question = (request.payload?.question ?? '').trim()
-  let error = null
-  if (!question) {
-    error = 'Enter your question'
-  } else if (question.length > maxQuestionLength) {
-    error = `Question must be ${maxQuestionLength} characters or fewer`
-  }
-  if (error) {
-    return stepView(h, state, step, { error, question })
-  }
-  const conversation = [
-    ...(state.conversations?.[step.id] ?? []),
-    { question, answer: answerQuestion(step, question) }
-  ]
-  setState(request, {
-    ...state,
-    conversations: { ...state.conversations, [step.id]: conversation }
-  })
-  return h.redirect(`/passport/${step.id}#answer-${conversation.length}`)
-})
 
 /** Stands in for AI checking the repository and the CDP portal. */
 const checkReadiness = stepOrRedirect((request, h, state, step) => {
@@ -918,7 +966,7 @@ function statusBanner(step, status, stamp, plan) {
     return {
       type: 'important',
       heading: `Your ${step.sentenceName} on ${longDate(stamp.bookedFor)} is too late`,
-      text: `Book a date on or before ${longDate(plan.latestBooking)}, or move your go-live date. That leaves time for the rest of the work before ${plan.milestoneNoun} on ${longDate(plan.milestone)}.`
+      text: `Book on or before ${longDate(plan.latestBooking)}, or move your go-live date.`
     }
   }
   const headings = {
@@ -1086,15 +1134,10 @@ const simulateDecision = stepOrRedirect((request, h, state, step) => {
  */
 const showRecord = stepOrRedirect((request, h, state, step) => {
   const { stamp } = step
-  if (!step.decided && !stamp.foundIn && !stamp.fromData) {
+  if (!step.decided && !stamp.foundIn) {
     return h.redirect(step.href)
   }
-  let heading = 'Decision record'
-  if (stamp.fromData) {
-    heading = 'Production deployment'
-  } else if (stamp.before) {
-    heading = 'Evidence'
-  }
+  const heading = stamp.before ? 'Evidence' : 'Decision record'
   return h.view(`${views}/record`, {
     pageTitle: `${heading}: ${step.name}`,
     heading,
@@ -1312,7 +1355,7 @@ function showGuidance(request, h) {
 
 export {
   approveEverything,
-  askAboutStep,
+  askAboutPassport,
   checkReadiness,
   confirmAnswers,
   confirmCondition,
@@ -1322,6 +1365,7 @@ export {
   saveQuestion,
   saveService,
   saveStatus,
+  showAsk,
   showCheck,
   showConnect,
   showCondition,

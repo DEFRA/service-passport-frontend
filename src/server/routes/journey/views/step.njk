@@ -1,9 +1,7 @@
 {% extends 'layouts/page.njk' %}
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
 {% from "govuk/components/details/macro.njk" import govukDetails %}
-{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
 {% from "govuk/components/task-list/macro.njk" import govukTaskList %}
@@ -14,10 +12,6 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {% if error %}
-        {{ govukErrorSummary({ titleText: "There is a problem", errorList: [{ text: error, href: "#question" }] }) }}
-      {% endif %}
-
       {% include "partials/banner.njk" %}
 
       <span class="govuk-caption-l">{{ stageName }}</span>
@@ -27,6 +21,10 @@
         <p class="govuk-body">{{ paragraph }}</p>
       {% endfor %}
 
+      {% if step.source %}
+        <p class="govuk-body"><a class="govuk-link" href="/passport/ask?step={{ step.id }}">Ask about this step</a></p>
+      {% endif %}
+
       {# Status, who is involved, the one date that matters now, then the
          evidence. Built row by row because each step shows a different set. #}
       {% set rows = [] %}
@@ -35,18 +33,16 @@
       {% if step.runBy %}
         {% set rows = (rows.push({ key: { text: "Run by" }, value: { text: step.runByLabel } }), rows) %}
       {% endif %}
-      {% if step.fromData %}
-        {% set rows = (rows.push({ key: { text: "Source" }, value: { text: "CDP portal" } }), rows) %}
-      {% else %}
-        {% set rows = (rows.push({ key: { text: "Decided by" }, value: { text: step.decidedByLabel } }), rows) %}
-      {% endif %}
+      {% set rows = (rows.push({ key: { text: "Decided by" }, value: { text: step.decidedByLabel } }), rows) %}
       {% if step.contact %}
         {% set rows = (rows.push({ key: { text: "Your contact" }, value: { text: step.contactLabel } }), rows) %}
       {% endif %}
 
-      {% if stamp.fromData %}
-        {% set rows = (rows.push({ key: { text: "In production" }, value: { text: "Version " + stamp.version + " since " + (stamp.decidedOn | formatDate("d MMMM yyyy")) } }), rows) %}
-      {% elif step.status == "booked" %}
+      {% if step.checksProduction %}
+        {% set rows = (rows.push({ key: { text: "In production" }, value: { text: ("Version " + service.production.version + " since " + (service.production.on | formatDate("d MMMM yyyy"))) if service.production else "Not yet" } }), rows) %}
+      {% endif %}
+
+      {% if step.status == "booked" %}
         {% set rows = (rows.push({ key: { text: "Booked for" }, value: { text: stamp.bookedFor | formatDate("d MMMM yyyy") } }), rows) %}
       {% elif step.status == "submitted" %}
         {% set rows = (rows.push({ key: { text: "Sent" }, value: { text: stamp.sentOn | formatDate("d MMMM yyyy") } }), rows) %}
@@ -69,8 +65,8 @@
         {% set rows = (rows.push({ key: { text: "Evidence" }, value: { text: "No evidence linked" }, actions: { items: [{ href: step.href + "/evidence", text: "Add", visuallyHiddenText: "evidence" }] } }), rows) %}
       {% elif stamp.evidenceUrl %}
         {% set rows = (rows.push({ key: { text: "Evidence" }, value: { html: '<a class="govuk-link" href="' + (stamp.evidenceUrl | escape) + '">' + (stamp.evidenceUrl | escape) + '</a>' } }), rows) %}
-      {% elif step.decided or stamp.before or stamp.fromData %}
-        {% set rows = (rows.push({ key: { text: "Evidence" }, value: { html: '<a class="govuk-link" href="' + step.href + '/record">View the ' + ("record in the CDP portal" if stamp.fromData else ("evidence" if stamp.before else "decision record")) + '</a>' } }), rows) %}
+      {% elif step.decided or stamp.before %}
+        {% set rows = (rows.push({ key: { text: "Evidence" }, value: { html: '<a class="govuk-link" href="' + step.href + '/record">View the ' + ("evidence" if stamp.before else "decision record") + '</a>' } }), rows) %}
       {% endif %}
 
       {{ govukSummaryList({ rows: rows }) }}
@@ -82,9 +78,9 @@
           </ul>
           {% set milestoneText = step.plan.milestoneName + " on " + (step.plan.milestone | formatDate("d MMMM yyyy")) %}
           {% if step.plan.christmas %}
-            <p class="govuk-body">That adds up to {{ step.plan.weeks }} weeks. We added 2 weeks because the work runs over Christmas, so {{ step.actionBy | replace(" by", "") | lower }} {{ step.plan.totalWeeks }} weeks before {{ milestoneText }}.</p>
+            <p class="govuk-body">That is {{ step.plan.weeks }} weeks, plus 2 for Christmas, so {{ step.actionBy | replace(" by", "") | lower }} {{ step.plan.totalWeeks }} weeks before {{ milestoneText }}.</p>
           {% else %}
-            <p class="govuk-body">That adds up to {{ step.plan.weeks }} weeks before {{ milestoneText }}.</p>
+            <p class="govuk-body">That is {{ step.plan.weeks }} weeks before {{ milestoneText }}.</p>
           {% endif %}
           {% if step.neededBy == "gate-4" and step.id != "gate-4" %}
             <p class="govuk-body">Stage gate 4 papers are due 2 weeks before the board, which meets at least 4 weeks before go-live.</p>
@@ -118,7 +114,7 @@
 
       {% if step.pack %}
         <h2 class="govuk-heading-m">Your Service Design Pack</h2>
-        <p class="govuk-body">From your Service Design Pack. Your service transition manager signs off each section.</p>
+        <p class="govuk-body">Your service transition manager signs off each section.</p>
         {% set packRows = [] %}
         {% for section in step.pack %}
           {% set packRows = (packRows.push({
@@ -134,7 +130,7 @@
         {% set verb = step.action | lower %}
         <h2 class="govuk-heading-m" id="readiness">Check you are ready</h2>
         {% if not ready.checkedOn %}
-          <p class="govuk-body">AI can check your code and the CDP portal against what the {{ step.waitingFor }} looks for. You find out what to fix before you {{ verb }}.</p>
+          <p class="govuk-body">AI checks your code and the CDP portal against what the {{ step.waitingFor }} looks for.</p>
           <form method="post" action="{{ step.href }}/readiness" novalidate>
             <input type="hidden" name="crumb" value="{{ crumb }}">
             {{ govukButton({ text: "Check my service", classes: "govuk-button--secondary" }) }}
@@ -171,7 +167,7 @@
       {% endif %}
 
       {% if step.editable %}
-        {{ govukButton({ text: "Update where this is up to", href: step.href + "/status" }) }}
+        {{ govukButton({ text: "Update status", href: step.href + "/status" }) }}
       {% endif %}
 
       {% if stamp.history.length %}
@@ -185,71 +181,6 @@
     </div>
   </div>
 
-  {# The conversation runs to three quarters, as in Ask the toolkit: wide
-     enough that the indented answer still holds a readable line, short of
-     the full width where lines run past 75 characters. #}
-  {% if step.source %}
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-three-quarters">
-        <h2 class="govuk-heading-m" id="ask">Ask about this step</h2>
-
-        {% for turn in conversation %}
-          <div class="app-ask__turn">
-            <div class="app-ask__asked">
-              <h3 class="govuk-heading-s app-ask__speaker">You<span class="govuk-visually-hidden">, question {{ loop.index }}</span></h3>
-              <p class="govuk-body">{{ turn.question }}</p>
-            </div>
-            <div class="app-ask__answer">
-              <h3 class="govuk-heading-s app-ask__speaker" id="answer-{{ loop.index }}" tabindex="-1">AI answer</h3>
-              {% for paragraph in turn.answer.paragraphs %}
-                <p class="govuk-body">{{ paragraph }}</p>
-              {% endfor %}
-              {% if turn.answer.bullets %}
-                <ul class="govuk-list govuk-list--bullet">
-                  {% for bullet in turn.answer.bullets %}<li>{{ bullet }}</li>{% endfor %}
-                </ul>
-              {% endif %}
-              {% if turn.answer.found %}
-                <p class="govuk-body govuk-!-font-size-16">From the <a class="govuk-link" href="/guidance/{{ turn.answer.source.slug }}">{{ turn.answer.source.text }}</a>.</p>
-                {% set aiWarning = "AI can make mistakes. Check the answer against the guidance before you act." %}
-                {% include "partials/ask-warning.njk" %}
-              {% endif %}
-            </div>
-          </div>
-        {% endfor %}
-
-        <form method="post" action="{{ step.href }}/ask#ask" class="app-ask__panel" novalidate>
-          <input type="hidden" name="crumb" value="{{ crumb }}">
-          {{ govukCharacterCount({
-            name: "question",
-            id: "question",
-            maxlength: maxQuestionLength,
-            threshold: 75,
-            rows: 3,
-            classes: "app-ask__input",
-            label: { text: "Your question" if not conversation.length else "Ask another question", classes: "govuk-label--s" },
-            hint: { text: "AI answers from the " + step.source.text + ". Do not include personal data." },
-            value: question,
-            errorMessage: { text: error } if error
-          }) }}
-          {{ govukButton({ text: "Ask", classes: "app-ask__send", preventDoubleClick: true }) }}
-        </form>
-
-        {% if not conversation.length %}
-          <form method="post" action="{{ step.href }}/ask#ask" novalidate>
-            <input type="hidden" name="crumb" value="{{ crumb }}">
-            <p class="govuk-body govuk-!-margin-bottom-2" id="examples-label">Or try one of these:</p>
-            <ul class="govuk-list app-ask__examples-list" aria-labelledby="examples-label">
-              {% for example in step.examples %}
-                <li><button type="submit" name="question" value="{{ example }}" class="app-ask__example">{{ example }}</button></li>
-              {% endfor %}
-            </ul>
-          </form>
-        {% endif %}
-      </div>
-    </div>
-  {% endif %}
-
   {% set waitingConditions = [] %}
   {% for condition in step.conditions %}
     {% if condition.sentOn and not condition.met %}
@@ -261,7 +192,7 @@
       <div class="govuk-grid-column-two-thirds">
         <div class="app-prototype-controls">
           <h2 class="govuk-heading-s">Prototype controls</h2>
-          <p class="govuk-body">In the real service, the {{ step.waitingFor }} confirms this in their own record. Act as them here.</p>
+          <p class="govuk-body">Act as the {{ step.waitingFor }}.</p>
           {% for condition in waitingConditions %}
             <form method="post" action="{{ step.href }}/conditions/{{ condition.index }}/confirm" novalidate>
               <input type="hidden" name="crumb" value="{{ crumb }}">
@@ -278,7 +209,7 @@
       <div class="govuk-grid-column-two-thirds">
         <div class="app-prototype-controls">
           <h2 class="govuk-heading-s">Prototype controls</h2>
-          <p class="govuk-body">In the real service, the {{ step.waitingFor }} records their decision. Act as them here and choose it.</p>
+          <p class="govuk-body">Act as the {{ step.waitingFor }} and choose their decision.</p>
           <form method="post" action="{{ step.href }}/decision" novalidate>
             <input type="hidden" name="crumb" value="{{ crumb }}">
             <div class="govuk-button-group">

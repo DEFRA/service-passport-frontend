@@ -11,8 +11,7 @@
     <div class="govuk-grid-column-two-thirds">
       <span class="govuk-caption-l">{{ service.name }}</span>
       <h1 class="govuk-heading-l">Share your passport</h1>
-      <p class="govuk-body">Send this link to anyone who needs to see where your service is up to, such as your project board at stage gate 4 or the change advisory board before release.</p>
-      <p class="govuk-body">They will see every step, each decision, its date and a link to the evidence. Only the delivery lead and product lead for this service can change it.</p>
+      <p class="govuk-body">Anyone with the link sees every step, decision and piece of evidence. Only the delivery and product leads can change it.</p>
 
       {{ govukInput({
         id: "link",
@@ -23,7 +22,7 @@
         spellcheck: false
       }) }}
 
-      {{ govukInsetText({ text: "In the real service, people sign in with their Defra account to open the link. In this prototype the link only works in your own browser." }) }}
+      {{ govukInsetText({ text: "In this prototype the link only works in your browser." }) }}
 
       {{ govukButton({ text: "Back to your passport", href: "/passport", classes: "govuk-button--secondary" }) }}
     </div>

@@ -276,13 +276,6 @@ function startingStamps(answers, service, now) {
   for (const step of steps(answers)) {
     if (answers.alreadyDone.includes(step.id)) {
       stamps[step.id] = doneBeforeStamp(step, now)
-    } else if (step.fromData && service?.production) {
-      stamps[step.id] = {
-        status: 'done',
-        fromData: true,
-        decidedOn: service.production.on,
-        version: service.production.version
-      }
     } else if (step.startStatus) {
       stamps[step.id] = {
         status: step.startStatus,
@@ -467,11 +460,6 @@ function hintFor(step, service) {
   if (step.cannotStart) {
     return `After ${step.blockers.map((name) => nameInSentence(name)).join(' and ')}`
   }
-  if (step.fromData) {
-    return stamp.fromData
-      ? `Version ${stamp.version}, deployed ${longDate(stamp.decidedOn)}`
-      : `No production deployment for ${service?.id ?? 'this service'} yet`
-  }
   if (stamp.before) {
     return stamp.decidedOn
       ? `Decided ${longDate(stamp.decidedOn)}`
@@ -508,6 +496,23 @@ function hintFor(step, service) {
   return null
 }
 
+/** Whether the service is in production, read from the CDP portal. */
+function productionCheck(service) {
+  const production = service?.production
+  return production
+    ? {
+        text: 'Deployed to production',
+        result: 'ready',
+        found: `Version ${production.version} since ${longDate(production.on)}, in the CDP portal.`
+      }
+    : {
+        text: 'Deployed to production',
+        result: 'gap',
+        found: 'Not in production yet.',
+        fix: 'Deploy before your review.'
+      }
+}
+
 /**
  * What AI found when the delivery lead asked it to check the service was
  * ready for this step, or null if the step has no checks. Nothing shows
@@ -517,11 +522,17 @@ function readinessFor(step, state) {
   if (!step.readiness) {
     return null
   }
+  const items = step.checksProduction
+    ? [
+        productionCheck(findCdpService(state.about?.cdpService)),
+        ...step.readiness
+      ]
+    : step.readiness
   const count = (result) =>
-    step.readiness.filter((item) => item.result === result).length
+    items.filter((item) => item.result === result).length
   return {
     checkedOn: state.readiness?.[step.id] ?? null,
-    items: step.readiness,
+    items,
     gaps: count('gap'),
     unknown: count('unknown')
   }
@@ -610,10 +621,7 @@ function finishStep(step, described, service) {
   }
   const look = lookFor(finished)
   const editable =
-    !step.fromData &&
-    !step.stamp.before &&
-    !cannotStart &&
-    editableStatuses.has(step.status)
+    !step.stamp.before && !cannotStart && editableStatuses.has(step.status)
   const withLook = { ...finished, statusText: look.text, tag: look.tag }
   return {
     ...withLook,
@@ -799,8 +807,116 @@ function answerQuestion(step, question) {
   }
 }
 
+const passportSource = { text: 'your passport', href: '/passport' }
+
+function wordsIn(question) {
+  return normalise(question).match(/[a-z0-9-]+/g) ?? []
+}
+
+/** The step a question names, matched on the step's own name. */
+function namedStep(route, asked) {
+  return (
+    route.steps.find((step) => asked.includes(step.name.toLowerCase())) ?? null
+  )
+}
+
+/**
+ * Why a step is on the route, from the rule that put it there, so AI never
+ * restates the rule in its own words.
+ */
+function whyOnRoute(step) {
+  const rule = data.steps.find((s) => s.id === step.id)?.when
+  if (!rule) {
+    return [`Every route has the ${step.sentenceName}, whatever your answers.`]
+  }
+  const labels = Object.keys(rule).map(
+    (id) => data.questions.find((question) => question.id === id).question
+  )
+  return [
+    `It is on your route because you answered yes to "${labels.join('" and "')}".`,
+    'If that is wrong, change it in About your service.'
+  ]
+}
+
+/** Answers about the person's own route, worked out from the passport. */
+function routeAnswer(route, question) {
+  const asked = normalise(question)
+  const words = wordsIn(question)
+  const step = namedStep(route, asked)
+  if (
+    step &&
+    words.some((w) => ['skip', 'need', 'why', 'remove'].includes(w))
+  ) {
+    return { paragraphs: whyOnRoute(step) }
+  }
+  if (words.includes('overdue') || words.includes('late')) {
+    return route.late.length
+      ? {
+          paragraphs: [
+            `${plural(route.late.length, 'step is', 'steps are')} overdue:`
+          ],
+          bullets: route.late.map((late) => `${late.name}, ${late.overdue.due}`)
+        }
+      : { paragraphs: ['Nothing is overdue.'] }
+  }
+  if (words.includes('next')) {
+    const next = nextStep(route)
+    return {
+      paragraphs: [
+        next
+          ? `${next.todo} by ${longDate(next.plan.actionBy)}.`
+          : 'Nothing to book. Every open step is booked or waiting for a decision.'
+      ]
+    }
+  }
+  if (words.some((w) => ['left', 'remaining', 'open'].includes(w))) {
+    const open = route.steps.filter((s) => !s.done)
+    return {
+      paragraphs: [
+        `${plural(open.length, 'step is', 'steps are')} still open:`
+      ],
+      bullets: open.map((s) => `${s.name}: ${s.statusText.toLowerCase()}`)
+    }
+  }
+  return null
+}
+
+/**
+ * The answer to a question about the whole passport. Questions about the
+ * route are answered from the passport's own rules and dates. Anything else
+ * is answered from the guidance for a step: the step being asked about
+ * first, then any step on the route. If nothing matches, it says so.
+ */
+function answerAboutPassport(route, question, focus) {
+  const fromRoute = routeAnswer(route, question)
+  if (fromRoute) {
+    return { found: true, source: passportSource, ...fromRoute }
+  }
+  const asked = normalise(question)
+  const guided = route.steps.filter((step) => step.source)
+  const candidates = [focus, namedStep(route, asked), ...guided].filter(
+    (step, index, all) => step?.source && all.indexOf(step) === index
+  )
+  for (const step of candidates) {
+    const answer = answerQuestion(step, question)
+    if (answer.found) {
+      return answer
+    }
+  }
+  const contact = focus
+    ? (focus.contact ?? `the ${focus.decidedBy}`)
+    : 'your service transition manager'
+  return {
+    found: false,
+    paragraphs: [
+      `AI could not find an answer in your passport or its guidance. Ask ${contact}.`
+    ]
+  }
+}
+
 export {
   addDays,
+  answerAboutPassport,
   answerQuestion,
   buildRoute,
   capitalise,

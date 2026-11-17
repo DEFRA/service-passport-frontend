@@ -15,7 +15,7 @@
 
       <span class="govuk-caption-l">Condition from {{ step.sentenceName }}</span>
       <h1 class="govuk-heading-l">{{ condition.text }}</h1>
-      <p class="govuk-body">The {{ step.waitingFor }} set this condition. It is due {{ due }}. Send them the evidence and they will confirm whether it is met.</p>
+      <p class="govuk-body">Due {{ due }}. The {{ step.waitingFor }} confirms when it is met.</p>
 
       <form method="post" novalidate>
         <input type="hidden" name="crumb" value="{{ crumb }}">
@@ -26,7 +26,7 @@
           spellcheck: false,
           autocomplete: "off",
           label: { text: "Link to the evidence", classes: "govuk-label--m" },
-          hint: { text: "For example, the file in GitHub or the document in SharePoint." },
+          hint: { text: "For example, a file in GitHub or SharePoint." },
           value: values.link,
           errorMessage: { text: errors.link } if errors.link
         }) }}

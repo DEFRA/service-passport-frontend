@@ -2,9 +2,11 @@ import * as cheerio from 'cheerio'
 
 import { createServer } from '#/server/server.js'
 import {
+  answerAboutPassport,
   answerQuestion,
   buildRoute,
   data,
+  longDate,
   nameInSentence,
   nextStep,
   suggestedAnswers,
@@ -103,7 +105,7 @@ describe('The Service Passport journey', () => {
           .$('.defra-service-navigation__link')
           .map((i, link) => start.$(link).text())
           .get()
-      ).toEqual(['Passport', 'Plan', 'About your service'])
+      ).toEqual(['Passport', 'Plan', 'About your service', 'Ask'])
     })
 
     test.each(['/passport', '/plan'])(
@@ -133,7 +135,7 @@ describe('The Service Passport journey', () => {
       expect(tasks).toEqual([
         'Sign in with your Defra account Signed in Done',
         'Find your team on CDP Plant health digital Done',
-        'Find the services your team owns Book a plant export check, Get a catch certificate, Report a livestock movement Done'
+        'Find the services your team owns 3 services Done'
       ])
       expect($('[data-progress-live]').attr('data-progress-live')).toBe(
         'Found 3 services owned by Plant health digital.'
@@ -222,7 +224,7 @@ describe('The Service Passport journey', () => {
         .get()
       expect(order).toEqual([
         'Check what AI found',
-        'Service on CDP',
+        'Service',
         'What AI found',
         'Used by people outside Defra'
       ])
@@ -239,14 +241,14 @@ describe('The Service Passport journey', () => {
         '.govuk-summary-list__row:has(#change-supplierPenTest)'
       )
       expect(row).toContain(
-        'AI found a named IT health check supplier in your test scope, in docs/security/ithc-scope.md'
+        'Supplier named in the test scope, in ithc-scope.md'
       )
       expect(
         text(
           $,
           '.govuk-summary-list__row:has(#change-supplierPenTest) .app-effect'
         )
-      ).toBe('Book the IT health check 8 weeks ahead')
+      ).toBe('Book 8 weeks ahead')
       expect(
         text($, '.govuk-summary-list__row:has(#change-public) .app-effect')
       ).toBe('Adds a beta assessment')
@@ -266,9 +268,7 @@ describe('The Service Passport journey', () => {
 
       await person.post('/about-your-service/supplierPenTest', { answer: 'no' })
       const check = await person.get('/about-your-service/check')
-      expect(text(check.$, 'main')).toContain(
-        'AI could not find this. You answered it.'
-      )
+      expect(text(check.$, 'main')).toContain('Not found. You answered it.')
       const done = await person.post('/about-your-service/check')
       expect(done.headers.location).toBe('/passport')
     })
@@ -355,7 +355,8 @@ describe('The Service Passport journey', () => {
         .map((_, item) => text($, $(item).children().first()))
         .get()
       expect(items[0]).toBe('Book your IT health check')
-      expect(items).toContain('Stage gate 4 papers due')
+      expect(items).toContain('Send your stage gate 4 papers')
+      expect(items).not.toContain('Stage gate 4 papers due')
       expect(items).toContain('Stage gate 4 board, latest date')
       expect(items.at(-1)).toBe('Target go-live')
       expect(taskStatus($, 'Book your IT health check').hint).toBe(
@@ -366,7 +367,7 @@ describe('The Service Passport journey', () => {
     test('sharing sits at the foot of the passport, not with its facts', async () => {
       const { $ } = await person.get('/passport')
       expect($('.app-facts').text()).not.toContain('Share')
-      expect($('a[href="/passport/share"]').text()).toBe('Get a link to share')
+      expect($('a[href="/passport/share"]').text()).toBe('Get a link')
     })
 
     test('the step page explains its book by date', async () => {
@@ -375,7 +376,7 @@ describe('The Service Passport journey', () => {
         'Why book by 10 November 2026?'
       )
       expect(text($, '.govuk-details')).toContain(
-        'We added 2 weeks because the work runs over Christmas, so book 14 weeks before you send your stage gate 4 papers on 16 February 2027.'
+        'That is 12 weeks, plus 2 for Christmas, so book 14 weeks before you send your stage gate 4 papers on 16 February 2027.'
       )
     })
 
@@ -453,7 +454,9 @@ describe('The Service Passport journey', () => {
         .map((_, input) => $(input).val())
         .get()
       expect(values).toEqual(['not-started', 'in-progress'])
-      expect(text($, '.govuk-inset-text')).toContain('6 are still open')
+      expect(text($, '.govuk-inset-text')).toContain(
+        'Still open: Service Design Review Board'
+      )
     })
 
     test('a step sent back shows the reason, then conditions keep it open until met', async () => {
@@ -594,7 +597,7 @@ describe('The Service Passport journey', () => {
     test('AI checks the service is ready only when asked, and the passport counts what to fix', async () => {
       const before = await person.get('/passport/pen-test')
       expect(text(before.$, '#readiness + p')).toContain(
-        'AI can check your code and the CDP portal'
+        'AI checks your code and the CDP portal'
       )
       expect(before.$('.app-readiness').length).toBe(0)
 
@@ -620,6 +623,20 @@ describe('The Service Passport journey', () => {
       const passport = await person.get('/passport')
       expect(taskStatus(passport.$, 'IT health check').hint).toBe(
         'Was due by 10 November 2026. 1 thing to fix first'
+      )
+    })
+
+    test('the Platform Readiness Review checks the service is in production', async () => {
+      const prr = '/passport/platform-readiness-review'
+      await person.post(`${prr}/readiness`, {}, prr)
+      const { $ } = await person.get(prr)
+      expect(text($, '.govuk-summary-list')).toContain(
+        'In production Version 0.50.0 since 3 November 2026'
+      )
+      const deployed = taskStatus($, 'Deployed to production')
+      expect(deployed.status).toBe('Ready')
+      expect(deployed.hint).toBe(
+        'Version 0.50.0 since 3 November 2026, in the CDP portal.'
       )
     })
 
@@ -649,30 +666,51 @@ describe('The Service Passport journey', () => {
       )
       expect(taskStatus($, 'Stage gate 4').hint).toBe('Decided 2 March 2027')
       expect(text($, '.app-prototype-controls')).toContain(
-        'Today in this prototype is 29 March 2027'
+        'Today is 29 March 2027 in this prototype.'
       )
       const share = await person.get('/passport/share')
       expect(share.$('#link').val()).toMatch(/\/passport$/)
     })
 
+    test('Ask sits in the navigation and step pages link to it', async () => {
+      const passport = await person.get('/passport')
+      expect(passport.$('#question').length).toBe(0)
+      const ask = await person.get('/passport/ask')
+      expect(
+        ask.$('.defra-service-navigation__link[aria-current="page"]').text()
+      ).toBe('Ask')
+      const sdrb = await person.get('/passport/service-design-review-board')
+      expect(
+        sdrb
+          .$('a[href="/passport/ask?step=service-design-review-board"]')
+          .text()
+      ).toBe('Ask about this step')
+      expect(sdrb.$('#question').length).toBe(0)
+    })
+
     test('asking about a step answers from its guidance and links to it', async () => {
-      const sdrb = '/passport/service-design-review-board'
-      const empty = await person.post(`${sdrb}/ask`, { question: ' ' }, sdrb)
+      const ask = '/passport/ask?step=service-design-review-board'
+      const empty = await person.post(
+        ask,
+        { question: ' ', step: 'service-design-review-board' },
+        ask
+      )
       expect(text(empty.$, '.govuk-error-summary')).toContain(
         'Enter your question'
       )
 
-      await person.post(
-        `${sdrb}/ask`,
-        { question: 'Can I send the pack in parts?' },
-        sdrb
-      )
-      await person.post(
-        `${sdrb}/ask`,
-        { question: 'Why is the coffee machine broken?' },
-        sdrb
-      )
-      const { $ } = await person.get(sdrb)
+      for (const question of [
+        'Can I send the pack in parts?',
+        'Why is the coffee machine broken?',
+        'Can the board see the pack early?'
+      ]) {
+        await person.post(
+          ask,
+          { question, step: 'service-design-review-board' },
+          ask
+        )
+      }
+      const { $ } = await person.get(ask)
       const answers = $('.app-ask__answer')
       expect(text($, answers.eq(0))).toContain(
         'reviews each section as you finish it'
@@ -682,18 +720,9 @@ describe('The Service Passport journey', () => {
           .length
       ).toBe(1)
       expect(text($, answers.eq(1))).toContain(
-        'AI could not find an answer to that in the Service Design Pack guidance. Ask your service transition manager.'
+        'AI could not find an answer in your passport or its guidance. Ask your service transition manager.'
       )
-
-      await person.post(
-        `${sdrb}/ask`,
-        { question: 'Can the board see the pack early?' },
-        sdrb
-      )
-      const third = await person.get(sdrb)
-      expect(text(third.$, third.$('.app-ask__answer').eq(2))).toContain(
-        'AI could not find an answer'
-      )
+      expect(text($, answers.eq(2))).toContain('AI could not find an answer')
 
       const guidance = await person.get(
         '/guidance/service-design-pack-guidance'
@@ -773,6 +802,47 @@ describe('The passport rules', () => {
       (item) => item.id === 'service-design-review-board'
     )
     expect(answerQuestion(step, 'Why is it raining?').found).toBe(false)
+  })
+
+  test('questions about the route are answered from the passport', () => {
+    const route = buildRoute(state('2027-03-30'))
+    const next = answerAboutPassport(route, 'What should I book next?', null)
+    expect(next.source.href).toBe('/passport')
+    expect(next.paragraphs[0]).toBe(
+      `${nextStep(route).todo} by ${longDate(nextStep(route).plan.actionBy)}.`
+    )
+    const left = answerAboutPassport(
+      route,
+      'What is left before go-live?',
+      null
+    )
+    expect(left.bullets).toHaveLength(route.stepsLeft)
+  })
+
+  test('why a step is on the route quotes the question that put it there', () => {
+    const route = buildRoute(state('2027-03-30'))
+    const step = route.steps.find(
+      (item) => data.steps.find((s) => s.id === item.id).when
+    )
+    const answer = answerAboutPassport(
+      route,
+      `Why do I need the ${step.name}?`,
+      null
+    )
+    const rule = Object.keys(data.steps.find((s) => s.id === step.id).when)[0]
+    const asked = data.questions.find((q) => q.id === rule).question
+    expect(answer.paragraphs[0]).toBe(
+      `It is on your route because you answered yes to "${asked}".`
+    )
+  })
+
+  test('a question about nothing on the passport says so', () => {
+    const route = buildRoute(state('2027-03-30'))
+    const answer = answerAboutPassport(route, 'Why is it raining?', null)
+    expect(answer.found).toBe(false)
+    expect(answer.paragraphs[0]).toContain(
+      'Ask your service transition manager'
+    )
   })
 
   test.each([

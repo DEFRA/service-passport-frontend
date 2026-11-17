@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <span class="govuk-caption-l">Example guidance</span>
       <h1 class="govuk-heading-l">{{ step.source.text }}</h1>
-      {{ govukInsetText({ text: "This is an example. In the real service, this link opens the guidance itself, and AI answers only from what it says." }) }}
+      {{ govukInsetText({ text: "This is an example. AI answers only from the real guidance." }) }}
 
       {% for paragraph in step.guidance %}
         <p class="govuk-body">{{ paragraph }}</p>

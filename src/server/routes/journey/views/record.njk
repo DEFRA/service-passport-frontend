@@ -11,17 +11,9 @@
     <div class="govuk-grid-column-two-thirds">
       <span class="govuk-caption-l">{{ step.name }}</span>
 
-      {% if stamp.fromData %}
+      {% if stamp.before %}
         <h1 class="govuk-heading-l">{{ heading }}</h1>
-        {{ govukInsetText({ text: "This is an example. In the real service, this link opens the deployment in the CDP portal." }) }}
-        {{ govukSummaryList({ rows: [
-          { key: { text: "Version" }, value: { text: stamp.version } },
-          { key: { text: "Deployed" }, value: { text: stamp.decidedOn | formatDate("d MMMM yyyy") } },
-          { key: { text: "Environment" }, value: { text: "prod" } }
-        ] }) }}
-      {% elif stamp.before %}
-        <h1 class="govuk-heading-l">{{ heading }}</h1>
-        {{ govukInsetText({ text: "This is an example. In the real service, this link opens " + stamp.foundIn + "." }) }}
+        {{ govukInsetText({ text: "This is an example. The real service links to " + stamp.foundIn + "." }) }}
         {{ govukSummaryList({ rows: [
           { key: { text: "Decided by" }, value: { text: step.decidedByLabel } },
           { key: { text: "Date" }, value: { text: stamp.decidedOn | formatDate("d MMMM yyyy") } },
@@ -29,7 +21,7 @@
         ] }) }}
       {% else %}
         <h1 class="govuk-heading-l">{{ heading }}</h1>
-        {{ govukInsetText({ text: "This is an example. In the real service, this link opens the " + step.waitingFor + "'s own record of the decision. The passport links to it and does not copy it." }) }}
+        {{ govukInsetText({ text: "This is an example. The real service links to the " + step.waitingFor + "'s own record." }) }}
         {% set rows = [
           { key: { text: "Decision" }, value: { text: step.outcomes[stamp.status] if step.outcomes else ({ "approved": "Approved", "approved-with-conditions": "Approved with conditions", "not-approved": "Not approved" })[stamp.status] } },
           { key: { text: "Decided by" }, value: { text: step.decidedByLabel } },
@@ -48,8 +40,6 @@
         {% endif %}
         {{ govukSummaryList({ rows: rows }) }}
       {% endif %}
-
-      <p class="govuk-body"><a class="govuk-link" href="{{ step.href }}">Back to {{ step.sentenceName }}</a></p>
     </div>
   </div>
 {% endblock %}
