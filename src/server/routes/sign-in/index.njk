@@ -1,0 +1,40 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{# The GOV.UK Prototype Kit's password page, so research participants see
+   the screen they expect in front of a prototype. #}
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if error %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [{ text: error, href: "#password" }]
+        }) }}
+      {% endif %}
+
+      <h1 class="govuk-heading-l">This is a prototype used for research</h1>
+      <p class="govuk-body">It is not a real service. You should only continue if you have been invited to test this prototype.</p>
+
+      <form method="post" action="/sign-in" novalidate>
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+        <input type="hidden" name="returnUrl" value="{{ returnUrl }}">
+
+        {{ govukInput({
+          id: "password",
+          name: "password",
+          type: "password",
+          autocomplete: "current-password",
+          label: { text: "Password", classes: "govuk-label--s" },
+          errorMessage: { text: error } if error else undefined,
+          classes: "govuk-input--width-20"
+        }) }}
+
+        {{ govukButton({ text: "Continue" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

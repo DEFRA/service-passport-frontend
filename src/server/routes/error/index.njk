@@ -1,13 +1,16 @@
 {% extends 'layouts/page.njk' %}
 
 {% block content %}
-  {{ appHeading({
-    text: heading
-  }) }}
-
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <p>{{ message }}</p>
+      <h1 class="govuk-heading-l">{{ heading }}</h1>
+      {% if notFound %}
+        <p class="govuk-body">If you typed the web address, check it is correct.</p>
+        <p class="govuk-body">If you pasted the web address, check you copied the entire address.</p>
+        <p class="govuk-body"><a class="govuk-link" href="/">Go to the Service Passport</a></p>
+      {% else %}
+        <p class="govuk-body">{{ message }}</p>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

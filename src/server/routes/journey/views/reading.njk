@@ -1,0 +1,35 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/task-list/macro.njk" import govukTaskList %}
+
+{% set backLink = { href: "/about-your-service/go-live" } %}
+
+{# Stands in for AI reading the service, in the same form as finding the
+   services. With JavaScript each read runs in turn, then Continue appears.
+   The page never moves on by itself, so nobody is taken off it unwarned. #}
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds" data-module="app-progress">
+      <span class="govuk-caption-l">{{ service.name }}</span>
+      <h1 class="govuk-heading-l">Reading your service on CDP</h1>
+
+      {{ govukTaskList({
+        idPrefix: "reading",
+        classes: "app-task-list app-progress",
+        items: [
+          { title: { text: "Read your code on GitHub" }, hint: { text: service.repository }, status: { text: "Done" } },
+          { title: { text: "Read your deployments on CDP" }, hint: { text: ("Version " + service.production.version + ", deployed " + (service.production.on | formatDate("d MMMM yyyy"))) if service.production else "Not deployed to production yet" }, status: { text: "Done" } },
+          { title: { text: "Read approvals in the CDP portal" }, hint: { text: "Registration and service tier" }, status: { text: "Done" } },
+          { title: { text: "Suggest answers" }, hint: { text: answersHint }, status: { text: "Done" } }
+        ]
+      }) }}
+
+      <p class="govuk-visually-hidden" role="status" data-progress-live="AI has finished reading your service."></p>
+
+      <div data-progress-after>
+        {{ govukButton({ text: "Continue", href: "/about-your-service/check" }) }}
+      </div>
+    </div>
+  </div>
+{% endblock %}

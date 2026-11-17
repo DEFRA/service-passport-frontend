@@ -1,0 +1,34 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/task-list/macro.njk" import govukTaskList %}
+
+{% set backLink = { href: "/" } %}
+
+{# Shows how the passport knows which services to offer, before it offers
+   them. With JavaScript each check runs in turn; without it, the page
+   arrives finished. #}
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds" data-module="app-progress">
+      <h1 class="govuk-heading-l">Finding your services on CDP</h1>
+      <p class="govuk-body">The passport only reads from CDP. It changes nothing.</p>
+
+      {{ govukTaskList({
+        idPrefix: "connect",
+        classes: "app-task-list app-progress",
+        items: [
+          { title: { text: "Sign in with your Defra account" }, hint: { text: "Signed in" }, status: { text: "Done" } },
+          { title: { text: "Find your team on CDP" }, hint: { text: cdpTeam }, status: { text: "Done" } },
+          { title: { text: "Find the services your team owns" }, hint: { text: cdpServices.length + " services" }, status: { text: "Done" } }
+        ]
+      }) }}
+
+      <p class="govuk-visually-hidden" role="status" data-progress-live="Found {{ cdpServices.length }} services owned by {{ cdpTeam }}."></p>
+
+      <div data-progress-after>
+        {{ govukButton({ text: "Continue", href: "/about-your-service" }) }}
+      </div>
+    </div>
+  </div>
+{% endblock %}

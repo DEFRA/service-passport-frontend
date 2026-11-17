@@ -1,0 +1,23 @@
+{# What just happened, after an action. Always GOV.UK blue, so a success
+   does not clash with the Defra green navigation. The title says which.
+   It does not take focus: a focused banner looked selected when the page
+   loaded, and role="alert" still has screen readers announce it. #}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% if banner %}
+  {% set bannerHtml %}
+    <p class="govuk-notification-banner__heading">{{ banner.heading }}</p>
+    {% if banner.text %}<p class="govuk-body">{{ banner.text }}</p>{% endif %}
+    {% if banner.list %}
+      <ul class="govuk-list govuk-list--bullet">
+        {% for item in banner.list %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+  {% endset %}
+  {{ govukNotificationBanner({
+    type: "success" if banner.type == "success" else undefined,
+    classes: "app-notification-banner--blue",
+    disableAutoFocus: true,
+    titleText: "Success" if banner.type == "success" else "Important",
+    html: bannerHtml
+  }) }}
+{% endif %}

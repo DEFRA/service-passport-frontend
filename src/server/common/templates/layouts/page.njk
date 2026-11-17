@@ -1,8 +1,9 @@
 {% extends "govuk/template.njk" %}
 
 {# Import GOVUK components globally #}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
-{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
+{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
 
 {# Import custom components globally #}
 {% from "heading/macro.njk" import appHeading %}
@@ -38,28 +39,26 @@
   {% endif %}
 {% endblock %}
 
+{# The same header, navigation and footer as the AI toolkit, so the
+   passport reads as part of the same family of Defra services. #}
 {% block header %}
-  {# serviceName being used in govukHeader will be @deprecated in v6. It has moved to govukServiceNavigation - https://github.com/alphagov/govuk-frontend/blob/main/CHANGELOG.md#move-service-name-and-navigation-links-from-the-govuk-header-to-service-navigation-component #}
-  {{ govukHeader({
-    homepageUrl: "https://www.gov.uk/",
-    classes: "app-header",
-    containerClasses: "govuk-width-container",
-    serviceName: serviceName,
-    serviceUrl: serviceUrl,
-    useTudorCrown: true
-  }) }}
-
-  {{ govukServiceNavigation({
-    navigation: navigation
-  }) }}
+  {% include "../partials/header.njk" %}
 {% endblock %}
 
 {% block pageTitle %}
-  {{ pageTitle }} | {{ serviceName }}
+  {%- if errorList.length or error %}Error: {% endif -%}
+  {{ pageTitle }}{% if pageTitle != serviceName %} | {{ serviceName }}{% endif %}
 {% endblock %}
 
 {% block beforeContent %}
-  {% if breadcrumbs.length > 1 %}
+  {{ govukPhaseBanner({
+    tag: { text: "Alpha", classes: "govuk-tag--grey" },
+    text: "This is a prototype with example data."
+  }) }}
+
+  {% if backLink %}
+    {{ govukBackLink(backLink) }}
+  {% elif breadcrumbs.length > 1 %}
     {{ govukBreadcrumbs({
       items: breadcrumbs
     }) }}
@@ -69,24 +68,7 @@
 {% block content %}{% endblock %}
 
 {% block footer %}
-  {{ govukFooter({
-    meta: {
-      items: [
-        {
-          href: "https://www.gov.uk/help/privacy-notice",
-          text: "Privacy"
-        },
-        {
-          href: "/cookies",
-          text: "Cookies"
-        },
-        {
-          href: "https://www.gov.uk/help/accessibility-statement",
-          text: "Accessibility statement"
-        }
-      ]
-    }
-  }) }}
+  {% include "../partials/footer.njk" %}
 {% endblock %}
 
 {% block bodyEnd %}

@@ -1,0 +1,122 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/task-list/macro.njk" import govukTaskList %}
+
+{% if route.ready and not banner %}
+  {% set dueAfter = route.afterGoLive | rejectattr("met") | length %}
+  {% set banner = {
+    type: "success",
+    heading: "Every step on your route is approved",
+    text: "The change advisory board has agreed your release." + ((" " + dueAfter + (" condition is" if dueAfter == 1 else " conditions are") + " due after go-live.") if dueAfter else "")
+  } %}
+{% endif %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% include "partials/banner.njk" %}
+
+      <span class="govuk-caption-l">{{ service.name }}</span>
+      <h1 class="govuk-heading-l">Your passport</h1>
+
+      {{ govukSummaryList({
+        classes: "govuk-summary-list--no-border app-facts",
+        rows: [
+          { key: { text: "Go-live" }, value: { text: state.about.goLive | formatDate("d MMMM yyyy") } },
+          { key: { text: "Stage gate 4" }, value: { text: "By " + (route.gate4 | formatDate("d MMMM yyyy")) } },
+          { key: { text: "Progress" }, value: { text: (route.steps.length - route.stepsLeft) + " of " + route.steps.length + " steps done" } }
+        ]
+      }) }}
+
+      <div class="app-next">
+        {% set goLive = state.about.goLive %}
+        {% include "partials/booking-warning.njk" %}
+
+        {% if next and route.late.length < 2 and not route.impossible %}
+          {{ govukInsetText({ html: '<strong>Next:</strong> <a class="govuk-link" href="' + next.href + '">' + ((next.todo | first | lower) + next.todo.slice(1)) | escape + '</a> by ' + (next.plan.actionBy | formatDate("d MMMM yyyy")) + '.' }) }}
+        {% endif %}
+      </div>
+
+      {% for stage in route.stages %}
+        <h2 class="govuk-heading-m app-task-list-heading">{{ stage.name }}</h2>
+        {% set items = [] %}
+        {% for step in stage.steps %}
+          {% if step.cannotStart %}
+            {% set status = { text: step.statusText, classes: "govuk-task-list__status--cannot-start-yet" } %}
+          {% elif step.tag %}
+            {% set status = { tag: { text: step.statusText, classes: step.tag } } %}
+          {% else %}
+            {% set status = { text: step.statusText } %}
+          {% endif %}
+          {% set items = (items.push({
+            title: { text: step.name },
+            href: step.href if not step.cannotStart,
+            hint: { text: step.hint } if step.hint,
+            status: status
+          }), items) %}
+        {% endfor %}
+        {{ govukTaskList({ idPrefix: stage.id, items: items, classes: "app-task-list" }) }}
+      {% endfor %}
+
+      {% if route.afterGoLive.length %}
+        <h2 class="govuk-heading-m app-task-list-heading">After go-live</h2>
+        {% set items = [] %}
+        {% for condition in route.afterGoLive %}
+          {% set items = (items.push({
+            title: { text: condition.text },
+            href: condition.step.href if condition.sentOn and not condition.met else ((condition.step.href + "/conditions/" + condition.index) if not condition.met),
+            hint: { text: "From " + condition.step.sentenceName + ". Due by " + (condition.dueDate | formatDate("d MMMM yyyy")) },
+            status: { text: "Met" } if condition.met else ({ text: "Evidence sent" } if condition.sentOn else { tag: { text: "Not met yet", classes: "govuk-tag--grey" } })
+          }), items) %}
+        {% endfor %}
+        {{ govukTaskList({ idPrefix: "after-go-live", items: items, classes: "app-task-list" }) }}
+      {% endif %}
+
+      {% if state.routeLog.length %}
+        <h2 class="govuk-heading-m">Changes to your route</h2>
+        <ol class="govuk-list app-history">
+          {% for entry in state.routeLog %}
+            <li>
+              <span class="app-history__date">{{ entry.on | formatDate("d MMMM yyyy") }}</span> {{ entry.text }}
+              {% if entry.changes.length %}
+                <ul class="govuk-list govuk-list--bullet">
+                  {% for change in entry.changes %}<li>{{ change }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ol>
+      {% endif %}
+
+      <h2 class="govuk-heading-m">Share your passport</h2>
+      <p class="govuk-body"><a class="govuk-link" href="/passport/share">Get a link</a> for your project board and the teams that decide.</p>
+
+      <div class="app-prototype-controls">
+        <h2 class="govuk-heading-s">Prototype controls</h2>
+        <p class="govuk-body">Today is {{ route.now | formatDate("d MMMM yyyy") }} in this prototype.</p>
+        <form method="post" action="/passport/time-passes" novalidate>
+          <input type="hidden" name="crumb" value="{{ crumb }}">
+          <dl class="app-controls">
+            <div class="app-controls__row">
+              <dt>{{ govukButton({ text: "Move on 2 weeks", classes: "govuk-button--secondary" }) }}</dt>
+              <dd class="govuk-body">Today becomes {{ route.nextFortnight | formatDate("d MMMM yyyy") }}. Steps not booked in time become overdue.</dd>
+            </div>
+            {% if not route.ready %}
+              <div class="app-controls__row">
+                <dt>{{ govukButton({ text: "Approve every step", classes: "govuk-button--secondary", attributes: { formaction: "/passport/approve-everything" } }) }}</dt>
+                <dd class="govuk-body">Each team approves on its planned date.</dd>
+              </div>
+            {% endif %}
+            <div class="app-controls__row">
+              <dt>{{ govukButton({ text: "Start again", classes: "govuk-button--secondary", attributes: { formaction: "/start-again" } }) }}</dt>
+              <dd class="govuk-body">Clears everything, including the password.</dd>
+            </div>
+          </dl>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

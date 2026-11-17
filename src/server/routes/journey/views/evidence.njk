@@ -1,0 +1,53 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+
+{% set backLink = { href: step.href } %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorList.length %}
+        {{ govukErrorSummary({ titleText: "There is a problem", errorList: errorList }) }}
+      {% endif %}
+
+      <span class="govuk-caption-l">{{ step.name }}</span>
+      <h1 class="govuk-heading-l">Add evidence</h1>
+      <p class="govuk-body">Link to the {{ step.decidedBy }}'s record of the decision.</p>
+
+      <form method="post" novalidate>
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+
+        {% set parts = errorParts.decidedOn or [] %}
+        {{ govukDateInput({
+          id: "decidedOn-date",
+          fieldset: { legend: { text: "When was it decided?", classes: "govuk-fieldset__legend--m" } },
+          hint: { text: "For example, 22 7 2026" },
+          errorMessage: { text: errors.decidedOn } if errors.decidedOn,
+          items: [
+            { id: "decidedOn", name: "decidedOnDay", label: "Day", classes: "govuk-input--width-2" + (" govuk-input--error" if "day" in parts else ""), value: values.decidedOn.day },
+            { id: "decidedOn-month", name: "decidedOnMonth", label: "Month", classes: "govuk-input--width-2" + (" govuk-input--error" if "month" in parts else ""), value: values.decidedOn.month },
+            { id: "decidedOn-year", name: "decidedOnYear", label: "Year", classes: "govuk-input--width-4" + (" govuk-input--error" if "year" in parts else ""), value: values.decidedOn.year }
+          ]
+        }) }}
+
+        {{ govukInput({
+          id: "link",
+          name: "link",
+          type: "url",
+          spellcheck: false,
+          autocomplete: "off",
+          label: { text: "Link to the evidence", classes: "govuk-label--m" },
+          hint: { text: "For example, minutes in SharePoint or a decision record in GitHub." },
+          value: values.link,
+          errorMessage: { text: errors.link } if errors.link
+        }) }}
+
+        {{ govukButton({ text: "Save" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

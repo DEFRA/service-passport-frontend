@@ -1,0 +1,39 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">Service Passport</h1>
+
+      <p class="govuk-body-l">Plan the approvals your service needs to go live, and keep a record of each one.</p>
+
+      <p class="govuk-body">For delivery and product leads on the Core Delivery Platform (CDP). Use it to:</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>see what is left and who decides</li>
+        <li>know when to book each step</li>
+        <li>show your project board every decision</li>
+      </ul>
+
+      {% if hasPassport %}
+        {{ govukButton({ text: "Go to your passport", href: "/passport" }) }}
+        <form method="post" action="/start-again" novalidate>
+          <input type="hidden" name="crumb" value="{{ crumb }}">
+          <p class="govuk-body">
+            <button type="submit" class="app-link-button">Start again with a different service</button>
+          </p>
+        </form>
+      {% else %}
+        {{ govukButton({ text: "Start now", href: "/connect", isStartButton: true }) }}
+      {% endif %}
+
+      <h2 class="govuk-heading-m">Before you start</h2>
+      <p class="govuk-body">You need your Defra account and your target go-live date.</p>
+
+      <h2 class="govuk-heading-m">How it works</h2>
+      <p class="govuk-body">AI reads your service on GitHub and CDP and suggests answers to 6 questions. You check them, and they set your route.</p>
+      <p class="govuk-body">The passport approves nothing. Each team decides its own step.</p>
+    </div>
+  </div>
+{% endblock %}

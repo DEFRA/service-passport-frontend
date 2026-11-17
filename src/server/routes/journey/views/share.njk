@@ -1,0 +1,30 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+
+{% set backLink = { href: "/passport", text: "Back to passport" } %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-l">{{ service.name }}</span>
+      <h1 class="govuk-heading-l">Share your passport</h1>
+      <p class="govuk-body">Anyone with the link sees every step, decision and piece of evidence. Only the delivery and product leads can change it.</p>
+
+      {{ govukInput({
+        id: "link",
+        name: "link",
+        label: { text: "Link to your passport", classes: "govuk-label--s" },
+        value: link,
+        readonly: true,
+        spellcheck: false
+      }) }}
+
+      {{ govukInsetText({ text: "In this prototype the link only works in your browser." }) }}
+
+      {{ govukButton({ text: "Back to your passport", href: "/passport", classes: "govuk-button--secondary" }) }}
+    </div>
+  </div>
+{% endblock %}

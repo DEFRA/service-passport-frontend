@@ -1,17 +1,29 @@
 import { statusCodes } from '../constants/status-codes.js'
 
-function statusCodeMessage(statusCode) {
+const problem = {
+  title: 'Sorry, there is a problem with the service',
+  message: 'Try again later.'
+}
+
+/** Titles and text from the GOV.UK error page patterns. */
+function errorPage(statusCode) {
   switch (statusCode) {
     case statusCodes.notFound:
-      return 'Page not found'
+      return { title: 'Page not found', notFound: true }
+    // Only @hapi/crumb answers 403 here, when a form's token is missing or
+    // out of date, usually because the session expired mid-form.
     case statusCodes.forbidden:
-      return 'Forbidden'
+      return {
+        title: 'Your session timed out',
+        message: 'Go back, reload the page and try again.'
+      }
     case statusCodes.unauthorized:
-      return 'Unauthorized'
-    case statusCodes.badRequest:
-      return 'Bad Request'
+      return {
+        title: 'You need to sign in to see this page',
+        message: 'Sign in, then try again.'
+      }
     default:
-      return 'Something went wrong'
+      return problem
   }
 }
 
@@ -23,7 +35,7 @@ export function catchAll(request, h) {
   }
 
   const statusCode = response.output.statusCode
-  const errorMessage = statusCodeMessage(statusCode)
+  const page = errorPage(statusCode)
 
   if (statusCode >= statusCodes.internalServerError) {
     request.logger.error(response?.stack)
@@ -31,9 +43,10 @@ export function catchAll(request, h) {
 
   return h
     .view('error/index', {
-      pageTitle: errorMessage,
-      heading: statusCode,
-      message: errorMessage
+      pageTitle: page.title,
+      heading: page.title,
+      message: page.message,
+      notFound: Boolean(page.notFound)
     })
     .code(statusCode)
 }

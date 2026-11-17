@@ -1,4 +1,4 @@
-@use "govuk-frontend" as *;
+@use 'govuk-frontend' as *;
 
 // Example namespaced custom element style CSS classes
 
@@ -6,4 +6,20 @@
   display: block;
   padding-top: govuk-spacing(4);
   padding-bottom: govuk-spacing(3);
+}
+
+// The footer stays at the bottom of the window on short pages, as on the
+// service manual, rather than rising and falling with the content.
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.govuk-width-container {
+  flex: 1;
+
+  @media (min-width: #{$govuk-page-width + 60px}) {
+    width: 100%;
+  }
 }

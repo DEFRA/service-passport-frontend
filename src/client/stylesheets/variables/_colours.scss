@@ -1,2 +1,22 @@
 // Example custom CSS variables
 $app-light-grey: #f8f8f8;
+
+// Defra brand tokens, as the AI toolkit uses them. Defra green fills the
+// service navigation and the primary buttons, where white text on it
+// passes at 4.7:1, and draws the footer rule. The lighter green is only for
+// the 22px bold service name, which counts as large text. Blue is kept for
+// links.
+$defra-green: #008531;
+$defra-green-hover: #006425; // Defra green shaded 25%, as GOV.UK shades its own
+$defra-green-shadow: #004218; // Defra green shaded 50%
+$defra-green-aa: #00a33b;
+$defra-light-green: #eefdf4;
+$defra-black: #0b0c0c;
+$defra-grey-background: #f3f2f1; // footer background
+$app-secondary-text: #505a5f; // GOV.UK secondary text colour
+$app-mid-grey: #b1b4b6; // GOV.UK mid grey, for hairlines
+$app-white: #ffffff;
+$app-yellow: #ffdd00; // GOV.UK focus colour
+$app-link: #1d70b8;
+$app-link-hover: #003078;
+$defra-mobile-max-width: 640px;

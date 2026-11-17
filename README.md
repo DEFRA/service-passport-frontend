@@ -6,6 +6,12 @@
 
 Core delivery platform Node.js Frontend Template.
 
+## The prototype
+
+Service Passport is a prototype for research. It plans the approvals a Defra service needs before it goes live and links to each decision. Every service, date and decision in it is example data.
+
+Like a GOV.UK Prototype Kit prototype, it asks for a shared password when `PASSPORT_PASSWORD` is set. Copy `.env.example` to `.env` to set it locally. The real service would use your Defra account. Prototype controls on the passport and step pages stand in for time passing and for the teams that decide.
+
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
 - [Server-side Caching](#server-side-caching)

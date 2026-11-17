@@ -44,7 +44,7 @@ export const config = convict({
   serviceName: {
     doc: 'Applications Service Name',
     format: String,
-    default: 'service-passport-frontend'
+    default: 'Service Passport'
   },
   root: {
     doc: 'Project root',
@@ -249,6 +249,15 @@ export const config = convict({
         format: 'nat',
         default: 1000 * 60 * 60 * 24 * 365
       }
+    }
+  },
+  passport: {
+    password: {
+      doc: 'Shared password for the prototype. Required in production.',
+      format: String,
+      default: '',
+      env: 'PASSPORT_PASSWORD',
+      sensitive: true
     }
   },
   googleAnalytics: {

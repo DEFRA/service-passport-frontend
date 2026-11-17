@@ -1,0 +1,68 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+
+{% set backLink = { href: step.href } %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorList.length %}
+        {{ govukErrorSummary({ titleText: "There is a problem", errorList: errorList }) }}
+      {% endif %}
+
+      <form method="post" novalidate>
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+
+        {% set parts = errorParts.bookedFor or [] %}
+        {% set bookedHtml %}
+          {{ govukDateInput({
+            id: "bookedFor-date",
+            fieldset: { legend: { text: "Date of your " + step.sentenceName, classes: "govuk-fieldset__legend--s" } },
+            hint: { text: "For example, 4 1 2027" },
+            errorMessage: { text: errors.bookedFor } if errors.bookedFor,
+            items: [
+              { id: "bookedFor", name: "bookedForDay", label: "Day", classes: "govuk-input--width-2" + (" govuk-input--error" if "day" in parts else ""), value: values.bookedFor.day },
+              { id: "bookedFor-month", name: "bookedForMonth", label: "Month", classes: "govuk-input--width-2" + (" govuk-input--error" if "month" in parts else ""), value: values.bookedFor.month },
+              { id: "bookedFor-year", name: "bookedForYear", label: "Year", classes: "govuk-input--width-4" + (" govuk-input--error" if "year" in parts else ""), value: values.bookedFor.year }
+            ]
+          }) }}
+        {% endset %}
+
+        {% set items = [] %}
+        {% for option in options %}
+          {% set items = (items.push({
+            value: option.value,
+            text: option.text,
+            checked: option.value == values.status,
+            hint: { text: "You cannot change this until the " + step.waitingFor + " decides." } if option.value == "submitted",
+            conditional: { html: bookedHtml } if option.value == "booked"
+          }), items) %}
+        {% endfor %}
+        {{ govukRadios({
+          name: "status",
+          idPrefix: "status",
+          fieldset: { legend: { html: '<span class="govuk-caption-l">' + (step.name | escape) + '</span>' + (pageTitle | escape), isPageHeading: true, classes: "govuk-fieldset__legend--l" } },
+          errorMessage: { text: errors.status } if errors.status,
+          items: items
+        }) }}
+
+        {% if step.sendBlockers.length %}
+          {% set waitingHtml %}
+            <p class="govuk-body">Send your papers once every other step is approved. Still open:</p>
+            <ul class="govuk-list govuk-list--bullet">
+              {% for other in step.sendBlockers %}<li><a class="govuk-link" href="{{ other.href }}">{{ other.name }}</a></li>{% endfor %}
+            </ul>
+          {% endset %}
+          {{ govukInsetText({ html: waitingHtml }) }}
+        {% endif %}
+
+        {{ govukButton({ text: "Save" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

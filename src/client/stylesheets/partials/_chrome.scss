@@ -1,0 +1,302 @@
+@use 'variables/colours' as *;
+
+// The header, service navigation and footer from the AI toolkit, trimmed to
+// what this service uses: no header search and no dropdowns. The Defra
+// header replaces the GOV.UK one, which branding does not allow off a
+// GOV.UK domain.
+
+// ===== Header =====
+
+.defra-header {
+  background-color: $app-white;
+}
+
+.defra-header__inner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 12px 15px;
+}
+
+.defra-header__brand-group {
+  display: contents;
+}
+
+.defra-header__logo {
+  width: auto;
+  height: 60px;
+}
+
+// Explicit link states, because govuk-frontend's global link colour
+// outranks a single class.
+.defra-header__service-name,
+.defra-header__service-name:link,
+.defra-header__service-name:visited {
+  justify-self: center;
+  font-family: Arial, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: $defra-green-aa;
+  text-decoration: none;
+}
+
+.defra-header__service-name:hover {
+  color: $defra-green-aa;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.15em;
+}
+
+.defra-header__service-name:focus {
+  outline: 3px solid $app-yellow;
+  outline-offset: 2px;
+  background-color: $app-yellow;
+  box-shadow: none;
+  color: $defra-black;
+  text-decoration: none;
+}
+
+// ===== Service navigation =====
+
+.defra-service-navigation {
+  background-color: $defra-green;
+  border-top: 1px solid #ffffff4d;
+  border-bottom: 1px solid #ffffff4d;
+}
+
+.defra-service-navigation__inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.defra-service-navigation__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.defra-service-navigation__link,
+.defra-service-navigation__link:link,
+.defra-service-navigation__link:visited {
+  display: block;
+  padding: 12px 16px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: $app-white;
+  text-decoration: none;
+}
+
+.defra-service-navigation__link:hover {
+  background-color: #00000033;
+  box-shadow: inset 0 -4px 0 0 $defra-light-green;
+  color: $app-white;
+}
+
+.defra-service-navigation__link:focus {
+  outline: 3px solid $app-yellow;
+  outline-offset: 0;
+  background-color: $app-yellow;
+  box-shadow: none;
+  color: $defra-black;
+}
+
+// Lines the first link's text up with the logo, keeping its hover area.
+.defra-service-navigation__item:first-child .defra-service-navigation__link {
+  margin-left: -16px;
+}
+
+.defra-service-navigation__link[aria-current='page'] {
+  background-color: #00000033;
+  box-shadow: inset 0 -4px 0 0 $app-white;
+  font-weight: 700;
+}
+
+.defra-service-navigation__link[aria-current='page']:focus {
+  background-color: $app-yellow;
+  box-shadow: none;
+}
+
+.defra-service-navigation__toggle {
+  display: none;
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  background-color: transparent;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: $app-white;
+  text-align: left;
+  cursor: pointer;
+}
+
+.defra-service-navigation__toggle::after {
+  content: '';
+  display: inline-block;
+  margin-left: 8px;
+  border-top: 5px solid $app-white;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  vertical-align: middle;
+}
+
+.defra-service-navigation__toggle[aria-expanded='true']::after {
+  border-top: 0;
+  border-bottom: 5px solid $app-white;
+}
+
+.defra-service-navigation__toggle:focus-visible {
+  outline: 3px solid $app-yellow;
+  background-color: $app-yellow;
+  color: $defra-black;
+}
+
+@media (min-width: $defra-mobile-max-width + 1) {
+  .defra-service-navigation__inner {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+}
+
+@media (max-width: $defra-mobile-max-width) {
+  .defra-header__inner {
+    gap: 12px;
+  }
+
+  .defra-header__logo {
+    height: 45px;
+  }
+
+  .defra-header__service-name,
+  .defra-header__service-name:link,
+  .defra-header__service-name:visited,
+  .defra-header__service-name:hover {
+    font-size: 18px;
+    // 18px bold is not large text, so the lighter green fails here.
+    color: $defra-green;
+  }
+
+  // The toggle only shows once the script has run. Without it the links
+  // stay visible as a column.
+  .js-enabled .defra-service-navigation__toggle:not([hidden]) {
+    display: block;
+  }
+
+  .defra-service-navigation__list {
+    flex-direction: column;
+  }
+
+  .js-enabled
+    .defra-service-navigation__list:not(.defra-service-navigation__list--open) {
+    display: none;
+  }
+
+  .defra-service-navigation__item {
+    border-bottom: 1px solid #ffffff33;
+  }
+
+  .defra-service-navigation__item:first-child .defra-service-navigation__link {
+    margin-left: 0;
+  }
+
+  .defra-service-navigation__link,
+  .defra-service-navigation__link:link,
+  .defra-service-navigation__link:visited {
+    padding: 14px 16px;
+  }
+
+  .defra-service-navigation__link[aria-current='page'] {
+    box-shadow: inset 4px 0 0 0 $app-white;
+  }
+}
+
+// ===== Footer =====
+
+.defra-footer {
+  padding-top: 25px;
+  padding-bottom: 25px;
+  border-top: 10px solid $defra-green;
+  background-color: $defra-grey-background;
+}
+
+.defra-footer__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.defra-footer__inline-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.defra-footer__inline-list-item {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.defra-footer__link,
+.defra-footer__link:link,
+.defra-footer__link:visited {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.25;
+  color: $defra-black;
+}
+
+.defra-footer__link:hover {
+  text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+}
+
+.defra-footer__link:focus {
+  outline: 3px solid transparent;
+  background-color: $app-yellow;
+  box-shadow:
+    0 -2px $app-yellow,
+    0 4px $defra-black;
+  color: $defra-black;
+  text-decoration: none;
+}
+
+.defra-footer__licence-description {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.25;
+  color: $defra-black;
+}
+
+// The toolkit's pages sit closer to the navigation than GOV.UK's default.
+.app-main-wrapper {
+  padding-top: 20px;
+}
+
+// GOV.UK Frontend fills the space below a short page with its own pale
+// blue. The footer grey carries on instead, as on the AI toolkit.
+.govuk-template {
+  background-color: $defra-grey-background;
+}
+
+// Primary buttons in Defra green, so they match the navigation. Secondary,
+// warning and inverse buttons keep their GOV.UK colours. :where() keeps
+// this as specific as .govuk-button alone, so the GOV.UK focus state still
+// wins and stays yellow.
+.govuk-button:where(
+  :not(.govuk-button--secondary):not(.govuk-button--warning):not(
+      .govuk-button--inverse
+    )
+) {
+  background-color: $defra-green;
+  box-shadow: 0 2px 0 $defra-green-shadow;
+
+  &:hover {
+    background-color: $defra-green-hover;
+  }
+}

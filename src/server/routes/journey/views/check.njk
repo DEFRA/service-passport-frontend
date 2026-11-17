@@ -1,0 +1,92 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% if not state.confirmed %}
+  {% set backLink = { href: "/about-your-service/go-live" } %}
+{% endif %}
+
+{% block content %}
+  {# The service comes first, because every answer below is about it. #}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorList.length %}
+        {{ govukErrorSummary({ titleText: "There is a problem", errorList: errorList }) }}
+      {% endif %}
+
+      {% include "partials/banner.njk" %}
+
+      <span class="govuk-caption-l">{{ service.name }}</span>
+      <h1 class="govuk-heading-l">{{ "Your service" if state.confirmed else "Check what AI found" }}</h1>
+    </div>
+  </div>
+
+  {# Both lists run full width, so their labels, answers and Change links
+     line up in the same columns. Text above them stays at two thirds. #}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      {% set serviceAction = { items: [{ href: "/about-your-service", text: "Change", visuallyHiddenText: "service" }] } if not state.confirmed else { items: [] } %}
+      {{ govukSummaryList({
+        rows: [
+          { key: { text: "Service" }, value: { text: service.name }, actions: serviceAction },
+          {
+            key: { text: "Target go-live date" },
+            value: { text: state.about.goLive | formatDate("d MMMM yyyy") },
+            actions: { items: [{ href: "/about-your-service/go-live", text: "Change", visuallyHiddenText: "target go-live date" }] }
+          }
+        ]
+      }) }}
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h2 class="govuk-heading-m">{{ "Your answers" if state.confirmed else "What AI found" }}</h2>
+      {% if state.confirmed %}
+        <p class="govuk-body">Change an answer and your route changes with it.</p>
+      {% else %}
+        {% set aiWarning = "AI can make mistakes. Change any answer that is wrong." %}
+        {% include "partials/ask-warning.njk" %}
+      {% endif %}
+    </div>
+  </div>
+
+  {# Full width, so each answer, what it does to the route and what AI
+     found sit on one line each instead of wrapping into a narrow column. #}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      {% set answerRows = [] %}
+      {% for row in rows %}
+        {# The answer, then what it does to the route, then the evidence:
+           cause and effect in the order people read them. #}
+        {% set valueHtml %}
+          {%- if row.lines and row.lines.length %}{% for line in row.lines %}<span class="app-answer">{{ line }}</span>{% endfor %}{% else %}<span class="app-answer">{{ row.value }}</span>{% endif -%}
+          {%- if row.effect %}<span class="app-effect">{{ row.effect }}</span>{% endif -%}
+          <span class="app-suggested">{{ row.note }}{% if row.source %}, in <span class="app-path">{{ row.source }}</span>{% endif %}</span>
+        {%- endset %}
+        {% set answerRows = (answerRows.push({
+          key: { text: row.label },
+          value: { html: valueHtml },
+          actions: { items: [{ href: "/about-your-service/" + row.id, text: "Change" if row.answered else "Answer", visuallyHiddenText: row.changeText, attributes: { id: "change-" + row.id } }] }
+        }), answerRows) %}
+      {% endfor %}
+      {{ govukSummaryList({ classes: "app-check-list", rows: answerRows }) }}
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if state.confirmed %}
+        <p class="govuk-body">For a different service, <a class="govuk-link" href="/">start again</a>.</p>
+        {{ govukButton({ text: "Go to your passport", href: "/passport" }) }}
+      {% else %}
+        <form method="post" novalidate>
+          <input type="hidden" name="crumb" value="{{ crumb }}">
+          {{ govukButton({ text: "Confirm and set up your passport" }) }}
+        </form>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

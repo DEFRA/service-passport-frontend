@@ -1,0 +1,76 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% set backLink = { href: focus.href, text: "Back to " + focus.sentenceName } if focus else { href: "/passport", text: "Back to passport" } %}
+{% set action = "/passport/ask" + ("?step=" + focus.id if focus else "") %}
+
+{% block content %}
+  {# The conversation runs to three quarters, as in Ask the toolkit: wide
+     enough that the indented answer still holds a readable line, short of
+     the full width where lines run past 75 characters. #}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-three-quarters">
+      {% if error %}
+        {{ govukErrorSummary({ titleText: "There is a problem", errorList: [{ text: error, href: "#question" }] }) }}
+      {% endif %}
+
+      <span class="govuk-caption-l">{{ focus.name if focus else service.name }}</span>
+      <h1 class="govuk-heading-l">{{ "Ask about this step" if focus else "Ask about your passport" }}</h1>
+
+      {% for turn in conversation %}
+        <div class="app-ask__turn">
+          <div class="app-ask__asked">
+            <h2 class="govuk-heading-s app-ask__speaker">You<span class="govuk-visually-hidden">, question {{ loop.index }}</span></h2>
+            <p class="govuk-body">{{ turn.question }}</p>
+          </div>
+          <div class="app-ask__answer">
+            <h2 class="govuk-heading-s app-ask__speaker" id="answer-{{ loop.index }}" tabindex="-1">AI answer</h2>
+            {% for paragraph in turn.answer.paragraphs %}
+              <p class="govuk-body">{{ paragraph }}</p>
+            {% endfor %}
+            {% if turn.answer.bullets %}
+              <ul class="govuk-list govuk-list--bullet">
+                {% for bullet in turn.answer.bullets %}<li>{{ bullet }}</li>{% endfor %}
+              </ul>
+            {% endif %}
+            {% if turn.answer.found %}
+              {% if turn.answer.source.href %}
+                <p class="govuk-body govuk-!-font-size-16">From <a class="govuk-link" href="{{ turn.answer.source.href }}">{{ turn.answer.source.text }}</a>.</p>
+              {% else %}
+                <p class="govuk-body govuk-!-font-size-16">From the <a class="govuk-link" href="/guidance/{{ turn.answer.source.slug }}">{{ turn.answer.source.text }}</a>.</p>
+              {% endif %}
+              {% set aiWarning = "AI can make mistakes. Check the answer before you act." %}
+              {% include "partials/ask-warning.njk" %}
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+
+      <form method="post" action="{{ action }}" class="app-ask__panel" novalidate>
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+        {% if focus %}<input type="hidden" name="step" value="{{ focus.id }}">{% endif %}
+        {{ govukCharacterCount({
+          name: "question",
+          id: "question",
+          maxlength: maxQuestionLength,
+          threshold: 75,
+          rows: 3,
+          classes: "app-ask__input",
+          label: { text: "Your question" if not conversation.length else "Ask another question", classes: "govuk-label--s" },
+          hint: { text: "Do not include personal data." },
+          value: question,
+          errorMessage: { text: error } if error
+        }) }}
+        {{ govukButton({ text: "Ask", classes: "app-ask__send", preventDoubleClick: true }) }}
+      </form>
+
+      {% if not conversation.length %}
+        {% set examplesId = "examples-label" %}
+        {% include "partials/ask-examples.njk" %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

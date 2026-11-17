@@ -60,19 +60,10 @@ describe('context and cache', () => {
           assetPath: '/public/assets',
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
-          navigation: [
-            {
-              current: true,
-              text: 'Home',
-              href: '/'
-            },
-            {
-              current: false,
-              text: 'About',
-              href: '/about'
-            }
-          ],
-          serviceName: 'service-passport-frontend',
+          navigation: expect.arrayContaining([
+            expect.objectContaining({ text: 'Passport', current: false })
+          ]),
+          serviceName: 'Service Passport',
           serviceUrl: '/'
         })
       })
@@ -149,19 +140,10 @@ describe('context and cache', () => {
           assetPath: '/public/assets',
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
-          navigation: [
-            {
-              current: true,
-              text: 'Home',
-              href: '/'
-            },
-            {
-              current: false,
-              text: 'About',
-              href: '/about'
-            }
-          ],
-          serviceName: 'service-passport-frontend',
+          navigation: expect.arrayContaining([
+            expect.objectContaining({ text: 'Passport', current: false })
+          ]),
+          serviceName: 'Service Passport',
           serviceUrl: '/'
         })
       })
