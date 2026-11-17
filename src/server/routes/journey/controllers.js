@@ -1,4 +1,4 @@
-import { format, parseISO } from 'date-fns'
+import { addMonths, format, parseISO } from 'date-fns'
 
 import {
   addDays,
@@ -394,7 +394,7 @@ function answerRows(state, service) {
 function checkView(h, request, state, errors = []) {
   const service = findCdpService(state.about.cdpService)
   return h.view(`${views}/check`, {
-    pageTitle: state.confirmed ? 'About your service' : 'Check what AI found',
+    pageTitle: state.confirmed ? 'Your service' : 'Check what AI found',
     state,
     service,
     rows: answerRows(state, service),
@@ -595,7 +595,7 @@ const saveQuestion = needsGoLive((request, h, state) => {
   return h.redirect('/about-your-service/check')
 })
 
-// The plan, the passport and sharing
+// The calendar, the passport and sharing
 
 function planRows(route, goLive) {
   const rows = []
@@ -720,15 +720,29 @@ function planItem(row) {
 }
 
 /**
- * The plan as one task list per month, so each date fits on a line and the
- * year is said once. Today is said above the list, not shown as a task.
+ * The month a row falls under. What is due this month, overdue or undated
+ * comes first, then next month, then each later month with its year.
  */
-function planMonths(rows) {
+function planHeading(row, now) {
+  const month = row.date?.slice(0, 7)
+  const thisMonth = now.slice(0, 7)
+  if (!month || month <= thisMonth) {
+    return 'This month'
+  }
+  if (month === format(addMonths(parseISO(now), 1), 'yyyy-MM')) {
+    return 'Next month'
+  }
+  return format(parseISO(row.date), 'MMMM yyyy')
+}
+
+/**
+ * The plan as one task list per month, so each date fits on a line, led by
+ * what is coming up now. Today is said above the list, not shown as a task.
+ */
+function planMonths(rows, now) {
   const months = []
   for (const row of rows.filter((r) => r.milestone !== 'Today')) {
-    const heading = row.date
-      ? format(parseISO(row.date), 'MMMM yyyy')
-      : 'As soon as you can'
+    const heading = planHeading(row, now)
     if (months.at(-1)?.heading !== heading) {
       months.push({ heading, items: [] })
     }
@@ -737,14 +751,14 @@ function planMonths(rows) {
   return months
 }
 
-const showPlan = needsRoute((request, h, state) => {
+const showCalendar = needsRoute((request, h, state) => {
   const route = buildRoute(state)
   return h.view(`${views}/route`, {
-    pageTitle: 'Your plan to go-live',
+    pageTitle: 'Your calendar',
     state,
     service: findCdpService(state.about.cdpService),
     route,
-    months: planMonths(planRows(route, state.about.goLive))
+    months: planMonths(planRows(route, state.about.goLive), route.now)
   })
 })
 
@@ -1373,7 +1387,7 @@ export {
   showGoLive,
   showGuidance,
   showPassport,
-  showPlan,
+  showCalendar,
   showQuestion,
   showReading,
   showRecord,

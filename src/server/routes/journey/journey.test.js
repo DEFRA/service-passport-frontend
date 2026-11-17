@@ -105,10 +105,10 @@ describe('The Service Passport journey', () => {
           .$('.defra-service-navigation__link')
           .map((i, link) => start.$(link).text())
           .get()
-      ).toEqual(['Passport', 'Plan', 'About your service', 'Ask'])
+      ).toEqual(['Passport', 'Calendar', 'Service', 'Ask'])
     })
 
-    test.each(['/passport', '/plan'])(
+    test.each(['/passport', '/calendar'])(
       '%s says the passport is not set up yet and links to set-up',
       async (path) => {
         const person = visitor(server)
@@ -344,12 +344,16 @@ describe('The Service Passport journey', () => {
     })
 
     test('the plan groups dates by month, with the milestones in order', async () => {
-      const { $ } = await person.get('/plan')
+      const { $ } = await person.get('/calendar')
       expect(text($, 'main')).toContain('Today is 16 November 2026.')
       const months = $('h2.app-task-list-heading')
         .map((_, heading) => text($, heading))
         .get()
-      expect(months[0]).toBe('November 2026')
+      expect(months.slice(0, 3)).toEqual([
+        'This month',
+        'Next month',
+        'January 2027'
+      ])
       expect(months.at(-1)).toBe('March 2027')
       const items = $('.govuk-task-list__name-and-hint')
         .map((_, item) => text($, $(item).children().first()))

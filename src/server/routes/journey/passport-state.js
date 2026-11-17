@@ -834,7 +834,7 @@ function whyOnRoute(step) {
   )
   return [
     `It is on your route because you answered yes to "${labels.join('" and "')}".`,
-    'If that is wrong, change it in About your service.'
+    'If that is wrong, change your answer under Service.'
   ]
 }
 

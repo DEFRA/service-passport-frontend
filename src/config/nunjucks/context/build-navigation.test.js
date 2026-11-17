@@ -9,13 +9,13 @@ describe('buildNavigation', () => {
     const items = buildNavigation(requestAt('/about-your-service', {}))
     expect(items.map((item) => item.text)).toEqual([
       'Passport',
-      'Plan',
-      'About your service',
+      'Calendar',
+      'Service',
       'Ask'
     ])
     expect(
       items.filter((item) => item.current).map((item) => item.text)
-    ).toEqual(['About your service'])
+    ).toEqual(['Service'])
     expect(
       buildNavigation({ path: '/' }).filter((item) => item.current)
     ).toEqual([])
@@ -24,15 +24,15 @@ describe('buildNavigation', () => {
   test.each([
     ['/passport', 'Passport'],
     ['/passport/pen-test', 'Passport'],
-    ['/plan', 'Plan'],
+    ['/calendar', 'Calendar'],
     ['/passport/ask', 'Ask'],
-    ['/about-your-service/check', 'About your service']
+    ['/about-your-service/check', 'Service']
   ])('marks %s as under %s', (path, current) => {
     const items = buildNavigation(requestAt(path, { confirmed: true }))
     expect(items.map((item) => item.text)).toEqual([
       'Passport',
-      'Plan',
-      'About your service',
+      'Calendar',
+      'Service',
       'Ask'
     ])
     expect(
