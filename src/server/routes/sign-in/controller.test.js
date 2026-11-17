@@ -1,9 +1,11 @@
+import { config } from '#/config/config.js'
 import { statusCodes } from '#/server/common/constants/status-codes.js'
+import { createServer } from '#/server/server.js'
+
+const configuredPassword = config.get('passport.password')
 
 async function serverWithPassword(password) {
-  vi.resetModules()
-  vi.stubEnv('PASSPORT_PASSWORD', password)
-  const { createServer } = await import('#/server/server.js')
+  config.set('passport.password', password)
   const server = await createServer()
   await server.initialize()
   return server
@@ -31,7 +33,7 @@ describe('password gate', () => {
   let server
 
   afterEach(async () => {
-    vi.unstubAllEnvs()
+    config.set('passport.password', configuredPassword)
     await server?.stop({ timeout: 0 })
   })
 
@@ -68,9 +70,7 @@ describe('password gate', () => {
 
       const right = await signIn(server, 'example-only')
       expect(right.response.statusCode).toBe(statusCodes.redirect)
-      expect(right.response.headers.location).toBe(
-        '/about-your-service'
-      )
+      expect(right.response.headers.location).toBe('/about-your-service')
 
       const sessionCookie = right.response.headers['set-cookie']
         .map((cookie) => cookie.split(';')[0])
