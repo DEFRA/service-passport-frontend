@@ -1,0 +1,31 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% set backLink = { href: "/about-your-service/go-live" } %}
+
+{# Stands in for AI reading the service. With JavaScript the page moves on
+   by itself after a few seconds; without it, Continue does the same. #}
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds" data-module="app-reading" data-next="/about-your-service/check">
+      <span class="govuk-caption-l">{{ service.name }}</span>
+      <h1 class="govuk-heading-l">Reading your service on CDP</h1>
+
+      <div class="app-reading">
+        <span class="app-spinner" aria-hidden="true"></span>
+        <p class="govuk-body app-reading__status" role="status">AI is reading your service. This takes a few seconds.</p>
+      </div>
+
+      <p class="govuk-body">It looks at:</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>the code in <span class="app-path">{{ service.repository }}</span></li>
+        <li>its deployments on CDP</li>
+        <li>approvals recorded in the CDP portal, such as its registration and service tier</li>
+      </ul>
+      <p class="govuk-body">Then you check what it found. It does not change anything in your code or on CDP.</p>
+
+      {{ govukButton({ text: "Continue", href: "/about-your-service/check", classes: "app-reading__continue" }) }}
+    </div>
+  </div>
+{% endblock %}

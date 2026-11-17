@@ -52,3 +52,30 @@ function focusAnswer() {
 }
 
 focusAnswer()
+
+const readingSeconds = 3
+
+/**
+ * Stands in for AI reading the service on CDP. The status line announces
+ * when it finishes, then the page moves on to what AI found. Continue is
+ * hidden because the page moves on by itself.
+ */
+function readService() {
+  const page = document.querySelector('[data-module="app-reading"]')
+  if (!page) {
+    return
+  }
+  const status = page.querySelector('.app-reading__status')
+  const spinner = page.querySelector('.app-spinner')
+  const button = page.querySelector('.app-reading__continue')
+  if (button) {
+    button.classList.add('govuk-!-display-none')
+  }
+  window.setTimeout(() => {
+    spinner?.remove()
+    status.textContent = 'AI has finished reading your service.'
+    window.location.assign(page.dataset.next)
+  }, readingSeconds * 1000)
+}
+
+readService()

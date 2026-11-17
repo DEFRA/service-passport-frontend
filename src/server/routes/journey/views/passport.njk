@@ -31,8 +31,6 @@
         ]
       }) }}
 
-      <p class="govuk-body"><a class="govuk-link" href="/passport/share">Share your passport</a></p>
-
       <div class="app-next">
         {% set goLive = state.about.goLive %}
         {% include "partials/booking-warning.njk" %}
@@ -94,6 +92,9 @@
           {% endfor %}
         </ol>
       {% endif %}
+
+      <h2 class="govuk-heading-m">Share your passport</h2>
+      <p class="govuk-body">Your project board and the teams that decide can see every step, decision and change. <a class="govuk-link" href="/passport/share">Get a link to share</a>.</p>
 
       <div class="app-prototype-controls">
         <h2 class="govuk-heading-s">Prototype controls</h2>

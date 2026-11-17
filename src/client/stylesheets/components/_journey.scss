@@ -131,8 +131,13 @@
   margin-bottom: 10px;
 }
 
+// Status tags stay on one line, so a long step name wraps instead.
 .app-task-list {
   margin-bottom: 50px;
+
+  .govuk-tag {
+    white-space: nowrap;
+  }
 }
 
 // What happened to a step, oldest first. The date leads each line so the
@@ -177,4 +182,38 @@
 
 .app-readiness .govuk-tag {
   white-space: nowrap;
+}
+
+// AI reading the service: a spinner beside the status line. The moving arc
+// is Defra green, over 3:1 against white. It stops for people who ask for
+// less motion, and the status text says the same thing without it.
+.app-reading {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+
+  .app-reading__status {
+    margin-bottom: 0;
+  }
+}
+
+.app-spinner {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: 5px solid $app-mid-grey;
+  border-top-color: $defra-green;
+  border-radius: 50%;
+  animation: app-spin 1s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes app-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -160,6 +160,44 @@ describe('The Service Passport journey', () => {
       expect($('title').text()).toMatch(/^Error: /)
     })
 
+    test('after the go-live date, AI reads the service before showing what it found', async () => {
+      const person = visitor(server)
+      await person.post('/about-your-service', { cdpService: plant })
+      const saved = await person.post('/about-your-service/go-live', goLive)
+      expect(saved.headers.location).toBe('/about-your-service/reading')
+      const { $ } = await person.get('/about-your-service/reading')
+      expect(text($, 'h1')).toBe('Reading your service on CDP')
+      expect(text($, '[role="status"]')).toBe(
+        'AI is reading your service. This takes a few seconds.'
+      )
+      expect(text($, 'main')).toContain(
+        'the code in DEFRA/example-plant-export-checks-frontend'
+      )
+      expect($('a.app-reading__continue').attr('href')).toBe(
+        '/about-your-service/check'
+      )
+    })
+
+    test('the check page puts the service first, then what AI found', async () => {
+      const person = visitor(server)
+      await person.post('/about-your-service', { cdpService: plant })
+      await person.post('/about-your-service/go-live', goLive)
+      const { $ } = await person.get('/about-your-service/check')
+      const order = $('main h1, main h2, main .govuk-summary-list')
+        .map((_, el) =>
+          el.tagName === 'dl'
+            ? $(el).find('dt').first().text().trim()
+            : text($, el)
+        )
+        .get()
+      expect(order).toEqual([
+        'Check what AI found',
+        'Service on CDP',
+        'What AI found',
+        'Used by people outside Defra'
+      ])
+    })
+
     test('the check page shows what AI found and where it found it', async () => {
       const person = visitor(server)
       await person.post('/about-your-service', { cdpService: plant })
@@ -275,16 +313,30 @@ describe('The Service Passport journey', () => {
       expect($('a.govuk-button--start').length).toBe(0)
     })
 
-    test('the plan lists dates in order, with today and the milestones', async () => {
+    test('the plan groups dates by month, with the milestones in order', async () => {
       const { $ } = await person.get('/plan')
-      const rows = $('tbody tr')
-        .map((_, row) => text($, $(row).find('td').first()))
+      expect(text($, 'main')).toContain('Today is 16 November 2026.')
+      const months = $('h2.app-task-list-heading')
+        .map((_, heading) => text($, heading))
         .get()
-      expect(rows[0]).toBe('Book your IT health check')
-      expect(rows[1]).toBe('Today')
-      expect(rows).toContain('Stage gate 4 papers due')
-      expect(rows).toContain('Stage gate 4 board, latest date')
-      expect(rows.at(-1)).toBe('Target go-live')
+      expect(months[0]).toBe('November 2026')
+      expect(months.at(-1)).toBe('March 2027')
+      const items = $('.govuk-task-list__name-and-hint')
+        .map((_, item) => text($, $(item).children().first()))
+        .get()
+      expect(items[0]).toBe('Book your IT health check')
+      expect(items).toContain('Stage gate 4 papers due')
+      expect(items).toContain('Stage gate 4 board, latest date')
+      expect(items.at(-1)).toBe('Target go-live')
+      expect(taskStatus($, 'Book your IT health check').hint).toBe(
+        'By 10 November'
+      )
+    })
+
+    test('sharing sits at the foot of the passport, not with its facts', async () => {
+      const { $ } = await person.get('/passport')
+      expect($('.app-facts').text()).not.toContain('Share')
+      expect($('a[href="/passport/share"]').text()).toBe('Get a link to share')
     })
 
     test('the step page explains its book by date', async () => {

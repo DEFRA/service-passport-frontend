@@ -1,3 +1,5 @@
+import { format, parseISO } from 'date-fns'
+
 import {
   addDays,
   answerQuestion,
@@ -277,8 +279,23 @@ function saveGoLive(request, h) {
     })
   }
   setState(request, next)
-  return h.redirect('/about-your-service/check')
+  return h.redirect(
+    state.confirmed
+      ? '/about-your-service/check'
+      : '/about-your-service/reading'
+  )
 }
+
+/** Shows AI reading the service, once, between set-up and its answers. */
+const showReading = needsGoLive((request, h, state) => {
+  if (state.confirmed) {
+    return h.redirect('/about-your-service/check')
+  }
+  return h.view(`${views}/reading`, {
+    pageTitle: 'Reading your service on CDP',
+    service: findCdpService(state.about.cdpService)
+  })
+})
 
 function yesNo(value) {
   if (!value) {
@@ -613,6 +630,84 @@ function planRows(route, goLive) {
   )
 }
 
+function dayMonth(isoDate) {
+  return format(parseISO(isoDate), 'd MMMM')
+}
+
+function planStatus(row) {
+  if (row.milestone) {
+    return { text: '' }
+  }
+  if (row.condition || row.before) {
+    return row.sent
+      ? { text: 'Evidence sent' }
+      : { tag: { text: 'Not met yet', classes: 'govuk-tag--grey' } }
+  }
+  const { step } = row
+  if (step.cannotStart) {
+    return {
+      text: step.statusText,
+      classes: 'govuk-task-list__status--cannot-start-yet'
+    }
+  }
+  return step.tag
+    ? { tag: { text: step.statusText, classes: step.tag } }
+    : { text: step.statusText }
+}
+
+function planWhen(row) {
+  if (row.before) {
+    return 'Before go-live'
+  }
+  if (!row.date) {
+    return `Before ${row.step.dueBefore}`
+  }
+  if (row.milestone || row.condition) {
+    return `${row.condition ? 'Due by ' : ''}${dayMonth(row.date)}`
+  }
+  if (row.step.status === 'booked') {
+    return `Booked for ${dayMonth(row.date)}`
+  }
+  return row.text.endsWith(' meets')
+    ? `Meets ${dayMonth(row.date)}`
+    : `By ${dayMonth(row.date)}`
+}
+
+function planItem(row) {
+  const from =
+    row.condition || row.before
+      ? `Condition from ${row.step.sentenceName}. `
+      : ''
+  const linked = !row.milestone && !row.step.cannotStart
+  return {
+    title: {
+      text: row.milestone ?? row.text.replace(/ meets$/, ''),
+      classes: row.milestone ? 'govuk-!-font-weight-bold' : undefined
+    },
+    href: linked ? row.step.href : undefined,
+    hint: { text: `${from}${planWhen(row)}` },
+    status: planStatus(row)
+  }
+}
+
+/**
+ * The plan as one task list per month, so each date fits on a line and the
+ * year is said once. Today is said above the list, not shown as a task.
+ */
+function planMonths(rows) {
+  const months = []
+  for (const row of rows.filter((r) => r.milestone !== 'Today')) {
+    const heading = row.date
+      ? format(parseISO(row.date), 'MMMM yyyy')
+      : 'As soon as you can'
+    if (months.at(-1)?.heading !== heading) {
+      months.push({ heading, items: [] })
+    }
+    months.at(-1).items.push(planItem(row))
+  }
+  return months
+}
+
 const showPlan = needsRoute((request, h, state) => {
   const route = buildRoute(state)
   return h.view(`${views}/route`, {
@@ -620,7 +715,7 @@ const showPlan = needsRoute((request, h, state) => {
     state,
     service: findCdpService(state.about.cdpService),
     route,
-    rows: planRows(route, state.about.goLive)
+    months: planMonths(planRows(route, state.about.goLive))
   })
 })
 
@@ -1214,6 +1309,7 @@ export {
   showPassport,
   showPlan,
   showQuestion,
+  showReading,
   showRecord,
   showService,
   showShare,
