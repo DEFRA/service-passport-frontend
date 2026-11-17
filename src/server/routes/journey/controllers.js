@@ -157,8 +157,23 @@ function startPage(request, h) {
   return h.view(`${views}/start`, {
     pageTitle: 'Service Passport',
     hasPassport: Boolean(state.confirmed),
-    cdpTeam: data.cdpTeam,
     service: findCdpService(state.about?.cdpService)
+  })
+}
+
+/**
+ * Stands in for signing in and reading the person's teams from the CDP
+ * portal, so the services offered next have a visible reason.
+ */
+function showConnect(request, h) {
+  const state = getState(request)
+  if (state.confirmed) {
+    return h.redirect('/passport')
+  }
+  return h.view(`${views}/connect`, {
+    pageTitle: 'Finding your services on CDP',
+    cdpTeam: data.cdpTeam,
+    cdpServices: data.cdpServices
   })
 }
 
@@ -291,9 +306,15 @@ const showReading = needsGoLive((request, h, state) => {
   if (state.confirmed) {
     return h.redirect('/about-your-service/check')
   }
+  const service = findCdpService(state.about.cdpService)
+  const total = data.questions.length + 1
+  const missing = service.aiCouldNotFind?.length ?? 0
   return h.view(`${views}/reading`, {
     pageTitle: 'Reading your service on CDP',
-    service: findCdpService(state.about.cdpService)
+    service,
+    answersHint: missing
+      ? `Found ${total - missing} of ${total}. You answer the other ${missing === 1 ? 'one' : missing}`
+      : `Found all ${total}`
   })
 })
 
@@ -1302,6 +1323,7 @@ export {
   saveService,
   saveStatus,
   showCheck,
+  showConnect,
   showCondition,
   showEvidence,
   showGoLive,

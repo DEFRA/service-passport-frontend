@@ -90,16 +90,14 @@ describe('The Service Passport journey', () => {
   })
 
   describe('before a passport is set up', () => {
-    test('the start page names the CDP team and offers to start', async () => {
+    test('the start page leads to finding your services on CDP', async () => {
       const person = visitor(server)
       const start = await person.get('/')
       expect(text(start.$, 'h1')).toBe('Service Passport')
       expect(text(start.$, 'main')).toContain(
-        'The CDP portal shows you in the Plant health digital team'
+        'You need your Defra account and your target go-live date.'
       )
-      expect(start.$('a.govuk-button--start').attr('href')).toBe(
-        '/about-your-service'
-      )
+      expect(start.$('a.govuk-button--start').attr('href')).toBe('/connect')
       expect(
         start
           .$('.defra-service-navigation__link')
@@ -115,9 +113,7 @@ describe('The Service Passport journey', () => {
         const page = await person.get(path)
         expect(page.statusCode).toBe(200)
         expect(text(page.$, 'h1')).toBe('You have not set up a passport yet')
-        expect(page.$('main a.govuk-button').attr('href')).toBe(
-          '/about-your-service'
-        )
+        expect(page.$('main a.govuk-button').attr('href')).toBe('/connect')
 
         await person.post('/about-your-service', { cdpService: plant })
         const resumed = await person.get(path)
@@ -126,6 +122,26 @@ describe('The Service Passport journey', () => {
         )
       }
     )
+
+    test('finding your services shows the sign-in, the team and its services', async () => {
+      const person = visitor(server)
+      const { $ } = await person.get('/connect')
+      expect(text($, 'h1')).toBe('Finding your services on CDP')
+      const tasks = $('.govuk-task-list__item')
+        .map((_, item) => text($, item))
+        .get()
+      expect(tasks).toEqual([
+        'Sign in with your Defra account Signed in Done',
+        'Find your team on CDP Plant health digital Done',
+        'Find the services your team owns Book a plant export check, Get a catch certificate, Report a livestock movement Done'
+      ])
+      expect($('[data-progress-live]').attr('data-progress-live')).toBe(
+        'Found 3 services owned by Plant health digital.'
+      )
+      expect($('[data-progress-after] a.govuk-button').attr('href')).toBe(
+        '/about-your-service'
+      )
+    })
 
     test('choosing no service names the problem', async () => {
       const person = visitor(server)
@@ -167,14 +183,28 @@ describe('The Service Passport journey', () => {
       expect(saved.headers.location).toBe('/about-your-service/reading')
       const { $ } = await person.get('/about-your-service/reading')
       expect(text($, 'h1')).toBe('Reading your service on CDP')
-      expect(text($, '[role="status"]')).toBe(
-        'AI is reading your service. This takes a few seconds.'
+      expect(taskStatus($, 'Read your code on GitHub')).toMatchObject({
+        status: 'Done',
+        hint: 'DEFRA/example-plant-export-checks-frontend'
+      })
+      expect(taskStatus($, 'Read your deployments on CDP').hint).toBe(
+        'Version 0.50.0, deployed 3 November 2026'
       )
-      expect(text($, 'main')).toContain(
-        'the code in DEFRA/example-plant-export-checks-frontend'
-      )
-      expect($('a.app-reading__continue').attr('href')).toBe(
+      expect(taskStatus($, 'Suggest answers').hint).toBe('Found all 6')
+      expect($('[data-module="app-progress"]').attr('data-next')).toBe(
         '/about-your-service/check'
+      )
+    })
+
+    test('reading a service says how many answers AI could not find', async () => {
+      const person = visitor(server)
+      await person.post('/about-your-service', {
+        cdpService: 'livestock-movements'
+      })
+      await person.post('/about-your-service/go-live', goLive)
+      const { $ } = await person.get('/about-your-service/reading')
+      expect(taskStatus($, 'Suggest answers').hint).toBe(
+        'Found 5 of 6. You answer the other one'
       )
     })
 

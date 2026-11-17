@@ -53,29 +53,76 @@ function focusAnswer() {
 
 focusAnswer()
 
-const readingSeconds = 3
+const progressStepMs = 1000
+
+function hide(element) {
+  element?.classList.add('govuk-!-display-none')
+}
+
+function show(element) {
+  element?.classList.remove('govuk-!-display-none')
+}
+
+/** Sets a task list status to a spinner and "Checking". */
+function setChecking(status) {
+  const spinner = document.createElement('span')
+  spinner.className = 'app-spinner'
+  spinner.setAttribute('aria-hidden', 'true')
+  status.replaceChildren(spinner, document.createTextNode('Checking'))
+}
 
 /**
- * Stands in for AI reading the service on CDP. The status line announces
- * when it finishes, then the page moves on to what AI found. Continue is
- * hidden because the page moves on by itself.
+ * Stands in for the passport reading from CDP. Each task on the page
+ * starts as "Checking" and turns to "Done" in turn, showing what it found.
+ * When all are done, the status line announces it and the rest of the
+ * page appears, or the page moves on by itself if it names where to go.
+ * Without JavaScript the page arrives finished.
  */
-function readService() {
-  const page = document.querySelector('[data-module="app-reading"]')
+function runProgress() {
+  const page = document.querySelector('[data-module="app-progress"]')
   if (!page) {
     return
   }
-  const status = page.querySelector('.app-reading__status')
-  const spinner = page.querySelector('.app-spinner')
-  const button = page.querySelector('.app-reading__continue')
-  if (button) {
-    button.classList.add('govuk-!-display-none')
+  const tasks = [...page.querySelectorAll('.govuk-task-list__item')].map(
+    (item) => {
+      const status = item.querySelector('.govuk-task-list__status')
+      const hint = item.querySelector('.govuk-task-list__hint')
+      const done = status.textContent.trim()
+      setChecking(status)
+      hide(hint)
+      return { status, hint, done }
+    }
+  )
+  const after = page.querySelectorAll('[data-progress-after]')
+  const live = page.querySelector('[data-progress-live]')
+  after.forEach(hide)
+
+  tasks.forEach((task, index) => {
+    window.setTimeout(
+      () => {
+        task.status.textContent = task.done
+        show(task.hint)
+        if (index === tasks.length - 1) {
+          finish()
+        }
+      },
+      (index + 1) * progressStepMs
+    )
+  })
+
+  function finish() {
+    if (live) {
+      live.textContent = live.dataset.progressLive
+    }
+    if (page.dataset.next) {
+      window.setTimeout(
+        () => window.location.assign(page.dataset.next),
+        progressStepMs
+      )
+      return
+    }
+    after.forEach(show)
   }
-  window.setTimeout(() => {
-    spinner?.remove()
-    status.textContent = 'AI has finished reading your service.'
-    window.location.assign(page.dataset.next)
-  }, readingSeconds * 1000)
 }
 
-readService()
+runProgress()

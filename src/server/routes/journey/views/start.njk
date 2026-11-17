@@ -25,12 +25,11 @@
           </p>
         </form>
       {% else %}
-        {{ govukButton({ text: "Start now", href: "/about-your-service", isStartButton: true }) }}
+        {{ govukButton({ text: "Start now", href: "/connect", isStartButton: true }) }}
       {% endif %}
 
       <h2 class="govuk-heading-m">Before you start</h2>
-      <p class="govuk-body">You are signed in with your Defra account. The CDP portal shows you in the {{ cdpTeam }} team, so you can set up a passport for any service it owns.</p>
-      <p class="govuk-body">You need your target go-live date.</p>
+      <p class="govuk-body">You need your Defra account and your target go-live date. Your account shows us your team on CDP and the services it owns.</p>
 
       <h2 class="govuk-heading-m">How it works</h2>
       <p class="govuk-body">AI reads your service's GitHub repository and CDP deployments, then suggests answers to 6 questions. You check them. Your answers set your route.</p>

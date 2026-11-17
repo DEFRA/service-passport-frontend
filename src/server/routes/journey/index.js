@@ -11,6 +11,7 @@ import {
   saveService,
   saveStatus,
   showCheck,
+  showConnect,
   showCondition,
   showEvidence,
   showGoLive,
@@ -42,6 +43,7 @@ const journey = {
         [
           ['GET', '/', startPage],
           ['POST', '/start-again', startAgain],
+          ['GET', '/connect', showConnect],
           ['GET', '/about-your-service', showService],
           ['POST', '/about-your-service', saveService],
           ['GET', '/about-your-service/go-live', showGoLive],

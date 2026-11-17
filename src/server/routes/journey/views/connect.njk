@@ -1,0 +1,43 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+{% from "govuk/components/task-list/macro.njk" import govukTaskList %}
+
+{% set backLink = { href: "/" } %}
+
+{# Shows how the passport knows which services to offer, before it offers
+   them. With JavaScript each check runs in turn; without it, the page
+   arrives finished. #}
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds" data-module="app-progress">
+      <h1 class="govuk-heading-l">Finding your services on CDP</h1>
+      <p class="govuk-body">Your Defra account shows which teams you are in on CDP. The passport only reads from CDP. It does not change anything.</p>
+
+      {% set names = [] %}
+      {% for service in cdpServices %}{% set names = (names.push(service.name), names) %}{% endfor %}
+      {{ govukTaskList({
+        idPrefix: "connect",
+        classes: "app-task-list app-progress",
+        items: [
+          { title: { text: "Sign in with your Defra account" }, hint: { text: "Signed in" }, status: { text: "Done" } },
+          { title: { text: "Find your team on CDP" }, hint: { text: cdpTeam }, status: { text: "Done" } },
+          { title: { text: "Find the services your team owns" }, hint: { text: names | join(", ") }, status: { text: "Done" } }
+        ]
+      }) }}
+
+      <p class="govuk-visually-hidden" role="status" data-progress-live="Found {{ cdpServices.length }} services owned by {{ cdpTeam }}."></p>
+
+      <div data-progress-after>
+        <p class="govuk-body">Your passport can be for any of these {{ cdpServices.length }} services.</p>
+        {{ govukButton({ text: "Continue", href: "/about-your-service" }) }}
+        {% set missingHtml %}
+          <p class="govuk-body">Ask your team admin to add you to the right team in the CDP portal, then come back.</p>
+          <p class="govuk-body">If your service is not on CDP yet, create it in the CDP portal first.</p>
+        {% endset %}
+        {{ govukDetails({ summaryText: "My team or service is not here", html: missingHtml }) }}
+      </div>
+    </div>
+  </div>
+{% endblock %}
