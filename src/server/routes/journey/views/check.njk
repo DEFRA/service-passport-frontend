@@ -22,13 +22,43 @@
         <h1 class="govuk-heading-l">About your service</h1>
         <p class="govuk-body">Your route is built from these answers. Change one and your route changes with it.</p>
       {% else %}
-        <h1 class="govuk-heading-l">Check your answers</h1>
-        <p class="govuk-body">Your route is built from these answers. Change anything that is wrong.</p>
+        <h1 class="govuk-heading-l">Check what AI found</h1>
+        <p class="govuk-body">AI read your service's code and its deployments on CDP to answer these questions. The answers decide which approvals are on your route.</p>
+        {% set aiWarning = "AI can make mistakes. Change any answer that is wrong." %}
+        {% include "partials/ask-warning.njk" %}
       {% endif %}
+    </div>
+  </div>
 
+  {# Full width, so each answer, what AI found and the file it read sit on
+     one line each instead of wrapping into a column of hint text. #}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      {% set answerRows = [] %}
+      {% for row in rows %}
+        {# The answer, then what it does to the route, then the evidence:
+           cause and effect in the order people read them. #}
+        {% set valueHtml %}
+          {%- if row.lines and row.lines.length %}{% for line in row.lines %}<span class="app-answer">{{ line }}</span>{% endfor %}{% else %}<span class="app-answer">{{ row.value }}</span>{% endif -%}
+          {%- if row.effect %}<span class="app-effect">{{ row.effect }}</span>{% endif -%}
+          <span class="app-suggested">{{ row.note }}{% if row.source %}, in <span class="app-path">{{ row.source }}</span>{% endif %}</span>
+        {%- endset %}
+        {% set answerRows = (answerRows.push({
+          key: { text: row.label },
+          value: { html: valueHtml },
+          actions: { items: [{ href: "/about-your-service/" + row.id, text: "Change" if row.answered else "Answer", visuallyHiddenText: row.changeText, attributes: { id: "change-" + row.id } }] }
+        }), answerRows) %}
+      {% endfor %}
+      {{ govukSummaryList({ classes: "app-check-list", rows: answerRows }) }}
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h2 class="govuk-heading-m">Your service</h2>
       {% set serviceRow = {
         key: { text: "Service on CDP" },
-        value: { html: (service.name | escape) + '<span class="app-suggested">' + (service.id | escape) + '</span>' }
+        value: { text: service.name }
       } %}
       {% if not state.confirmed %}
         {% set serviceRow = { key: serviceRow.key, value: serviceRow.value, actions: { items: [{ href: "/about-your-service", text: "Change", visuallyHiddenText: "service on CDP" }] } } %}
@@ -36,41 +66,19 @@
       {{ govukSummaryList({
         rows: [
           serviceRow,
-          {
-            key: { text: "What it does" },
-            value: { html: (service.summary | escape) + '<span class="app-suggested">From your README</span>' }
-          },
-          {
-            key: { text: "Phase" },
-            value: { html: (service.phase | escape) + ', moving to public beta' }
-          },
+          { key: { text: "Phase" }, value: { text: service.phase } },
           {
             key: { text: "Target go-live date" },
-            value: { html: (state.about.goLive | formatDate("d MMMM yyyy")) + '<span class="app-suggested">When the service moves to public beta</span>' },
+            value: { text: state.about.goLive | formatDate("d MMMM yyyy") },
             actions: { items: [{ href: "/about-your-service/go-live", text: "Change", visuallyHiddenText: "target go-live date" }] }
           }
         ]
       }) }}
+
       {% if state.confirmed %}
         <p class="govuk-body">To set up a passport for a different service, <a class="govuk-link" href="/">start again</a>.</p>
-      {% endif %}
-
-      <h2 class="govuk-heading-m">{{ "What your route is built from" if state.confirmed else "Suggested by AI" }}</h2>
-      {% set answerRows = [] %}
-      {% for row in rows %}
-        {% set valueHtml %}{% if row.lines and row.lines.length %}{% for line in row.lines %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}{% else %}{{ row.value }}{% endif %}<span class="app-suggested">{{ row.note }}</span>{% endset %}
-        {% set answerRows = (answerRows.push({
-          key: { text: row.label },
-          value: { html: valueHtml },
-          actions: { items: [{ href: "/about-your-service/" + row.id, text: "Change" if row.answered else "Answer", visuallyHiddenText: row.changeText, attributes: { id: "change-" + row.id } }] }
-        }), answerRows) %}
-      {% endfor %}
-      {{ govukSummaryList({ rows: answerRows }) }}
-
-      {% if state.confirmed %}
         {{ govukButton({ text: "Go to your passport", href: "/passport" }) }}
       {% else %}
-        {% include "partials/ask-warning.njk" %}
         <form method="post" novalidate>
           <input type="hidden" name="crumb" value="{{ crumb }}">
           {{ govukButton({ text: "Confirm and set up your passport" }) }}

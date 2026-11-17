@@ -90,18 +90,42 @@ describe('The Service Passport journey', () => {
   })
 
   describe('before a passport is set up', () => {
-    test('the start page offers to start, and the passport sends people back to it', async () => {
+    test('the start page names the CDP team and offers to start', async () => {
       const person = visitor(server)
       const start = await person.get('/')
       expect(text(start.$, 'h1')).toBe('Service Passport')
+      expect(text(start.$, 'main')).toContain(
+        'The CDP portal shows you in the Plant health digital team'
+      )
       expect(start.$('a.govuk-button--start').attr('href')).toBe(
         '/about-your-service'
       )
-
-      const passport = await person.get('/passport')
-      expect(passport.statusCode).toBe(302)
-      expect(passport.headers.location).toBe('/')
+      expect(
+        start
+          .$('.defra-service-navigation__link')
+          .map((i, link) => start.$(link).text())
+          .get()
+      ).toEqual(['Passport', 'Plan', 'About your service'])
     })
+
+    test.each(['/passport', '/plan'])(
+      '%s says the passport is not set up yet and links to set-up',
+      async (path) => {
+        const person = visitor(server)
+        const page = await person.get(path)
+        expect(page.statusCode).toBe(200)
+        expect(text(page.$, 'h1')).toBe('You have not set up a passport yet')
+        expect(page.$('main a.govuk-button').attr('href')).toBe(
+          '/about-your-service'
+        )
+
+        await person.post('/about-your-service', { cdpService: plant })
+        const resumed = await person.get(path)
+        expect(text(resumed.$, 'main a.govuk-button')).toBe(
+          'Continue setting up'
+        )
+      }
+    )
 
     test('choosing no service names the problem', async () => {
       const person = visitor(server)
@@ -141,11 +165,23 @@ describe('The Service Passport journey', () => {
       await person.post('/about-your-service', { cdpService: plant })
       await person.post('/about-your-service/go-live', goLive)
       const { $ } = await person.get('/about-your-service/check')
-      expect(text($, 'h1')).toBe('Check your answers')
-      expect(text($, 'main')).toContain(
-        'docs/security/ithc-scope.md names an IT health check supplier'
+      expect(text($, 'h1')).toBe('Check what AI found')
+      const row = text(
+        $,
+        '.govuk-summary-list__row:has(#change-supplierPenTest)'
       )
-      expect(text($, 'main')).toContain('From your README')
+      expect(row).toContain(
+        'AI found a named IT health check supplier in your test scope, in docs/security/ithc-scope.md'
+      )
+      expect(
+        text(
+          $,
+          '.govuk-summary-list__row:has(#change-supplierPenTest) .app-effect'
+        )
+      ).toBe('Book the IT health check 8 weeks ahead')
+      expect(
+        text($, '.govuk-summary-list__row:has(#change-public) .app-effect')
+      ).toBe('Adds a beta assessment')
     })
 
     test('when AI could not find an answer, the person must answer before confirming', async () => {
@@ -473,11 +509,52 @@ describe('The Service Passport journey', () => {
       )
     })
 
+    test('AI checks the service is ready only when asked, and the passport counts what to fix', async () => {
+      const before = await person.get('/passport/pen-test')
+      expect(text(before.$, '#readiness + p')).toContain(
+        'AI can check your code and the CDP portal'
+      )
+      expect(before.$('.app-readiness').length).toBe(0)
+
+      const response = await person.post(
+        '/passport/pen-test/readiness',
+        {},
+        '/passport/pen-test'
+      )
+      expect(response.headers.location).toBe('/passport/pen-test#readiness')
+
+      const { $ } = await person.get('/passport/pen-test')
+      expect(text($, '#readiness + p')).toBe(
+        'AI found 1 thing to fix before you book. Check 1 thing yourself. Checked 16 November 2026.'
+      )
+      expect(taskStatus($, 'No known vulnerabilities').status).toBe('To fix')
+      expect(taskStatus($, 'Test accounts for the testers').status).toBe(
+        'Check yourself'
+      )
+      expect(taskStatus($, 'Scope agreed with the testers').status).toBe(
+        'Ready'
+      )
+
+      const passport = await person.get('/passport')
+      expect(taskStatus(passport.$, 'IT health check').hint).toBe(
+        'Was due by 10 November 2026. 1 thing to fix first'
+      )
+    })
+
+    test('a step without readiness checks cannot be checked', async () => {
+      const response = await person.post(
+        '/passport/gate-4/readiness',
+        {},
+        '/passport/gate-4'
+      )
+      expect(response.headers.location).toBe('/passport/gate-4')
+    })
+
     test('time passing makes the next bookings overdue', async () => {
       await person.post('/passport/time-passes', {}, '/passport')
       const { $ } = await person.get('/passport')
       expect(text($, '.govuk-notification-banner')).toContain(
-        'The demo date is now 30 November 2026'
+        'It is now 30 November 2026'
       )
       expect(taskStatus($, 'Accessibility audit').status).toBe('Overdue')
     })
@@ -490,7 +567,7 @@ describe('The Service Passport journey', () => {
       )
       expect(taskStatus($, 'Stage gate 4').hint).toBe('Decided 2 March 2027')
       expect(text($, '.app-prototype-controls')).toContain(
-        'The demo date is 29 March 2027'
+        'Today in this prototype is 29 March 2027'
       )
       const share = await person.get('/passport/share')
       expect(share.$('#link').val()).toMatch(/\/passport$/)
@@ -547,7 +624,7 @@ describe('The Service Passport journey', () => {
     test('starting again clears the passport', async () => {
       await person.post('/start-again', {}, '/')
       const passport = await person.get('/passport')
-      expect(passport.headers.location).toBe('/')
+      expect(text(passport.$, 'h1')).toBe('You have not set up a passport yet')
     })
 
     test('a go-live date too soon for stage gate 4 is called out', async () => {

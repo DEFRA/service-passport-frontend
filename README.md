@@ -24,6 +24,7 @@ These rules and names are our best understanding. None has been checked with the
 - Whether the architecture board is the Solution Design Authority or the Architectural Design Authority, and how both relate to the Technical Design Authority.
 - Whether an IT health check must be an independent CHECK or CREST test, and whether it runs in perf-test or ext-test.
 - The sections of the Service Design Pack and who signs them off.
+- What each readiness check looks for: the Platform Readiness Review (runbook, coverage report, performance test results, journey tests, alerts), the IT health check (scope, perf-test deployment, known vulnerabilities, test accounts) and the accessibility audit (GOV.UK Frontend, automated checks, a list of journeys, keyboard and screen reader checks).
 
 - [Requirements](#requirements)
   - [Node.js](#nodejs)

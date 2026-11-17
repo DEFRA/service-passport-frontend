@@ -19,16 +19,14 @@ export function hasRoute(request) {
 }
 
 /**
- * The service navigation, shown once a person has confirmed their route.
+ * The service navigation, on every page so people can see the whole service
+ * from the start. Before set-up, Passport and Plan explain what is missing.
  * A page counts as current when it sits under that item's address, so a
  * step page highlights Passport.
  * @param {object} [request]
  * @returns {Array<{text: string, href: string, current: boolean}>}
  */
 export function buildNavigation(request) {
-  if (!hasRoute(request)) {
-    return []
-  }
   const section = (request.path ?? '').split('/')[1]
   return items.map((item) => ({
     ...item,

@@ -46,7 +46,9 @@
       "question": "Will people outside Defra use the service once it is live?",
       "hint": "If they will, your route includes a beta assessment against the Service Standard.",
       "suggested": "yes",
-      "reason": "The service signs people in with Defra Customer Identity (src/server/plugins/auth.js).",
+      "found": "sign-in through Defra Customer Identity, which is for people outside Defra",
+      "effect": { "yes": "Adds a beta assessment", "no": "No beta assessment" },
+      "source": "src/server/plugins/auth.js",
       "error": "Select yes if people outside Defra will use the service",
       "changeText": "whether people outside Defra use the service"
     },
@@ -56,7 +58,9 @@
       "question": "Does the service store or use personal data?",
       "hint": "If it does, your route includes an update to your data protection impact assessment.",
       "suggested": "yes",
-      "reason": "src/server/models/applicant.js stores names, addresses and phone numbers.",
+      "found": "names, addresses and phone numbers stored for each applicant",
+      "effect": { "yes": "Adds a data protection impact assessment update", "no": "No data protection update" },
+      "source": "src/server/models/applicant.js",
       "error": "Select yes if the service stores or uses personal data",
       "changeText": "whether the service handles personal data"
     },
@@ -66,7 +70,9 @@
       "question": "Does the service use AI to make or support decisions?",
       "hint": "If it does, your route includes an algorithmic transparency record.",
       "suggested": "no",
-      "reason": "No AI or machine learning packages in package.json, and no calls to Amazon Bedrock.",
+      "found": "no AI packages and no calls to Amazon Bedrock",
+      "effect": { "yes": "Adds an algorithmic transparency record", "no": "No algorithmic transparency record" },
+      "source": "package.json",
       "error": "Select yes if the service uses AI to make or support decisions",
       "changeText": "whether the service uses AI"
     },
@@ -76,7 +82,9 @@
       "question": "Does the service use any tools outside the CDP standard stack?",
       "hint": "If it does, your route includes a Technical Design Authority review.",
       "suggested": "no",
-      "reason": "Every package in package.json comes from the CDP Node.js template.",
+      "found": "only packages from the CDP Node.js template",
+      "effect": { "yes": "Adds the Technical Design Authority", "no": "No Technical Design Authority" },
+      "source": "package.json",
       "error": "Select yes if the service uses tools outside the CDP standard stack",
       "changeText": "whether the service uses tools outside the CDP standard stack"
     },
@@ -86,7 +94,9 @@
       "question": "Will an external supplier run your IT health check?",
       "hint": "Suppliers need 8 weeks' notice. The CDP security team needs 2 weeks.",
       "suggested": "yes",
-      "reason": "docs/security/ithc-scope.md names an IT health check supplier.",
+      "found": "a named IT health check supplier in your test scope",
+      "effect": { "yes": "Book the IT health check 8 weeks ahead", "no": "Book the IT health check with the CDP security team, 2 weeks ahead" },
+      "source": "docs/security/ithc-scope.md",
       "error": "Select yes if an external supplier will run your IT health check",
       "changeText": "who runs your IT health check"
     }
@@ -94,14 +104,15 @@
   "alreadyDone": {
     "label": "Approvals already given",
     "question": "Which of these approvals does your service already have?",
-    "hint": "AI looked for evidence of each one. If you tick one it did not find, add a link to the evidence from your passport.",
+    "hint": "AI looked for evidence of each one. If you tick one it did not find, link to the evidence from your passport.",
     "error": "Select the approvals your service already has, or select none of these",
     "suggested": [
       "registration",
       "service-tiering",
       "solution-design-authority"
     ],
-    "reason": "Found in the CDP portal and your architecture decision records.",
+    "found": "these in the CDP portal and your architecture decision records",
+    "effect": "Marked as done on your route",
     "evidence": {
       "registration": {
         "decidedOn": "2026-02-02",
@@ -364,6 +375,31 @@
         "text": "CDP security testing guidance",
         "slug": "cdp-security-testing"
       },
+      "readiness": [
+        {
+          "text": "Scope agreed with the testers",
+          "result": "ready",
+          "found": "Names the supplier, the URLs and the dates.",
+          "source": "docs/security/ithc-scope.md"
+        },
+        {
+          "text": "Service deployed to perf-test",
+          "result": "ready",
+          "found": "Version 0.50.0 since 3 November 2026, in the CDP portal."
+        },
+        {
+          "text": "No known vulnerabilities",
+          "result": "gap",
+          "found": "npm audit reports 1 high vulnerability.",
+          "fix": "Update the package first, or the testers will report it.",
+          "source": "package-lock.json"
+        },
+        {
+          "text": "Test accounts for the testers",
+          "result": "unknown",
+          "found": "AI cannot tell if these exist. The testers will need 2."
+        }
+      ],
       "examples": [
         "What environment does the test need?",
         "What happens if it finds problems?"
@@ -447,26 +483,35 @@
         "text": "CDP Platform Readiness Review guidance",
         "slug": "cdp-platform-readiness"
       },
-      "checks": [
+      "readiness": [
         {
-          "name": "Service runbook",
-          "found": null
+          "text": "Service runbook",
+          "result": "gap",
+          "found": "No runbook in your repository.",
+          "fix": "Add one that says how to restart the service, read its alerts and who to call."
         },
         {
-          "name": "Test coverage report",
-          "found": null
+          "text": "Test coverage report",
+          "result": "gap",
+          "found": "Your pipeline does not publish coverage.",
+          "fix": "Send it to SonarQube Cloud from your CI pipeline."
         },
         {
-          "name": "Performance test results from perf-test",
-          "found": "tests/performance/results-2026-11-11.md"
+          "text": "Performance test results from perf-test",
+          "result": "ready",
+          "found": "Results from 11 November 2026.",
+          "source": "tests/performance/results-2026-11-11.md"
         },
         {
-          "name": "Journey tests",
-          "found": "tests/journey/"
+          "text": "Journey tests",
+          "result": "ready",
+          "found": "They run on every pull request.",
+          "source": "tests/journey/"
         },
         {
-          "name": "README explains how to run the service",
-          "found": "README.md"
+          "text": "Alerts that work",
+          "result": "unknown",
+          "found": "AI cannot see your alert settings. Check them in Grafana."
         }
       ],
       "examples": ["What goes in a runbook?", "Do I need a load test?"],
@@ -529,6 +574,31 @@
         "text": "Defra accessibility guidance",
         "slug": "defra-accessibility"
       },
+      "readiness": [
+        {
+          "text": "Built with GOV.UK Frontend",
+          "result": "ready",
+          "found": "Version 6.6.0.",
+          "source": "package.json"
+        },
+        {
+          "text": "Automated accessibility checks",
+          "result": "ready",
+          "found": "axe runs on every pull request.",
+          "source": ".github/workflows/accessibility.yml"
+        },
+        {
+          "text": "Pages and journeys for the auditor",
+          "result": "gap",
+          "found": "No list of what to test.",
+          "fix": "Write one, with a test account for each journey. Auditors price the audit from it."
+        },
+        {
+          "text": "Keyboard and screen reader checks",
+          "result": "unknown",
+          "found": "AI cannot test these. Try your main journey with a keyboard before you book."
+        }
+      ],
       "examples": [
         "What do I need for stage gate 4?",
         "Who can run the audit?"

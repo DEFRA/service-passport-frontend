@@ -5,9 +5,19 @@ function requestAt(path, passport) {
 }
 
 describe('buildNavigation', () => {
-  test('shows nothing before a route is confirmed', () => {
-    expect(buildNavigation(requestAt('/about-your-service', {}))).toEqual([])
-    expect(buildNavigation({ path: '/' })).toEqual([])
+  test('shows every link before a route is confirmed', () => {
+    const items = buildNavigation(requestAt('/about-your-service', {}))
+    expect(items.map((item) => item.text)).toEqual([
+      'Passport',
+      'Plan',
+      'About your service'
+    ])
+    expect(
+      items.filter((item) => item.current).map((item) => item.text)
+    ).toEqual(['About your service'])
+    expect(
+      buildNavigation({ path: '/' }).filter((item) => item.current)
+    ).toEqual([])
   })
 
   test.each([

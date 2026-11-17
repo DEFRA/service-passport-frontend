@@ -22,13 +22,10 @@
   {% endset %}
   {{ govukWarningText({ html: warningHtml, iconFallbackText: "Warning" }) }}
 {% elif late.length > 1 %}
+  {# The list below already marks each overdue step, so the warning names
+     the count and the one to start with, not every step again. #}
   {% set warningHtml %}
-    {{ late.length }} steps are overdue. Your target go-live date of {{ goLive | formatDate("d MMMM yyyy") }} is at risk.
+    {{ late.length }} steps are overdue, so go-live on {{ goLive | formatDate("d MMMM yyyy") }} is at risk. <a class="govuk-link" href="{{ late[0].href }}">{{ late[0].overdue.todo }}</a> first.
   {% endset %}
   {{ govukWarningText({ html: warningHtml, iconFallbackText: "Warning" }) }}
-  <ul class="govuk-list govuk-list--bullet app-overdue-list">
-    {% for step in late %}
-      <li><a class="govuk-link" href="{{ step.href }}">{{ step.overdue.todo }}</a>, {{ step.overdue.due }}</li>
-    {% endfor %}
-  </ul>
 {% endif %}

@@ -10,9 +10,8 @@
   </div>
 </header>
 
-{# Shown once a person has a route. Before that, the start page and the
-   questions are the whole service, and links to empty pages would mislead. #}
-{% if navigation.length %}
+{# The links show on every page, so people see the whole service from the
+   start. Before set-up, Passport and Plan say what is missing. #}
 <nav class="defra-service-navigation" aria-label="Service navigation" data-module="defra-service-navigation">
   <div class="defra-service-navigation__inner">
     <button type="button" class="defra-service-navigation__toggle" aria-controls="service-navigation-list" aria-expanded="false" hidden>Menu</button>
@@ -25,4 +24,3 @@
     </ul>
   </div>
 </nav>
-{% endif %}

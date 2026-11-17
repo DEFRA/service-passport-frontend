@@ -35,7 +35,7 @@ const doneStatuses = new Set(['approved', 'approved-with-conditions', 'done'])
  */
 const statusLooks = {
   'not-started': { text: 'Not started', tag: 'govuk-tag--blue' },
-  'in-progress': { text: 'In progress', tag: 'govuk-tag--light-blue' },
+  'in-progress': { text: 'In progress' },
   booked: { text: 'Booked' },
   submitted: { text: 'Waiting for a decision' },
   approved: { text: 'Approved' },
@@ -508,6 +508,37 @@ function hintFor(step, service) {
   return null
 }
 
+/**
+ * What AI found when the delivery lead asked it to check the service was
+ * ready for this step, or null if the step has no checks. Nothing shows
+ * until they ask, so the check is something they choose to run.
+ */
+function readinessFor(step, state) {
+  if (!step.readiness) {
+    return null
+  }
+  const count = (result) =>
+    step.readiness.filter((item) => item.result === result).length
+  return {
+    checkedOn: state.readiness?.[step.id] ?? null,
+    items: step.readiness,
+    gaps: count('gap'),
+    unknown: count('unknown')
+  }
+}
+
+/** Adds the things left to fix to a step's hint, once AI has checked. */
+function withGaps(hint, step) {
+  const readiness = step.readinessCheck
+  const waiting = ['not-started', 'not-approved', 'booked'].includes(
+    step.status
+  )
+  if (!hint || !readiness?.checkedOn || !readiness.gaps || !waiting) {
+    return hint
+  }
+  return `${hint}. ${plural(readiness.gaps, 'thing', 'things')} to fix first`
+}
+
 function describeStep(step, state, now) {
   const stamp = state.stamps?.[step.id] ?? { status: 'not-started' }
   const goLive = state.about?.goLive
@@ -537,6 +568,7 @@ function describeStep(step, state, now) {
     decided: decidedStatuses.has(stamp.status),
     plan,
     flag: stepFlag(step, stamp, plan, now),
+    readinessCheck: readinessFor(step, state),
     href: `/passport/${step.id}`
   }
 }
@@ -585,7 +617,7 @@ function finishStep(step, described, service) {
   const withLook = { ...finished, statusText: look.text, tag: look.tag }
   return {
     ...withLook,
-    hint: hintFor(withLook, service),
+    hint: withGaps(hintFor(withLook, service), withLook),
     overdue: overdueWords(withLook),
     editable,
     options: leadOptions[step.kind] ?? []
@@ -656,6 +688,7 @@ function buildRoute(state) {
 
   return {
     now,
+    nextFortnight: addDays(now, 2 * daysInWeek),
     stages,
     steps: routeSteps,
     stepsLeft: routeSteps.filter((step) => !step.done).length,

@@ -1,6 +1,7 @@
 {% extends 'layouts/page.njk' %}
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 
@@ -24,10 +25,16 @@
           name: "cdpService",
           idPrefix: "cdpService",
           fieldset: { legend: { text: "Which service is the passport for?", isPageHeading: true, classes: "govuk-fieldset__legend--l" } },
-          hint: { text: "These are the services your team, " + cdpTeam + ", owns on CDP." },
+          hint: { text: "From your team on CDP, " + cdpTeam + "." },
           errorMessage: { text: error } if error,
           items: items
         }) }}
+
+        {% set missingHtml %}
+          <p class="govuk-body">You only see services owned by your teams on CDP. Ask your team admin to add you to the right team in the CDP portal, then come back.</p>
+          <p class="govuk-body">If your service is not on CDP yet, create it in the CDP portal first.</p>
+        {% endset %}
+        {{ govukDetails({ summaryText: "My service is not listed", html: missingHtml }) }}
 
         {{ govukButton({ text: "Continue" }) }}
       </form>

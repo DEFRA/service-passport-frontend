@@ -60,7 +60,9 @@ describe('context and cache', () => {
           assetPath: '/public/assets',
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
-          navigation: [],
+          navigation: expect.arrayContaining([
+            expect.objectContaining({ text: 'Passport', current: false })
+          ]),
           serviceName: 'Service Passport',
           serviceUrl: '/'
         })
@@ -138,7 +140,9 @@ describe('context and cache', () => {
           assetPath: '/public/assets',
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
-          navigation: [],
+          navigation: expect.arrayContaining([
+            expect.objectContaining({ text: 'Passport', current: false })
+          ]),
           serviceName: 'Service Passport',
           serviceUrl: '/'
         })

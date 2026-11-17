@@ -1,6 +1,7 @@
 import {
   approveEverything,
   askAboutStep,
+  checkReadiness,
   confirmAnswers,
   confirmCondition,
   saveCondition,
@@ -55,6 +56,7 @@ const journey = {
           ['POST', '/passport/approve-everything', approveEverything],
           ['GET', '/passport/{stepId}', showStep],
           ['POST', '/passport/{stepId}/ask', askAboutStep],
+          ['POST', '/passport/{stepId}/readiness', checkReadiness],
           ['GET', '/passport/{stepId}/status', showStatus],
           ['POST', '/passport/{stepId}/status', saveStatus],
           ['POST', '/passport/{stepId}/decision', simulateDecision],

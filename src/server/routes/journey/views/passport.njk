@@ -37,7 +37,7 @@
         {% set goLive = state.about.goLive %}
         {% include "partials/booking-warning.njk" %}
 
-        {% if next %}
+        {% if next and route.late.length < 2 and not route.impossible %}
           {{ govukInsetText({ html: '<strong>Next:</strong> <a class="govuk-link" href="' + next.href + '">' + ((next.todo | first | lower) + next.todo.slice(1)) | escape + '</a> by ' + (next.plan.actionBy | formatDate("d MMMM yyyy")) + '.' }) }}
         {% endif %}
       </div>
@@ -97,16 +97,25 @@
 
       <div class="app-prototype-controls">
         <h2 class="govuk-heading-s">Prototype controls</h2>
-        <p class="govuk-body">The demo date is {{ route.now | formatDate("d MMMM yyyy") }}. These buttons stand in for time passing and for the teams that decide.</p>
+        <p class="govuk-body">Today in this prototype is {{ route.now | formatDate("d MMMM yyyy") }}. Move time on, or act as the teams that decide.</p>
         <form method="post" action="/passport/time-passes" novalidate>
           <input type="hidden" name="crumb" value="{{ crumb }}">
-          <div class="govuk-button-group">
-            {{ govukButton({ text: "Simulate: 2 weeks pass", classes: "govuk-button--secondary" }) }}
+          <dl class="app-controls">
+            <div class="app-controls__row">
+              <dt>{{ govukButton({ text: "Move on 2 weeks", classes: "govuk-button--secondary" }) }}</dt>
+              <dd class="govuk-body">Today becomes {{ route.nextFortnight | formatDate("d MMMM yyyy") }}. Steps not booked in time become overdue.</dd>
+            </div>
             {% if not route.ready %}
-              {{ govukButton({ text: "Simulate: every step approved on its planned date", classes: "govuk-button--secondary", attributes: { formaction: "/passport/approve-everything" } }) }}
+              <div class="app-controls__row">
+                <dt>{{ govukButton({ text: "Approve every step", classes: "govuk-button--secondary", attributes: { formaction: "/passport/approve-everything" } }) }}</dt>
+                <dd class="govuk-body">Each team approves on its planned date, so you can see a finished passport.</dd>
+              </div>
             {% endif %}
-            {{ govukButton({ text: "Start again", classes: "govuk-button--secondary", attributes: { formaction: "/start-again" } }) }}
-          </div>
+            <div class="app-controls__row">
+              <dt>{{ govukButton({ text: "Start again", classes: "govuk-button--secondary", attributes: { formaction: "/start-again" } }) }}</dt>
+              <dd class="govuk-body">Clears everything, including the password, ready for the next participant.</dd>
+            </div>
+          </dl>
         </form>
       </div>
     </div>

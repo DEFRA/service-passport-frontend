@@ -5,8 +5,8 @@
 {% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
-{% from "govuk/components/table/macro.njk" import govukTable %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/task-list/macro.njk" import govukTaskList %}
 
 {% set backLink = { href: "/passport", text: "Back to passport" } %}
 {% set stamp = step.stamp %}
@@ -129,23 +129,45 @@
         {{ govukSummaryList({ rows: packRows }) }}
       {% endif %}
 
-      {% if step.checks and step.status in ["not-started", "not-approved", "booked"] %}
-        <h2 class="govuk-heading-m">{{ "Check your repository before you book" if step.status == "not-started" else "What the " + step.decidedBy + " will look for" }}</h2>
-        <p class="govuk-body">AI looked in your GitHub repository for what the {{ step.decidedBy }} asks for. Checked {{ now | formatDate("d MMMM yyyy") }}, from the main branch. The team still makes the decision.</p>
-        {% set checkRows = [] %}
-        {% for check in step.checks %}
-          {% set checkRows = (checkRows.push([
-            { text: check.name },
-            { html: ('<code class="app-path">' + (check.found | escape) + '</code>') if check.found else "<strong>Not found</strong>" }
-          ]), checkRows) %}
-        {% endfor %}
-        {{ govukTable({
-          caption: "What AI found in your repository",
-          captionClasses: "govuk-visually-hidden",
-          firstCellIsHeader: true,
-          head: [{ text: "What they ask for" }, { text: "Where AI found it" }],
-          rows: checkRows
-        }) }}
+      {% set ready = step.readinessCheck %}
+      {% if ready and step.status in ["not-started", "not-approved", "booked"] %}
+        {% set verb = step.action | lower %}
+        <h2 class="govuk-heading-m" id="readiness">Check you are ready</h2>
+        {% if not ready.checkedOn %}
+          <p class="govuk-body">AI can check your code and the CDP portal against what the {{ step.waitingFor }} looks for. You find out what to fix before you {{ verb }}.</p>
+          <form method="post" action="{{ step.href }}/readiness" novalidate>
+            <input type="hidden" name="crumb" value="{{ crumb }}">
+            {{ govukButton({ text: "Check my service", classes: "govuk-button--secondary" }) }}
+          </form>
+        {% else %}
+          <p class="govuk-body">
+            {%- if ready.gaps -%}
+              AI found {{ ready.gaps }} {{ "thing" if ready.gaps == 1 else "things" }} to fix before you {{ verb }}.
+            {%- else -%}
+              AI found nothing to fix.
+            {%- endif %}
+            {% if ready.unknown %} Check {{ "1 thing" if ready.unknown == 1 else ready.unknown + " things" }} yourself.{% endif %}
+            Checked {{ ready.checkedOn | formatDate("d MMMM yyyy") }}.</p>
+          {% set aiWarning = "AI can make mistakes. The " + step.waitingFor + " makes the decision." %}
+          {% include "partials/ask-warning.njk" %}
+          {% set readyItems = [] %}
+          {% for item in ready.items %}
+            {% if item.result == "gap" %}
+              {% set itemStatus = { tag: { text: "To fix", classes: "govuk-tag--red" } } %}
+            {% elif item.result == "unknown" %}
+              {% set itemStatus = { text: "Check yourself", classes: "govuk-task-list__status--cannot-start-yet" } %}
+            {% else %}
+              {% set itemStatus = { text: "Ready" } %}
+            {% endif %}
+            {% set itemHint %}{{ item.found }}{% if item.fix %} {{ item.fix }}{% endif %}{% if item.source %}<br><span class="app-path">{{ item.source }}</span>{% endif %}{% endset %}
+            {% set readyItems = (readyItems.push({ title: { text: item.text }, hint: { html: itemHint }, status: itemStatus }), readyItems) %}
+          {% endfor %}
+          {{ govukTaskList({ idPrefix: "readiness", items: readyItems, classes: "app-readiness" }) }}
+          <form method="post" action="{{ step.href }}/readiness" novalidate>
+            <input type="hidden" name="crumb" value="{{ crumb }}">
+            <p class="govuk-body"><button type="submit" class="app-link-button">Check again</button></p>
+          </form>
+        {% endif %}
       {% endif %}
 
       {% if step.editable %}
@@ -239,11 +261,11 @@
       <div class="govuk-grid-column-two-thirds">
         <div class="app-prototype-controls">
           <h2 class="govuk-heading-s">Prototype controls</h2>
-          <p class="govuk-body">In the real service, this comes from the {{ step.waitingFor }}'s own record. Simulate it here to carry on.</p>
+          <p class="govuk-body">In the real service, the {{ step.waitingFor }} confirms this in their own record. Act as them here.</p>
           {% for condition in waitingConditions %}
             <form method="post" action="{{ step.href }}/conditions/{{ condition.index }}/confirm" novalidate>
               <input type="hidden" name="crumb" value="{{ crumb }}">
-              {{ govukButton({ html: 'Simulate: condition met<span class="govuk-visually-hidden">, ' + (condition.text | escape) + '</span>', classes: "govuk-button--secondary" }) }}
+              {{ govukButton({ html: 'Confirm condition met<span class="govuk-visually-hidden">: ' + (condition.text | escape) + '</span>', classes: "govuk-button--secondary" }) }}
             </form>
           {% endfor %}
         </div>
@@ -256,15 +278,15 @@
       <div class="govuk-grid-column-two-thirds">
         <div class="app-prototype-controls">
           <h2 class="govuk-heading-s">Prototype controls</h2>
-          <p class="govuk-body">In the real service, this decision comes from the {{ step.waitingFor }}'s own record. Simulate it here to carry on.</p>
+          <p class="govuk-body">In the real service, the {{ step.waitingFor }} records their decision. Act as them here and choose it.</p>
           <form method="post" action="{{ step.href }}/decision" novalidate>
             <input type="hidden" name="crumb" value="{{ crumb }}">
             <div class="govuk-button-group">
-              {{ govukButton({ text: "Simulate: " + ((step.outcomes.approved if step.outcomes else "Approved") | lower), name: "decision", value: "approve", classes: "govuk-button--secondary" }) }}
+              {{ govukButton({ text: step.outcomes.approved if step.outcomes else "Approved", name: "decision", value: "approve", classes: "govuk-button--secondary" }) }}
               {% if step.possibleConditions.length %}
-                {{ govukButton({ text: "Simulate: " + ((step.outcomes["approved-with-conditions"] if step.outcomes else "Approved with conditions") | lower), name: "decision", value: "conditions", classes: "govuk-button--secondary" }) }}
+                {{ govukButton({ text: step.outcomes["approved-with-conditions"] if step.outcomes else "Approved with conditions", name: "decision", value: "conditions", classes: "govuk-button--secondary" }) }}
               {% endif %}
-              {{ govukButton({ text: "Simulate: " + ((step.outcomes["not-approved"] if step.outcomes else "Not approved") | lower), name: "decision", value: "reject", classes: "govuk-button--secondary" }) }}
+              {{ govukButton({ text: step.outcomes["not-approved"] if step.outcomes else "Not approved", name: "decision", value: "reject", classes: "govuk-button--secondary" }) }}
             </div>
           </form>
         </div>

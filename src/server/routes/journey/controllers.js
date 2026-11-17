@@ -29,12 +29,20 @@ const outcomeWords = {
   'not-approved': 'Not approved'
 }
 
-/** Sends anyone without a confirmed route back to the start page. */
+/**
+ * Anyone without a confirmed route sees what is missing and how to set it
+ * up, since the navigation links here from the first page.
+ */
 function needsRoute(handler) {
   return (request, h) => {
     const state = getState(request)
     if (!state.confirmed) {
-      return h.redirect('/')
+      return request.method === 'get'
+        ? h.view(`${views}/not-set-up`, {
+            pageTitle: 'You have not set up a passport yet',
+            started: Boolean(state.about?.cdpService)
+          })
+        : h.redirect('/')
     }
     return handler(request, h, state)
   }
@@ -147,6 +155,7 @@ function startPage(request, h) {
   return h.view(`${views}/start`, {
     pageTitle: 'Service Passport',
     hasPassport: Boolean(state.confirmed),
+    cdpTeam: data.cdpTeam,
     service: findCdpService(state.about?.cdpService)
   })
 }
@@ -289,7 +298,21 @@ function answerNote(question, state, service) {
   if (state.answers[question.id] !== question.suggested) {
     return `AI suggested ${yesNo(question.suggested).toLowerCase()}. You changed it.`
   }
-  return `Suggested by AI. ${question.reason}`
+  return `AI found ${question.found}`
+}
+
+/** What the current answer does to the route, so the cause sits by it. */
+function answerEffect(question, state) {
+  const answer = state.answers[question.id]
+  return answer ? question.effect[answer] : null
+}
+
+/** The file AI read, shown only while the answer is still the AI's own. */
+function answerSource(question, state, service) {
+  const unknown = service?.aiCouldNotFind?.includes(question.id)
+  return !unknown && state.answers[question.id] === question.suggested
+    ? question.source
+    : null
 }
 
 function sameSet(a, b) {
@@ -303,7 +326,9 @@ function answerRows(state, service) {
     changeText: question.changeText,
     value: yesNo(state.answers[question.id]),
     answered: Boolean(state.answers[question.id]),
-    note: answerNote(question, state, service)
+    effect: answerEffect(question, state),
+    note: answerNote(question, state, service),
+    source: answerSource(question, state, service)
   }))
   const done = state.answers.alreadyDone
     .map((stepId) => data.steps.find((step) => step.id === stepId)?.name)
@@ -315,8 +340,9 @@ function answerRows(state, service) {
     value: done.length ? done.join('\n') : 'None',
     lines: done,
     answered: true,
+    effect: done.length ? data.alreadyDone.effect : null,
     note: sameSet(state.answers.alreadyDone, data.alreadyDone.suggested)
-      ? `Suggested by AI. ${data.alreadyDone.reason}`
+      ? `AI found ${data.alreadyDone.found}`
       : 'You changed what AI suggested.'
   })
   return rows
@@ -325,7 +351,7 @@ function answerRows(state, service) {
 function checkView(h, request, state, errors = []) {
   const service = findCdpService(state.about.cdpService)
   return h.view(`${views}/check`, {
-    pageTitle: state.confirmed ? 'About your service' : 'Check your answers',
+    pageTitle: state.confirmed ? 'About your service' : 'Check what AI found',
     state,
     service,
     rows: answerRows(state, service),
@@ -396,7 +422,7 @@ function aiNoteFor(question, service) {
   if (service?.aiCouldNotFind?.includes(question.id)) {
     return 'AI could not find this in your repository or the CDP portal.'
   }
-  return `AI suggested ${yesNo(question.suggested).toLowerCase()}. ${question.reason}`
+  return `AI suggested ${yesNo(question.suggested).toLowerCase()}. It found ${question.found}, in ${question.source}.`
 }
 
 function questionView(h, question, state, value, error) {
@@ -625,7 +651,7 @@ const timePasses = needsRoute((request, h, state) => {
   setState(request, { ...state, now: now < goLive ? now : goLive })
   flash(request, {
     type: 'success',
-    heading: `The demo date is now ${longDate(now < goLive ? now : goLive)}`
+    heading: `It is now ${longDate(now < goLive ? now : goLive)}`
   })
   return h.redirect('/passport')
 })
@@ -724,6 +750,18 @@ const askAboutStep = stepOrRedirect((request, h, state, step) => {
     conversations: { ...state.conversations, [step.id]: conversation }
   })
   return h.redirect(`/passport/${step.id}#answer-${conversation.length}`)
+})
+
+/** Stands in for AI checking the repository and the CDP portal. */
+const checkReadiness = stepOrRedirect((request, h, state, step) => {
+  if (!step.readinessCheck) {
+    return h.redirect(step.href)
+  }
+  setState(request, {
+    ...state,
+    readiness: { ...state.readiness, [step.id]: today(state) }
+  })
+  return h.redirect(`${step.href}#readiness`)
 })
 
 function statusOptions(step) {
@@ -1159,6 +1197,7 @@ function showGuidance(request, h) {
 export {
   approveEverything,
   askAboutStep,
+  checkReadiness,
   confirmAnswers,
   confirmCondition,
   saveCondition,

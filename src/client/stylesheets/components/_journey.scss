@@ -16,6 +16,37 @@
   border-top: 1px solid $app-mid-grey;
 }
 
+// Each control on one row: the button in a fixed column, what it does
+// beside it, so the buttons line up whatever their labels say.
+.app-controls {
+  margin: 0;
+}
+
+.app-controls__row {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.app-controls__row dt .govuk-button {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.app-controls__row dd {
+  margin: 0;
+}
+
+@media (max-width: $defra-mobile-max-width) {
+  .app-controls__row {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    margin-bottom: 25px;
+  }
+}
+
 // Book by dates and owners under each task.
 .app-task-meta {
   display: block;
@@ -104,10 +135,6 @@
   margin-bottom: 50px;
 }
 
-.app-overdue-list {
-  margin-top: -10px;
-}
-
 // What happened to a step, oldest first. The date leads each line so the
 // list can be scanned down the left edge.
 .app-history li {
@@ -125,4 +152,29 @@
   font-family: monospace;
   font-size: 16px;
   word-break: break-all;
+}
+
+// Space between the AI warning and the answers it is about. Each answer is
+// bold and on its own line, so what it does to the route reads beneath it.
+.app-check-list {
+  margin-top: 30px;
+}
+
+.app-answer {
+  display: block;
+  font-weight: 700;
+}
+
+.app-effect {
+  display: block;
+}
+
+// What AI found when it checked the service was ready, set apart from the
+// AI warning above it. Status tags stay on one line.
+.app-readiness {
+  margin-top: 20px;
+}
+
+.app-readiness .govuk-tag {
+  white-space: nowrap;
 }
