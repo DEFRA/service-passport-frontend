@@ -753,12 +753,38 @@ function planMonths(rows, now) {
 
 const showCalendar = needsRoute((request, h, state) => {
   const route = buildRoute(state)
+  const calendarDashboard = data.calendarDashboard
+  const stamps = calendarDashboard.stamps
+  const stampCounts = {
+    approved: stamps.filter((stamp) =>
+      ['approved', 'approved-with-conditions'].includes(stamp.status)
+    ).length,
+    inProgress: stamps.filter((stamp) => stamp.status === 'in-progress').length,
+    notStarted: stamps.filter((stamp) => stamp.status === 'not-started').length,
+    total: stamps.length
+  }
+  const calendarRouteSteps = calendarDashboard.routeSteps.map((step) => ({
+    ...step,
+    journeys: step.perJourney
+      ? calendarDashboard.journeys.map((journey) => ({
+          name: journey.name,
+          status: step.status,
+          tagClass: step.tagClass
+        }))
+      : []
+  }))
+
   return h.view(`${views}/route`, {
-    pageTitle: 'Your calendar',
+    pageTitle: 'Calendar',
     state,
     service: findCdpService(state.about.cdpService),
     route,
-    months: planMonths(planRows(route, state.about.goLive), route.now)
+    months: planMonths(planRows(route, state.about.goLive), route.now),
+    calendarDashboard,
+    calendarJourneyNames: calendarDashboard.service.journeysSummary,
+    calendarRouteSteps,
+    inProgressStamps: stamps.filter((stamp) => stamp.status === 'in-progress'),
+    stampCounts
   })
 })
 

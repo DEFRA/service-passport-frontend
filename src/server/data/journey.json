@@ -3,6 +3,167 @@
   "gate4WeeksBeforeGoLive": 4,
   "christmasWeeks": 2,
   "cdpTeam": "Plant health digital",
+  "calendarDashboard": {
+    "service": {
+      "caption": "Import Notification Service (INS)",
+      "summary": "Import Notification Service, hosted on CDP",
+      "journeysSummary": "Live animals, Plants and Fish Import Service",
+      "targetGoLive": "Not set, likely around April 2028 (to confirm)"
+    },
+    "summaryIntro": "The summary and journeys show where the service is. The route to live below is the working list, in order.",
+    "journeys": [
+      {
+        "name": "Live animals",
+        "supplier": "Equal Experts",
+        "lead": "Nik Gyokov",
+        "phase": "Alpha/Beta",
+        "note": "Post-Alpha actions to address. Only team going through governance now."
+      },
+      {
+        "name": "Plants",
+        "supplier": "Equal Experts",
+        "lead": "Nik Gyokov",
+        "phase": "Alpha",
+        "note": "Nothing to flag yet"
+      },
+      {
+        "name": "Fish Import Service",
+        "supplier": "Kainos",
+        "lead": "Jonathan Hadley",
+        "phase": "Beta",
+        "note": "AI proposed. If confirmed, an Algorithmic Transparency Recording Standard record is needed."
+      }
+    ],
+    "stamps": [
+      { "name": "GRIP submission", "status": "not-started" },
+      { "name": "Operational Service Design Pack", "status": "not-started" },
+      {
+        "name": "Service Design Review Board approval",
+        "status": "not-started"
+      },
+      { "name": "Service Transition Plan", "status": "not-started" },
+      { "name": "Security Assurance Pack", "status": "in-progress" },
+      { "name": "IT health check", "status": "not-started" },
+      { "name": "GDS assessment forms", "status": "not-started" },
+      { "name": "Stage Gate Pack", "status": "not-started" }
+    ],
+    "nextGate": {
+      "name": "Gate 4: service readiness",
+      "detail": "Stage Gate Pack not started"
+    },
+    "routeIntro": "The steps in order, from the route catalogue. Whether each is done once for INS or once per journey is still being confirmed.",
+    "routeSteps": [
+      {
+        "name": "GRIP submission",
+        "level": "Service (to confirm)",
+        "owner": "Service transition lead",
+        "status": "Not started",
+        "tagClass": "govuk-tag--grey",
+        "wait": "Part of about 12 weeks for service design approval"
+      },
+      {
+        "name": "Operational Service Design Pack",
+        "level": "Service (to confirm)",
+        "owner": "Service transition lead",
+        "status": "In progress",
+        "tagClass": "govuk-tag--yellow",
+        "wait": "About 12 weeks overall"
+      },
+      {
+        "name": "Service Design Review Board approval",
+        "level": "To confirm",
+        "owner": "Service Design Review Board",
+        "status": "To confirm",
+        "tagClass": "app-calendar-tag--to-confirm",
+        "wait": "Included in the 12 weeks"
+      },
+      {
+        "name": "Service Transition Plan",
+        "level": "Service (to confirm)",
+        "owner": "Service transition lead",
+        "status": "In progress",
+        "tagClass": "govuk-tag--yellow",
+        "wait": "To confirm"
+      },
+      {
+        "name": "Security assurance (Secure by Design, Security Assurance Pack)",
+        "level": "Service (to confirm)",
+        "owner": "Joe Ball",
+        "status": "In progress",
+        "tagClass": "govuk-tag--yellow",
+        "wait": "To confirm"
+      },
+      {
+        "name": "IT health check (pen test)",
+        "level": "To confirm",
+        "owner": "Security team and pen test supplier",
+        "status": "To confirm",
+        "tagClass": "app-calendar-tag--to-confirm",
+        "wait": "6 to 8 weeks' notice"
+      },
+      {
+        "name": "Platform Readiness Review",
+        "level": "Journey (likely, to confirm)",
+        "perJourney": true,
+        "owner": "CDP team or INS team (to confirm)",
+        "status": "Not started",
+        "tagClass": "govuk-tag--grey",
+        "wait": "To confirm"
+      },
+      {
+        "name": "Accessibility audit",
+        "level": "Journey (Gavin's view, to confirm)",
+        "perJourney": true,
+        "owner": "Accessibility team",
+        "status": "Not started",
+        "tagClass": "govuk-tag--grey",
+        "wait": "Book 6 to 8 weeks ahead",
+        "statusNote": {
+          "text": "To confirm",
+          "tagClass": "app-calendar-tag--to-confirm"
+        }
+      },
+      {
+        "name": "GDS assessment forms",
+        "level": "To confirm",
+        "owner": "To confirm",
+        "status": "To confirm",
+        "tagClass": "app-calendar-tag--to-confirm",
+        "wait": "Book 6 to 8 weeks ahead. Only filled in before the next GDS assessment"
+      },
+      {
+        "name": "Stage Gate Pack (Gate 4)",
+        "level": "Service (to confirm)",
+        "owner": "Service transition lead",
+        "status": "Not started",
+        "tagClass": "govuk-tag--grey",
+        "wait": "To confirm"
+      },
+      {
+        "name": "Change request and release",
+        "level": "To confirm",
+        "owner": "Release management and change board",
+        "status": "To confirm",
+        "tagClass": "app-calendar-tag--to-confirm",
+        "wait": "About 10 days"
+      }
+    ],
+    "routeNote": "Not on route for INS: CCoE onboarding and the IriusRisk form, because INS is hosted on CDP.",
+    "openQuestions": [
+      {
+        "topic": "Equality Impact Assessment",
+        "answer": "Status and owner being checked (to confirm)."
+      },
+      {
+        "topic": "AI in Fish Import Service",
+        "answer": "Proposed, not confirmed (to confirm)."
+      },
+      {
+        "topic": "Platform Readiness Review",
+        "answer": "Once per journey or once for INS (to confirm)."
+      }
+    ]
+  },
   "cdpServices": [
     {
       "id": "plant-export-checks",

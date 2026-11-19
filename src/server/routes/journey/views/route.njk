@@ -1,12 +1,124 @@
 {% extends 'layouts/page.njk' %}
 
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
 {% from "govuk/components/task-list/macro.njk" import govukTaskList %}
+
+{% set backLink = { href: "/passport", text: "Back" } %}
 
 {% block content %}
   <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <span class="govuk-caption-l">{{ calendarDashboard.service.caption }}</span>
+      <h1 class="govuk-heading-l">Calendar</h1>
+
+      {{ govukSummaryList({
+        classes: "govuk-summary-list--no-border app-calendar-summary",
+        rows: [
+          { key: { text: "Service" }, value: { text: calendarDashboard.service.summary } },
+          { key: { text: "Target go-live date" }, value: { text: calendarDashboard.service.targetGoLive } },
+          { key: { text: "Journeys" }, value: { text: calendarJourneyNames } }
+        ]
+      }) }}
+
+      <p class="govuk-body-s app-calendar-intro">{{ calendarDashboard.summaryIntro }}</p>
+
+      <div class="app-calendar-stat-grid">
+        <section class="app-calendar-stat">
+          <h2 class="govuk-body-s app-calendar-stat__label">Stamps</h2>
+          <p class="app-calendar-stat__value">{{ stampCounts.approved }} of {{ stampCounts.total }}</p>
+          <p class="govuk-body-s app-calendar-stat__detail">approved</p>
+        </section>
+        <section class="app-calendar-stat">
+          <h2 class="govuk-body-s app-calendar-stat__label">In progress</h2>
+          <p class="app-calendar-stat__value">{{ stampCounts.inProgress }}</p>
+          {% for stamp in inProgressStamps %}
+            <p class="govuk-body-s app-calendar-stat__detail">{{ stamp.name }}</p>
+          {% endfor %}
+        </section>
+        <section class="app-calendar-stat">
+          <h2 class="govuk-body-s app-calendar-stat__label">Not started</h2>
+          <p class="app-calendar-stat__value">{{ stampCounts.notStarted }}</p>
+          <p class="govuk-body-s app-calendar-stat__detail">stamps</p>
+        </section>
+        <section class="app-calendar-stat">
+          <h2 class="govuk-body-s app-calendar-stat__label">Next gate</h2>
+          <p class="govuk-body app-calendar-stat__gate">{{ calendarDashboard.nextGate.name }}</p>
+          <p class="govuk-body-s app-calendar-stat__detail">{{ calendarDashboard.nextGate.detail }}</p>
+        </section>
+      </div>
+
+      <h2 class="govuk-heading-m">Journeys</h2>
+      <div class="app-calendar-journey-grid">
+        {% for journey in calendarDashboard.journeys %}
+          <section class="app-calendar-journey">
+            <p class="govuk-body-s app-calendar-journey__supplier">{{ journey.supplier }} · {{ journey.lead }}</p>
+            <h3 class="govuk-heading-s">{{ journey.name }}</h3>
+            {{ govukTag({ text: journey.phase, classes: "govuk-tag--blue" }) }}
+            <p class="govuk-body-s app-calendar-journey__note">{{ journey.note }}</p>
+          </section>
+        {% endfor %}
+      </div>
+
+      <h2 class="govuk-heading-m">Route to live</h2>
+      <p class="govuk-body-s app-calendar-intro">{{ calendarDashboard.routeIntro }}</p>
+      <div class="app-calendar-table-scroll" role="region" aria-label="Route to live steps" tabindex="0">
+        <table class="govuk-table app-calendar-table">
+          <caption class="govuk-visually-hidden">Route to live steps</caption>
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th class="govuk-table__header" scope="col">#</th>
+              <th class="govuk-table__header" scope="col">Step</th>
+              <th class="govuk-table__header" scope="col">Level</th>
+              <th class="govuk-table__header" scope="col">Owner</th>
+              <th class="govuk-table__header" scope="col">Status</th>
+              <th class="govuk-table__header" scope="col">Typical wait</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for step in calendarRouteSteps %}
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell">{{ loop.index }}</td>
+                <th class="govuk-table__header" scope="row">{{ step.name }}</th>
+                <td class="govuk-table__cell">{{ step.level }}</td>
+                <td class="govuk-table__cell">{{ step.owner }}</td>
+                <td class="govuk-table__cell">
+                  {% if step.perJourney %}
+                    <ul class="govuk-list app-calendar-status-list">
+                      {% for journey in step.journeys %}
+                        <li><span class="app-calendar-status-list__journey">{{ journey.name }}:</span> {{ govukTag({ text: journey.status, classes: journey.tagClass }) }}</li>
+                      {% endfor %}
+                    </ul>
+                    {% if step.statusNote %}
+                      {{ govukTag({ text: step.statusNote.text, classes: step.statusNote.tagClass }) }}
+                    {% endif %}
+                  {% else %}
+                    {{ govukTag({ text: step.status, classes: step.tagClass }) }}
+                  {% endif %}
+                </td>
+                <td class="govuk-table__cell">{{ step.wait }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="govuk-body-s app-calendar-route-note">{{ calendarDashboard.routeNote }}</p>
+
+      <section class="app-calendar-questions" aria-labelledby="calendar-questions-heading">
+        <p class="govuk-caption-m">Open questions</p>
+        <h2 class="govuk-heading-m" id="calendar-questions-heading">Waiting on an answer</h2>
+        <ul class="govuk-list govuk-list--bullet">
+          {% for question in calendarDashboard.openQuestions %}
+            <li><strong>{{ question.topic }}:</strong> {{ question.answer }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <span class="govuk-caption-l">{{ service.name }}</span>
-      <h1 class="govuk-heading-l">Your calendar</h1>
+      <h2 class="govuk-heading-m">Upcoming dates</h2>
       <p class="govuk-body">Worked back from go-live on {{ state.about.goLive | formatDate("d MMMM yyyy") }}. <a class="govuk-link" href="/about-your-service/go-live">Change your go-live date</a>.</p>
       <p class="govuk-body">Today is {{ route.now | formatDate("d MMMM yyyy") }}.</p>
 
