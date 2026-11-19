@@ -1,6 +1,6 @@
 const items = [
   { text: 'Passport', href: '/passport', under: '/passport' },
-  { text: 'Calendar', href: '/calendar', under: '/calendar' },
+  { text: 'Dashboard', href: '/dashboard', under: '/dashboard' },
   {
     text: 'Service',
     href: '/about-your-service/check',
@@ -29,7 +29,7 @@ function isUnder(path, prefix) {
 
 /**
  * The service navigation, on every page so people can see the whole service
- * from the start. Before set-up, Passport and Calendar explain what is missing.
+ * from the start. Before set-up, Passport explains what is missing.
  * The item whose address the page sits most closely under is current, so a
  * step page highlights Passport and the Ask page highlights Ask.
  * @param {object} [request]

@@ -31,7 +31,9 @@ const passwordGate = {
         if (isOpen(request.path) || request.yar.get(sessionKey)) {
           return h.continue
         }
-        const returnUrl = encodeURIComponent(request.url.pathname)
+        const returnUrl = encodeURIComponent(
+          request.url.pathname + request.url.search
+        )
         return h.redirect(`/sign-in?returnUrl=${returnUrl}`).takeover()
       })
     }

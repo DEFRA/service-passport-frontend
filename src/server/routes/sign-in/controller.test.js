@@ -1,3 +1,5 @@
+import * as cheerio from 'cheerio'
+
 import { config } from '#/config/config.js'
 import { statusCodes } from '#/server/common/constants/status-codes.js'
 import { createServer } from '#/server/server.js'
@@ -11,20 +13,30 @@ async function serverWithPassword(password) {
   return server
 }
 
-async function signIn(server, password) {
+async function signIn(
+  server,
+  password,
+  signInUrl = '/sign-in?returnUrl=%2Fabout-your-service'
+) {
   const page = await server.inject({
     method: 'GET',
-    url: '/sign-in?returnUrl=%2Fabout-your-service'
+    url: signInUrl
   })
+  const $ = cheerio.load(page.payload)
+  const form = $('form[action="/sign-in"]')
   const cookies = page.headers['set-cookie']
     .map((cookie) => cookie.split(';')[0])
     .join('; ')
-  const crumb = page.payload.match(/name="crumb" value="([^"]+)"/)[1]
+  const crumb = form.find('input[name="crumb"]').val()
   const response = await server.inject({
     method: 'POST',
     url: '/sign-in',
     headers: { cookie: cookies },
-    payload: { crumb, password, returnUrl: '/about-your-service' }
+    payload: {
+      crumb,
+      password,
+      returnUrl: form.find('input[name="returnUrl"]').val()
+    }
   })
   return { response, cookies }
 }
@@ -44,6 +56,39 @@ describe('password gate', () => {
       server = await serverWithPassword('')
       const { statusCode } = await server.inject({ method: 'GET', url: '/' })
       expect(statusCode).toBe(statusCodes.ok)
+    }
+  )
+
+  test(
+    'preserves the dashboard view and journey through password sign-in',
+    { timeout: 30000 },
+    async () => {
+      server = await serverWithPassword('example-only')
+      const url = '/dashboard?view=delivery&journey=plants'
+      const gated = await server.inject(url)
+      expect(gated.statusCode).toBe(statusCodes.redirect)
+      expect(gated.headers.location).toBe(
+        `/sign-in?returnUrl=${encodeURIComponent(url)}`
+      )
+
+      const right = await signIn(server, 'example-only', gated.headers.location)
+      expect(right.response.statusCode).toBe(statusCodes.redirect)
+      expect(right.response.headers.location).toBe(url)
+
+      const sessionCookie = right.response.headers['set-cookie']
+        .map((cookie) => cookie.split(';')[0])
+        .join('; ')
+      const after = await server.inject({
+        method: 'GET',
+        url: right.response.headers.location,
+        headers: { cookie: sessionCookie }
+      })
+      expect(after.statusCode).toBe(statusCodes.ok)
+      const $ = cheerio.load(after.payload)
+      expect($('#selected-journey').text()).toBe('Plants')
+      expect($('nav[aria-label="View as"] a[aria-current]').text()).toBe(
+        'Delivery lead'
+      )
     }
   )
 

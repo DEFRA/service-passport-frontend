@@ -105,7 +105,7 @@ describe('The Service Passport journey', () => {
           .$('.defra-service-navigation__link')
           .map((i, link) => start.$(link).text())
           .get()
-      ).toEqual(['Passport', 'Calendar', 'Service', 'Ask'])
+      ).toEqual(['Passport', 'Dashboard', 'Service', 'Ask'])
     })
 
     test.each(['/passport', '/calendar'])(

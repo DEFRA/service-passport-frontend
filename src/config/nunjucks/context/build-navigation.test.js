@@ -9,7 +9,7 @@ describe('buildNavigation', () => {
     const items = buildNavigation(requestAt('/about-your-service', {}))
     expect(items.map((item) => item.text)).toEqual([
       'Passport',
-      'Calendar',
+      'Dashboard',
       'Service',
       'Ask'
     ])
@@ -24,19 +24,26 @@ describe('buildNavigation', () => {
   test.each([
     ['/passport', 'Passport'],
     ['/passport/pen-test', 'Passport'],
-    ['/calendar', 'Calendar'],
+    ['/dashboard', 'Dashboard'],
+    ['/dashboard/route', 'Dashboard'],
     ['/passport/ask', 'Ask'],
     ['/about-your-service/check', 'Service']
   ])('marks %s as under %s', (path, current) => {
     const items = buildNavigation(requestAt(path, { confirmed: true }))
     expect(items.map((item) => item.text)).toEqual([
       'Passport',
-      'Calendar',
+      'Dashboard',
       'Service',
       'Ask'
     ])
     expect(
       items.filter((item) => item.current).map((item) => item.text)
     ).toEqual([current])
+  })
+
+  test('leaves the calendar unlinked', () => {
+    const items = buildNavigation(requestAt('/calendar'))
+    expect(items.some((item) => item.href === '/calendar')).toBe(false)
+    expect(items.some((item) => item.current)).toBe(false)
   })
 })

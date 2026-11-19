@@ -1,0 +1,100 @@
+@use 'variables/colours' as *;
+
+.app-dashboard__switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.app-dashboard__option,
+.app-dashboard__option:link,
+.app-dashboard__option:visited {
+  display: inline-block;
+  padding: 8px 12px;
+  border: 2px solid $defra-green;
+  color: $defra-green;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.app-dashboard__option:hover {
+  text-decoration: underline;
+}
+
+.app-dashboard__option[aria-current='true'] {
+  background-color: $defra-green;
+  color: $app-white;
+}
+
+.app-dashboard__option:focus {
+  border-color: $defra-black;
+  background-color: $app-yellow;
+  color: $defra-black;
+}
+
+.app-dashboard__metrics,
+.app-dashboard__planning {
+  display: grid;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.app-dashboard__card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid $app-mid-grey;
+}
+
+.app-dashboard__card--gate {
+  border-top: 5px solid $defra-green;
+}
+
+.app-dashboard__table-scroll {
+  margin-bottom: 30px;
+  overflow-x: auto;
+
+  &:focus-visible {
+    outline: 3px solid $app-yellow;
+    box-shadow: 0 0 0 5px $defra-black;
+  }
+
+  .govuk-table {
+    min-width: 580px;
+    margin-bottom: 0;
+  }
+
+  .app-dashboard__journeys {
+    min-width: 900px;
+    font-size: 16px;
+  }
+}
+
+.app-dashboard .govuk-tag {
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.app-tag--to-confirm {
+  border: 1px dashed $app-secondary-text;
+  background-color: $app-white;
+  color: $app-secondary-text;
+}
+
+.app-dashboard__questions li,
+.app-dashboard__steps li {
+  padding: 12px 0;
+  border-top: 1px solid $app-mid-grey;
+}
+
+@media (min-width: $defra-mobile-max-width + 1) {
+  .app-dashboard__metrics,
+  .app-dashboard__planning {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .app-dashboard__metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

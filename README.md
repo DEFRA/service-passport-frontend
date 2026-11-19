@@ -12,6 +12,28 @@ Service Passport is a prototype for research. It plans the approvals a Defra ser
 
 Like a GOV.UK Prototype Kit prototype, it asks for a shared password when `PASSPORT_PASSWORD` is set. Copy `.env.example` to `.env` to set it locally. The real service would use your Defra account. Prototype controls on the passport and step pages stand in for time passing and for the teams that decide.
 
+### Dashboard example
+
+The Dashboard navigation tab opens `/dashboard`, an INS example independent of
+the passport set-up session. It defaults to the senior leader view. Use
+`?view=delivery&journey=plants` for the delivery view; journey identifiers are
+`live-animals`, `plants` and `fish-import-service`. The switches work without
+JavaScript. `/dashboard/route` lists the example route and keeps the selected view
+and journey in its back link. Password sign-in preserves the view and journey
+from a dashboard link. The existing `/calendar` remains available but is
+not linked from the main navigation.
+
+[Dashboard stub data](src/server/data/dashboard.json) holds the service, three
+journeys, eleven ordered route steps, eight stamps, status labels, waits and
+questions. Card counts come from stamps; Approved with conditions counts as
+approved. The next-gate card gets its pack status from the stamp for the gate's
+`requiredStepId`, rather than a separate status description. Route steps are not
+themselves stamps. The full route shows all eleven
+steps, including the conditional AI record, whose applicability is to confirm.
+Route order, owners, the next gate, per-journey platform review, accessibility
+review and the proposed AI use are examples to confirm, not recorded decisions.
+The architect question about the In progress status is shown on both views.
+
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
 - [Server-side Caching](#server-side-caching)
