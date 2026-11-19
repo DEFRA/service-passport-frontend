@@ -1,0 +1,22 @@
+{% extends 'layouts/page.njk' %}
+{% from "partials/dashboard.njk" import statusTag %}
+
+{% block content %}
+  <div class="app-dashboard">
+    <span class="govuk-caption-l">{{ service.caption }}</span>
+    <h1 class="govuk-heading-l">The full route</h1>
+    <p class="govuk-body">All steps in order. Showing journey stamp statuses for {{ selectedJourney.name }}.</p>
+    <p class="govuk-body">{{ routeNote }}</p>
+    <ol class="govuk-list govuk-list--number app-dashboard__steps">
+      {% for step in steps %}
+        <li>
+          <h2 class="govuk-heading-s">{{ step.name }}</h2>
+          <p class="govuk-body">{{ "Whole service" if step.scope == "service" else (step.journeyNames or selectedJourney.name) }}. Owner: {{ step.owner }}.</p>
+          {{ statusTag(step.status) }}
+          {% if step.note %}<p class="govuk-body-s">{{ step.note }}</p>{% endif %}
+        </li>
+      {% endfor %}
+    </ol>
+    <p class="govuk-body"><a class="govuk-link" href="{{ dashboardUrl }}">Back to dashboard</a></p>
+  </div>
+{% endblock %}

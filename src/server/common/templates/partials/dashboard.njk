@@ -1,0 +1,60 @@
+{% macro statusTag(status) %}
+  <strong class="govuk-tag {{ status.classes }}">{{ status.text }}</strong>
+  {% if status.toConfirm %}
+    <span class="govuk-tag app-tag--to-confirm">To confirm</span>
+  {% endif %}
+{% endmacro %}
+
+{% macro wholeServiceTable(steps) %}
+  <h2 class="govuk-heading-m" id="whole-service-heading">Whole service</h2>
+  <p class="govuk-body">Steps done once for the whole service.</p>
+  <div class="app-dashboard__table-scroll" role="region" aria-labelledby="whole-service-heading" tabindex="0">
+    <table class="govuk-table">
+      <caption class="govuk-table__caption govuk-visually-hidden">Whole service steps</caption>
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header" scope="col">Step</th>
+          <th class="govuk-table__header" scope="col">Owner</th>
+          <th class="govuk-table__header" scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for step in steps %}
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">{{ step.name }}</th>
+            <td class="govuk-table__cell">{{ step.owner }}</td>
+            <td class="govuk-table__cell">{{ statusTag(step.status) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endmacro %}
+
+{% macro planningCards(waits, questions) %}
+  <div class="app-dashboard__planning">
+    <section class="app-dashboard__card" aria-labelledby="waits-heading">
+      <p class="govuk-caption-m">Planning</p>
+      <h2 class="govuk-heading-m" id="waits-heading">Waits to plan around</h2>
+      <p class="govuk-body">Typical lead times, so nothing is booked too late.</p>
+      <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+        {% for wait in waits %}
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ wait.name }}</dt>
+            <dd class="govuk-summary-list__value">{{ wait.timing }}</dd>
+          </div>
+        {% endfor %}
+      </dl>
+    </section>
+    <section class="app-dashboard__card" aria-labelledby="questions-heading">
+      <p class="govuk-caption-m">Open questions</p>
+      <h2 class="govuk-heading-m" id="questions-heading">Waiting on an answer</h2>
+      <p class="govuk-body">These change what is left.</p>
+      <ul class="govuk-list app-dashboard__questions">
+        {% for question in questions %}
+          <li><strong>{{ question.name }}:</strong> {{ question.detail }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+{% endmacro %}

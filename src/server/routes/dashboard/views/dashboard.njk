@@ -1,0 +1,133 @@
+{% extends 'layouts/page.njk' %}
+{% from "partials/dashboard.njk" import statusTag, wholeServiceTable, planningCards %}
+
+{% block content %}
+  <div class="app-dashboard">
+    <span class="govuk-caption-l">{{ service.caption }}</span>
+    <h1 class="govuk-heading-l">Dashboard</h1>
+
+    <dl class="govuk-summary-list">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Service</dt>
+        <dd class="govuk-summary-list__value">{{ service.name }}, hosted on {{ service.hosting }}</dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Target go-live date</dt>
+        <dd class="govuk-summary-list__value">{{ service.targetGoLive }}</dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Journeys</dt>
+        <dd class="govuk-summary-list__value">{% for journey in journeys %}{{ journey.name }}{% if not loop.last %}, {% endif %}{% endfor %}</dd>
+      </div>
+    </dl>
+
+    <nav aria-label="View as" class="govuk-!-margin-bottom-6">
+      <h2 class="govuk-heading-s">View as</h2>
+      <ul class="govuk-list app-dashboard__switch">
+        <li><a href="/dashboard?view=senior&amp;journey={{ selectedJourney.id }}" class="govuk-link app-dashboard__option"{% if view == 'senior' %} aria-current="true"{% endif %}>Senior leader</a></li>
+        <li><a href="/dashboard?view=delivery&amp;journey={{ selectedJourney.id }}" class="govuk-link app-dashboard__option"{% if view == 'delivery' %} aria-current="true"{% endif %}>Delivery lead</a></li>
+      </ul>
+    </nav>
+
+    {% if view == 'senior' %}
+      <p class="govuk-body">Where the service is on the route to live, and what is left.</p>
+      <div class="app-dashboard__metrics">
+        <section class="app-dashboard__card">
+          <h2 class="govuk-heading-s">Stamps approved</h2>
+          <p class="govuk-heading-xl govuk-!-margin-bottom-0" data-count="approved">{{ counts.approved }} of {{ counts.total }}</p>
+        </section>
+        <section class="app-dashboard__card">
+          <h2 class="govuk-heading-s">In progress</h2>
+          <p class="govuk-heading-xl govuk-!-margin-bottom-2" data-count="in-progress">{{ counts.inProgress }}</p>
+          <p class="govuk-body govuk-!-margin-bottom-0">{{ inProgressNames }}</p>
+        </section>
+        <section class="app-dashboard__card">
+          <h2 class="govuk-heading-s">Not started</h2>
+          <p class="govuk-heading-xl govuk-!-margin-bottom-2" data-count="not-started">{{ counts.notStarted }}</p>
+          <p class="govuk-body govuk-!-margin-bottom-0">stamps</p>
+        </section>
+        <section class="app-dashboard__card app-dashboard__card--gate">
+          <h2 class="govuk-heading-s">Next gate</h2>
+          <p class="govuk-heading-m govuk-!-margin-bottom-2">{{ nextGate.name }}</p>
+          <p class="govuk-body">{{ nextGate.note }}</p>
+          {% if nextGate.toConfirm %}<span class="govuk-tag app-tag--to-confirm">To confirm</span>{% endif %}
+        </section>
+      </div>
+
+      {{ wholeServiceTable(wholeService) }}
+
+      <h2 class="govuk-heading-m" id="journeys-heading">By journey</h2>
+      <p class="govuk-body">Steps each journey does for itself. A step gets one stamp per journey.</p>
+      <div class="app-dashboard__table-scroll" role="region" aria-labelledby="journeys-heading" tabindex="0">
+        <table class="govuk-table app-dashboard__journeys">
+          <caption class="govuk-table__caption govuk-visually-hidden">Progress by journey</caption>
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th class="govuk-table__header" scope="col">Journey</th>
+              <th class="govuk-table__header" scope="col">Supplier and lead</th>
+              <th class="govuk-table__header" scope="col">Phase</th>
+              <th class="govuk-table__header" scope="col">Platform Readiness Review</th>
+              <th class="govuk-table__header" scope="col">Accessibility Review</th>
+              <th class="govuk-table__header" scope="col">Notes</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for journey in journeys %}
+              <tr class="govuk-table__row">
+                <th class="govuk-table__header" scope="row">{{ journey.name }}</th>
+                <td class="govuk-table__cell">{{ journey.supplier }}<br>{{ journey.lead }}</td>
+                <td class="govuk-table__cell"><strong class="govuk-tag govuk-tag--blue">{{ journey.phase }}</strong></td>
+                <td class="govuk-table__cell">{{ statusTag(journey.platform) }}</td>
+                <td class="govuk-table__cell">{{ statusTag(journey.accessibility) }}</td>
+                <td class="govuk-table__cell">{{ journey.note }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% for step in steps %}{% if step.id == 'platform-readiness' %}<p class="govuk-body-s">{{ step.note }}</p>{% endif %}{% endfor %}
+    {% else %}
+      <nav aria-label="Journey" class="govuk-!-margin-bottom-6">
+        <h2 class="govuk-heading-s">Choose a journey</h2>
+        <ul class="govuk-list app-dashboard__switch">
+          {% for journey in journeys %}
+            <li><a class="govuk-link app-dashboard__option" href="/dashboard?view=delivery&amp;journey={{ journey.id }}"{% if journey.id == selectedJourney.id %} aria-current="true"{% endif %}>{{ journey.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </nav>
+      <section class="app-dashboard__card govuk-!-margin-bottom-6" aria-labelledby="selected-journey">
+        <h2 class="govuk-heading-m" id="selected-journey">{{ selectedJourney.name }}</h2>
+        <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Supplier</dt>
+            <dd class="govuk-summary-list__value">{{ selectedJourney.supplier }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Lead</dt>
+            <dd class="govuk-summary-list__value">{{ selectedJourney.lead }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Phase</dt>
+            <dd class="govuk-summary-list__value"><strong class="govuk-tag govuk-tag--blue">{{ selectedJourney.phase }}</strong></dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Note</dt>
+            <dd class="govuk-summary-list__value">{{ selectedJourney.note }}</dd>
+          </div>
+        </dl>
+      </section>
+      <h2 class="govuk-heading-m">Next for your journey</h2>
+      <p class="govuk-body">{{ routeNote }}</p>
+      <ol class="govuk-list app-dashboard__steps">
+        {% for step in nextSteps %}
+          <li><strong>{{ step.name }}</strong> {{ statusTag(step.status) }}
+            {% if step.note %}<p class="govuk-body-s">{{ step.note }}</p>{% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+      {{ wholeServiceTable(wholeService) }}
+    {% endif %}
+    <p class="govuk-body"><a class="govuk-link" href="/dashboard/route?view={{ view }}&amp;journey={{ selectedJourney.id }}">See the full route</a></p>
+    {{ planningCards(waits, questions) }}
+  </div>
+{% endblock %}

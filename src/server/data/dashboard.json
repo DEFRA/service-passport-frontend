@@ -1,0 +1,183 @@
+{
+  "service": {
+    "name": "Import Notification Service",
+    "caption": "Import Notification Service (INS)",
+    "hosting": "CDP",
+    "targetGoLive": "Not set, likely around April 2028 (to confirm)",
+    "nextGate": "gate-4"
+  },
+  "journeys": [
+    {
+      "id": "live-animals",
+      "name": "Live animals",
+      "supplier": "Equal Experts",
+      "lead": "Nik Gyokov",
+      "phase": "Alpha/Beta",
+      "note": "Post-Alpha actions to address. Only team going through governance now."
+    },
+    {
+      "id": "plants",
+      "name": "Plants",
+      "supplier": "Equal Experts",
+      "lead": "Nik Gyokov",
+      "phase": "Alpha",
+      "note": "Nothing to flag yet."
+    },
+    {
+      "id": "fish-import-service",
+      "name": "Fish Import Service",
+      "supplier": "Kainos",
+      "lead": "Jonathan Hadley",
+      "phase": "Beta",
+      "note": "AI proposed (to confirm). If confirmed, an Algorithmic Transparency Recording Standard record is needed."
+    }
+  ],
+  "steps": [
+    {
+      "id": "service-design",
+      "name": "Service design approval",
+      "scope": "service",
+      "owner": "To confirm"
+    },
+    {
+      "id": "equality-impact",
+      "name": "Equality Impact Assessment",
+      "scope": "service",
+      "owner": "To confirm",
+      "wholeServiceOrder": 3
+    },
+    {
+      "id": "platform-readiness",
+      "name": "Platform Readiness Review",
+      "scope": "journey",
+      "owner": "CDP team (to confirm)",
+      "note": "Whether the Platform Readiness Review is per journey is still to confirm with the CDP team."
+    },
+    {
+      "id": "pen-test",
+      "name": "IT health check (pen test)",
+      "scope": "journey",
+      "owner": "To confirm"
+    },
+    {
+      "id": "accessibility",
+      "name": "Accessibility Review",
+      "scope": "journey",
+      "owner": "To confirm"
+    },
+    {
+      "id": "algorithmic-transparency",
+      "name": "Algorithmic Transparency Recording Standard record",
+      "scope": "journey",
+      "journeyIds": ["fish-import-service"],
+      "owner": "To confirm",
+      "note": "Only needed if the proposed use of AI is confirmed (to confirm)."
+    },
+    {
+      "id": "security-pack",
+      "name": "Security Assurance Pack",
+      "scope": "service",
+      "owner": "Joe Ball",
+      "wholeServiceOrder": 2
+    },
+    {
+      "id": "stage-gate-pack",
+      "name": "Stage Gate Pack",
+      "scope": "service",
+      "owner": "Service transition lead",
+      "wholeServiceOrder": 1
+    },
+    {
+      "id": "gate-4",
+      "name": "Gate 4: service readiness",
+      "scope": "service",
+      "owner": "To confirm",
+      "requiredStepId": "stage-gate-pack",
+      "toConfirm": true
+    },
+    {
+      "id": "change-request",
+      "name": "Change request",
+      "scope": "service",
+      "owner": "To confirm"
+    },
+    {
+      "id": "release",
+      "name": "Release",
+      "scope": "service",
+      "owner": "To confirm"
+    }
+  ],
+  "stamps": [
+    { "stepId": "stage-gate-pack", "status": "Not started" },
+    { "stepId": "security-pack", "status": "In progress" },
+    {
+      "stepId": "platform-readiness",
+      "journeyId": "live-animals",
+      "status": "Not started"
+    },
+    {
+      "stepId": "accessibility",
+      "journeyId": "live-animals",
+      "status": "Not started",
+      "toConfirm": true
+    },
+    {
+      "stepId": "platform-readiness",
+      "journeyId": "plants",
+      "status": "Not started"
+    },
+    {
+      "stepId": "accessibility",
+      "journeyId": "plants",
+      "status": "Not started",
+      "toConfirm": true
+    },
+    {
+      "stepId": "platform-readiness",
+      "journeyId": "fish-import-service",
+      "status": "Not started"
+    },
+    {
+      "stepId": "accessibility",
+      "journeyId": "fish-import-service",
+      "status": "Not started",
+      "toConfirm": true
+    }
+  ],
+  "statuses": [
+    { "text": "Not started", "classes": "govuk-tag--grey" },
+    { "text": "Booked", "classes": "govuk-tag--blue" },
+    { "text": "Submitted", "classes": "govuk-tag--blue" },
+    { "text": "Approved", "classes": "govuk-tag--green" },
+    { "text": "Approved with conditions", "classes": "govuk-tag--green" },
+    { "text": "Not approved", "classes": "govuk-tag--red" },
+    { "text": "In progress", "classes": "govuk-tag--yellow" },
+    { "text": "To confirm", "classes": "app-tag--to-confirm" }
+  ],
+  "waits": [
+    { "name": "Service design approval", "timing": "About 12 weeks" },
+    { "name": "IT health check (pen test)", "timing": "6 to 8 weeks' notice" },
+    { "name": "Accessibility audit", "timing": "Book 6 to 8 weeks ahead" },
+    { "name": "Change request and release", "timing": "About 10 days" }
+  ],
+  "questions": [
+    {
+      "name": "Equality Impact Assessment",
+      "detail": "Status and owner being checked (to confirm)."
+    },
+    {
+      "name": "AI in Fish Import Service",
+      "detail": "Proposed, not confirmed (to confirm)."
+    },
+    {
+      "name": "Platform Readiness Review",
+      "detail": "Once per journey or once for INS (to confirm)."
+    },
+    {
+      "name": "In progress stamp status",
+      "detail": "Question for the architect: should In progress be a stamp status (to confirm)?"
+    }
+  ],
+  "routeNote": "Example route order, applicability and owners are to confirm. Steps without a stamp have a status of To confirm, not an assumed approval."
+}
