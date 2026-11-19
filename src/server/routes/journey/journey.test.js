@@ -369,6 +369,66 @@ describe('The Service Passport journey', () => {
       )
     })
 
+    test('the calendar dashboard shows its summary and journey cards', async () => {
+      const { $ } = await person.get('/calendar')
+      expect(text($, 'h1')).toBe('Calendar')
+      expect(text($, '.govuk-summary-list')).toContain(
+        'Import Notification Service, hosted on CDP'
+      )
+      expect(text($, '.govuk-summary-list')).toContain(
+        'Not set, likely around April 2028 (to confirm)'
+      )
+      expect($('.app-calendar-stat')).toHaveLength(4)
+      expect($('.app-calendar-journey')).toHaveLength(3)
+      expect(text($, '.app-calendar-questions')).toContain(
+        'Equality Impact Assessment'
+      )
+      expect(
+        $('.defra-service-navigation__link[aria-current="page"]').text()
+      ).toBe('Calendar')
+    })
+
+    test('the dashboard stamp cards count the shared stub data', async () => {
+      const { $ } = await person.get('/calendar')
+      const stamps = data.calendarDashboard.stamps
+      const approved = stamps.filter((stamp) =>
+        ['approved', 'approved-with-conditions'].includes(stamp.status)
+      )
+      const inProgress = stamps.filter(
+        (stamp) => stamp.status === 'in-progress'
+      )
+      const notStarted = stamps.filter(
+        (stamp) => stamp.status === 'not-started'
+      )
+      const cards = $('.app-calendar-stat')
+
+      expect(text($, cards.eq(0))).toContain(
+        `${approved.length} of ${stamps.length}`
+      )
+      expect(text($, cards.eq(1))).toContain(String(inProgress.length))
+      expect(text($, cards.eq(2))).toContain(String(notStarted.length))
+    })
+
+    test('the route table shows all eleven steps in order', async () => {
+      const { $ } = await person.get('/calendar')
+      const steps = $('.app-calendar-table tbody th[scope="row"]')
+        .map((_, step) => text($, step))
+        .get()
+      expect(steps).toEqual(
+        data.calendarDashboard.routeSteps.map((step) => step.name)
+      )
+      expect(steps).toHaveLength(11)
+      for (const stepName of [
+        'Platform Readiness Review',
+        'Accessibility audit'
+      ]) {
+        const row = $('.app-calendar-table tbody tr').filter((_, item) =>
+          text($, $(item).find('th[scope="row"]')).startsWith(stepName)
+        )
+        expect(row.find('.app-calendar-status-list li')).toHaveLength(3)
+      }
+    })
+
     test('sharing sits at the foot of the passport, not with its facts', async () => {
       const { $ } = await person.get('/passport')
       expect($('.app-facts').text()).not.toContain('Share')

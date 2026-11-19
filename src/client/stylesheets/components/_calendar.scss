@@ -1,0 +1,149 @@
+@use 'variables/colours' as *;
+
+.app-calendar-summary {
+  margin-bottom: 30px;
+}
+
+.app-calendar-intro {
+  margin-bottom: 25px;
+  color: $app-secondary-text;
+}
+
+.app-calendar-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 35px;
+}
+
+.app-calendar-stat,
+.app-calendar-journey {
+  padding: 20px;
+  border: 1px solid $app-mid-grey;
+  background-color: $app-white;
+}
+
+.app-calendar-stat:last-child {
+  border-top: 5px solid $defra-green;
+}
+
+.app-calendar-stat__label {
+  margin: 0 0 5px;
+  color: $app-secondary-text;
+}
+
+.app-calendar-stat__value {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.app-calendar-stat__detail {
+  margin: 8px 0 0;
+}
+
+.app-calendar-stat__gate {
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.app-calendar-journey-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 35px;
+}
+
+.app-calendar-journey .govuk-heading-s {
+  margin-bottom: 5px;
+}
+
+.app-calendar-journey__supplier {
+  margin-bottom: 8px;
+  color: $app-secondary-text;
+}
+
+.app-calendar-journey__note {
+  margin: 15px 0 0;
+}
+
+.govuk-tag.app-calendar-tag--to-confirm {
+  border: 2px dashed $app-secondary-text;
+  background-color: $app-white;
+  color: $defra-black;
+  text-transform: none;
+}
+
+.app-calendar-table-scroll {
+  margin-bottom: 35px;
+  overflow-x: auto;
+  border: 1px solid $app-mid-grey;
+}
+
+.app-calendar-table-scroll:focus {
+  outline: 3px solid $defra-black;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px $app-yellow;
+}
+
+.app-calendar-table {
+  min-width: 1050px;
+  margin-bottom: 0;
+}
+
+.app-calendar-route-note {
+  margin-top: -20px;
+  margin-bottom: 30px;
+  color: $app-secondary-text;
+}
+
+.app-calendar-table .govuk-tag {
+  white-space: nowrap;
+}
+
+.app-calendar-status-list {
+  margin: 0;
+}
+
+.app-calendar-status-list li {
+  margin-bottom: 8px;
+  white-space: nowrap;
+}
+
+.app-calendar-status-list li:last-child {
+  margin-bottom: 0;
+}
+
+.app-calendar-status-list__journey {
+  display: inline-block;
+  min-width: 120px;
+  font-weight: 700;
+}
+
+.app-calendar-questions {
+  margin-bottom: 45px;
+  padding: 20px;
+  border: 1px solid $app-mid-grey;
+  background-color: $app-white;
+}
+
+.app-calendar-questions > :last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: $defra-mobile-max-width) {
+  .app-calendar-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .app-calendar-journey-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 400px) {
+  .app-calendar-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
